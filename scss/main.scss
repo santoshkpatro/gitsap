@@ -1,0 +1,37 @@
+// Custom.scss
+// Option A: Include all of Bootstrap
+
+// Include any default variable overrides here (these are applied before Bootstrap is imported)
+
+// 1. Remove input shadows by setting the box-shadow to none
+$input-box-shadow: none;
+$input-focus-box-shadow: none;
+$btn-focus-box-shadow: none;
+
+// 2. Make rounding a little sharper by decreasing border-radius values
+$border-radius: 0.2rem;
+$border-radius-sm: 0.15rem;
+$border-radius-lg: 0.25rem;
+$input-border-radius: 0.2rem;
+$input-border-radius-sm: 0.15rem;
+$input-border-radius-lg: 0.25rem;
+$btn-border-radius: 0.2rem;
+$btn-border-radius-sm: 0.15rem;
+$btn-border-radius-lg: 0.25rem;
+$card-border-radius: 0.2rem;
+
+// Import Bootstrap
+@import "../node_modules/bootstrap/scss/bootstrap";
+
+// Additional custom code can go here
+// For example, you could add more specific overrides:
+
+// Extra override to ensure all form controls have no shadow
+.form-control,
+.form-control:focus,
+.form-select,
+.form-select:focus,
+.btn:focus,
+.btn.focus {
+  box-shadow: none !important;
+}

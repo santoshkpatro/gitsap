@@ -1,0 +1,11 @@
+Django==5.1.7
+pygit2==1.17.0
+httpx==0.28.1
+redis==5.2.1
+celery==5.4.0
+psycopg==3.2.6
+djangorestframework==3.15.2
+django-htmx==1.23.0
+django-cors-headers==4.7.0
+whitenoise==6.9.0
+gunicorn==23.0.0
