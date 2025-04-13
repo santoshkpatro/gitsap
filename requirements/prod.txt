@@ -1,0 +1,10 @@
+Django==5.2
+redis==5.2.1
+celery==5.5.1
+pygit2==1.17.0
+psycopg2==2.9.10
+boto3==1.37.33
+django-storages==1.14.6
+pillow==11.1.0
+whitenoise==6.9.0
+gunicorn==23.0.0

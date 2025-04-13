@@ -1,0 +1,4 @@
+-r prod.txt
+
+# Development dependencies
+black==25.1.0
