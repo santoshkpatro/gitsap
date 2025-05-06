@@ -1,0 +1,64 @@
+from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.utils.text import slugify
+
+from shared.models import BaseUUIDModel
+
+
+class UserManager(BaseUserManager):
+    def create_superuser(self, email, password=None, **extra_fields):
+        """
+        Create and return a superuser with an email and password.
+        """
+        if not email:
+            raise ValueError("The Email field must be set")
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.is_admin = True
+        user.save(using=self._db)
+        return user
+
+
+class User(BaseUUIDModel, AbstractBaseUser):
+    username = models.CharField(max_length=128, unique=True, blank=True)
+    email = models.EmailField(max_length=128, unique=True)
+    first_name = models.CharField(max_length=128, blank=True, null=True)
+    last_name = models.CharField(max_length=128, blank=True, null=True)
+
+    activated_at = models.DateTimeField(null=True, blank=True)
+    verified_at = models.DateTimeField(null=True, blank=True)
+
+    is_admin = models.BooleanField(default=False)
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["first_name"]
+
+    objects = UserManager()
+
+    class Meta:
+        db_table = "users"
+
+    def __str__(self):
+        return f"{self.email}"
+
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            self.username = slugify(self.email.split("@")[0])
+        return super().save(*args, **kwargs)
+
+    def has_perm(self, perm, obj=None):
+        "Does the user have a specific permission?"
+        # Simplest possible answer: Yes, always
+        return True
+
+    def has_module_perms(self, app_label):
+        "Does the user have permissions to view the app `app_label`?"
+        # Simplest possible answer: Yes, always
+        return True
+
+    @property
+    def is_staff(self):
+        "Is the user a member of staff?"
+        # Simplest possible answer: All admins are staff
+        return self.is_admin
