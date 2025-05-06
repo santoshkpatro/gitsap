@@ -1,3 +1,11 @@
 from django.shortcuts import render
+from django.views import View
 
-# Create your views here.
+from accounts.forms import LoginForm
+
+
+class LoginView(View):
+    def get(self, request):
+        form = LoginForm()
+        context = {"form": form}
+        return render(request, "accounts/login.html", context)
