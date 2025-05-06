@@ -6,7 +6,7 @@ class LoginForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 "class": "form-control",
-                "placeholder": "Username or Email address",
+                "placeholder": "Enter your username or email",
                 "required": "required",
             }
         )
@@ -15,7 +15,7 @@ class LoginForm(forms.Form):
         widget=forms.PasswordInput(
             attrs={
                 "class": "form-control",
-                "placeholder": "Password",
+                "placeholder": "*********",
                 "required": "required",
             }
         )

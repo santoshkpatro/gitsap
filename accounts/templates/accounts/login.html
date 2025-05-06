@@ -1,72 +1,98 @@
 {% extends 'shared/base.html' %}
+{% load static %}
 
 {% block styles %}
 <style>
     .teal-to-white-bg {
-        background: linear-gradient(to bottom, #99e3cd, #ffffff);
+        background:
+            linear-gradient(to bottom, #99e3cd, #ffffff),
+            repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.1) 0px, rgba(255, 255, 255, 0.1) 1px, transparent 1px, transparent 20px),
+            repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0px, rgba(255, 255, 255, 0.1) 1px, transparent 1px, transparent 20px);
+        background-blend-mode: overlay;
     }
 </style>
 {% endblock styles %}
 
 {% block content %}
-<div class="d-flex justify-content-center align-items-center min-vh-100 teal-to-white-bg">
-    <div class="card w-100 shadow-lg" style="max-width: 720px;">
-        <div class="row g-0">
-            <!-- Left Section -->
-            <div
-                class="col-md-5 bg-primary text-white d-flex flex-column justify-content-center align-items-center p-4">
-                <i class="bi bi-person-circle fs-1 mb-3"></i>
-                <h4 class="fw-bold mb-2">Welcome Back</h4>
-                <p class="text-center mb-0">Log in to access your dashboard</p>
-            </div>
+<div class="position-relative min-vh-100 teal-to-white-bg">
 
-            <!-- Right Section -->
-            <div class="col-md-7 p-4">
-                <h5 class="mb-4 fw-semibold">Login</h5>
-                <form method="post" novalidate>
-                    {% csrf_token %}
+    <!-- Logo at top-left -->
+    <div class="position-absolute top-0 start-0 p-3" style="opacity: 0.75;">
+        <a href="/">
+            <img src="{% static 'shared/images/logo.png' %}" alt="Gitsap" height="32">
+        </a>
+    </div>
 
-                    <!-- Username/Email Field -->
-                    <div class="mb-3">
-                        <label for="{{ form.username.id_for_label }}" class="form-label">Username or Email
-                            address</label>
-                        {{ form.username }}
-                        {% if form.username.errors %}
-                        <div class="text-danger small mt-1">
-                            {{ form.username.errors.0 }}
+    <!-- Centered Login Card -->
+    <div class="d-flex justify-content-center align-items-center min-vh-100">
+        <div class="card w-100 shadow-lg" style="max-width: 600px;">
+            <div class="row g-0">
+                <!-- Left Section -->
+                <div
+                    class="col-md-2 bg-primary text-white d-flex flex-column justify-content-center align-items-center p-4">
+                    <i class="bi bi-shield-lock fs-1 mb-1"></i>
+                </div>
+
+                <!-- Right Section -->
+                <div class="col-md-10 p-4">
+                    <h5 class="fw-bold mb-1">Plan it. Ship it.</h5>
+                    <h5 class="text-muted mb-4">Log in to your Gitsap account</h5>
+
+                    <form method="post" action="{% url 'accounts-login' %}">
+                        {% csrf_token %}
+
+                        <!-- Username/Email Field -->
+                        <div class="mb-3">
+                            <label for="{{ form.username.id_for_label }}" class="form-label">Username or Email
+                                address</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                            <div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>
+                            {% endif %}
                         </div>
-                        {% endif %}
-                    </div>
 
-                    <!-- Password Field -->
-                    <div class="mb-1">
-                        <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
-                        {{ form.password }}
-                        {% if form.password.errors %}
-                        <div class="text-danger small mt-1">
-                            {{ form.password.errors.0 }}
+                        <!-- Password Field -->
+                        <div class="mb-1">
+                            <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
+                            {{ form.password }}
+                            {% if form.password.errors %}
+                            <div class="text-danger small mt-1">{{ form.password.errors.0 }}</div>
+                            {% endif %}
                         </div>
-                        {% endif %}
-                    </div>
 
-                    <!-- Forgot Password -->
-                    <div class="mb-3 text-end">
-                        <a href="/" class="small text-decoration-none">Forgot password?</a>
-                    </div>
+                        <!-- Forgot Password -->
+                        <div class="mb-3 text-end">
+                            <a href="/" class="small text-decoration-none">Forgot password?</a>
+                        </div>
 
-                    <!-- Submit Button -->
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">Login</button>
-                    </div>
+                        <!-- Submit Button -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-box-arrow-in-right me-2"></i> Continue
+                            </button>
+                        </div>
 
-                    <!-- Create Account -->
-                    <div class="text-center mt-3">
-                        <span class="small">Don't have an account?</span>
-                        <a href="/" class="small text-decoration-none">Create one</a>
-                    </div>
-                </form>
+                        <!-- Create Account -->
+                        <div class="text-center mt-3">
+                            <span class="small">Don't have an account?</span>
+                            <a href="/" class="small text-decoration-none">Create one</a>
+                        </div>
+
+                        <!-- Terms & Privacy Disclaimer -->
+                        <div class="text-center text-muted small mt-4 px-2">
+                            By continuing, you acknowledge that you understand and agree to our
+                            <a href="/terms" class="text-decoration-none">Terms & Conditions</a> and
+                            <a href="/privacy" class="text-decoration-none">Privacy Policy</a>.
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
+    </div>
+
+    <!-- Footer Contact Tagline -->
+    <div class="position-absolute bottom-0 start-50 translate-middle-x text-muted small pb-2">
+        Need help? Contact <a href="mailto:hey@gitsap.com" class="text-decoration-none">hey@gitsap.com</a>
     </div>
 </div>
 {% endblock content %}
