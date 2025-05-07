@@ -309,3 +309,8 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+
+# Files and Media
+/media
+/var
