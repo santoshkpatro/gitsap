@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth import login, logout
 
 from accounts.models import User
-from accounts.forms import LoginForm
+from accounts.forms import LoginForm, RegisterForm
 
 
 class LoginView(View):
@@ -52,4 +52,50 @@ class LoginView(View):
 
         login(request, user)
 
+        return redirect("home-index")
+
+
+class RegisterView(View):
+    def get(self, request):
+        form = RegisterForm()
+        context = {"form": form}
+        return render(request, "accounts/register.html", context)
+
+    def post(self, request):
+        form = RegisterForm(request.POST)
+        context = {"form": form}
+
+        if not form.is_valid():
+            messages.error(request, "Please enter a valid field details.")
+            return render(request, "accounts/register.html", context)
+
+        cleaned_data = form.cleaned_data
+        email = cleaned_data.get("email")
+        password1 = cleaned_data.get("password1")
+        password2 = cleaned_data.get("password2")
+
+        if not password1 or not password2:
+            form.add_error("password2", "Password did not match.")
+            return render(request, "accounts/register.html", context)
+
+        # Check if user already exists
+        if User.objects.filter(email=email).exists():
+            form.add_error("email", "Email already exists.")
+            return render(request, "accounts/register.html", context)
+
+        # Check if passwords match
+        if password1 != password2:
+            form.add_error("password2", "Passwords do not match.")
+            return render(request, "accounts/register.html", context)
+
+        # Create user
+        user = User(
+            email=email,
+            first_name=cleaned_data.get("first_name"),
+            last_name=cleaned_data.get("last_name"),
+        )
+        user.set_password(password1)
+        user.save()
+
+        messages.success(request, "User registered successfully.")
         return redirect("home-index")

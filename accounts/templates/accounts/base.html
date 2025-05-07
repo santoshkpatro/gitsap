@@ -1,0 +1,51 @@
+{% extends 'shared/base.html' %}
+{% load static %}
+
+{% block styles %}
+<style>
+    .teal-to-white-bg {
+        background:
+            linear-gradient(to bottom, #99e3cd, #ffffff),
+            repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.1) 0px, rgba(255, 255, 255, 0.1) 1px, transparent 1px, transparent 20px),
+            repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0px, rgba(255, 255, 255, 0.1) 1px, transparent 1px, transparent 20px);
+        background-blend-mode: overlay;
+    }
+</style>
+{% endblock styles %}
+
+{% block content %}
+<div class="position-relative min-vh-100 teal-to-white-bg">
+
+    <!-- Logo at top-left -->
+    <div class="position-absolute top-0 start-0 p-3" style="opacity: 0.75;">
+        <a href="/">
+            <img src="{% static 'shared/images/logo.png' %}" alt="Gitsap" height="32">
+        </a>
+    </div>
+
+    <!-- Centered Login Card -->
+    <div class="d-flex justify-content-center align-items-center min-vh-100">
+        <div class="card w-100 shadow-lg" style="max-width: 600px;">
+            <div class="row g-0">
+                <!-- Left Section -->
+                <div
+                    class="col-md-2 bg-primary text-white d-flex flex-column justify-content-center align-items-center p-4">
+                    {% block icon %}
+                    {% endblock icon %}
+                </div>
+
+                <!-- Right Section -->
+                <div class="col-md-10 p-4">
+                    {% block form %}
+                    {% endblock form %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Contact Tagline -->
+    <div class="position-absolute bottom-0 start-50 translate-middle-x text-muted small pb-2">
+        Need help? Contact <a href="mailto:hey@gitsap.com" class="text-decoration-none">hey@gitsap.com</a>
+    </div>
+</div>
+{% endblock content %}
