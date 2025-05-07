@@ -15,6 +15,16 @@ $border-radius: 0.2rem;
 $btn-border-radius: 0.2rem;
 $input-border-radius: 0.2rem;
 
+// Alerts
+$alert-padding-y: 0.25rem;
+$alert-padding-x: 0.75rem;
+$alert-font-size: 0.85rem;
+$alert-border-radius: 0.25rem;
+$btn-close-width: 0.75rem;
+$btn-close-height: 0.75rem;
+$btn-close-padding-x: 0.25rem;
+$btn-close-padding-y: 0.25rem;
+
 // Include any default variable overrides here (though functions won’t be available)
 
 @import "../../../../node_modules/bootstrap/scss/bootstrap";
