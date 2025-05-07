@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib import messages
 from django.contrib.auth import login, logout
+from django.utils import timezone
 
 from accounts.models import User
 from accounts.forms import LoginForm, RegisterForm
@@ -71,16 +72,16 @@ class RegisterView(View):
 
         cleaned_data = form.cleaned_data
         email = cleaned_data.get("email")
-        password1 = cleaned_data.get("password1")
-        password2 = cleaned_data.get("password2")
+        password1 = cleaned_data.pop("password1")
+        password2 = cleaned_data.pop("password2")
 
         if not password1 or not password2:
             form.add_error("password2", "Password did not match.")
             return render(request, "accounts/register.html", context)
 
-        # Check if user already exists
-        if User.objects.filter(email=email).exists():
-            form.add_error("email", "Email already exists.")
+        user = User.objects.filter(email=email).first()
+        if user and user.is_active:
+            form.add_error("email", "Account already exists with this email.")
             return render(request, "accounts/register.html", context)
 
         # Check if passwords match
@@ -89,13 +90,19 @@ class RegisterView(View):
             return render(request, "accounts/register.html", context)
 
         # Create user
-        user = User(
-            email=email,
-            first_name=cleaned_data.get("first_name"),
-            last_name=cleaned_data.get("last_name"),
-        )
+        if user is None:
+            user = User(
+                email=email,
+                first_name=cleaned_data.get("first_name"),
+                last_name=cleaned_data.get("last_name", None),
+            )
+        else:
+            user.first_name = cleaned_data.get("first_name")
+            user.last_name = cleaned_data.get("last_name", None)
+
+        user.activated_at = timezone.now()
         user.set_password(password1)
         user.save()
 
         messages.success(request, "User registered successfully.")
-        return redirect("home-index")
+        return redirect("accounts-login")
