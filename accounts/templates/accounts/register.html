@@ -6,7 +6,9 @@
 
 {% block form %}
 <h5 class="fw-bold mb-1">Start your journey with Gitsap</h5>
-<h5 class="text-muted mb-4">Create your account</h5>
+<h5 class="text-muted mb-3">Create your account</h5>
+
+{% include 'shared/_alerts.html' %}
 
 <form method="post" action="{% url 'accounts-register' %}">
     {% csrf_token %}

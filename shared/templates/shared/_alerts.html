@@ -1,0 +1,12 @@
+{% if messages %}
+<div class="container-fluid px-0">
+    {% for message in messages %}
+    <div class="alert {{ message.tags }} alert-dismissible fade show position-relative pe-5 py-2 px-3 mt-2 mb-2"
+        role="alert" style="font-size: 0.875rem; color: #555;">
+        {{ message }}
+        <i class="bi bi-x-lg position-absolute top-50 end-0 translate-middle-y me-3 text-muted cursor-pointer"
+            data-bs-dismiss="alert" aria-label="Close"></i>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}

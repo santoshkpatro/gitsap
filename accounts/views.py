@@ -104,5 +104,8 @@ class RegisterView(View):
         user.set_password(password1)
         user.save()
 
-        messages.success(request, "User registered successfully.")
+        messages.success(
+            request,
+            "Your account has been created successfully. Please check your inbox (and spam folder) to verify your email before logging in.",
+        )
         return redirect("accounts-login")
