@@ -1,0 +1,76 @@
+{% extends 'accounts/base.html' %}
+
+{% block icon %}
+<i class="bi bi-puzzle fs-1 mb-1"></i>
+{% endblock icon %}
+
+{% block form %}
+<h5 class="fw-bold mb-1">Start your journey with Gitsap</h5>
+<h5 class="text-muted mb-4">Create your account</h5>
+
+<form method="post" action="{% url 'accounts-register' %}">
+    {% csrf_token %}
+
+    <!-- Email Row -->
+    <div class="mb-3">
+        <label for="{{ form.email.id_for_label }}" class="form-label">Email address</label>
+        {{ form.email }}
+        {% if form.email.errors %}
+        <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+        {% endif %}
+    </div>
+
+    <!-- First Name & Last Name Row -->
+    <div class="row mb-3">
+        <div class="col">
+            <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name</label>
+            {{ form.first_name }}
+            {% if form.first_name.errors %}
+            <div class="text-danger small mt-1">{{ form.first_name.errors.0 }}</div>
+            {% endif %}
+        </div>
+        <div class="col">
+            <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name (optional)</label>
+            {{ form.last_name }}
+            {% if form.last_name.errors %}
+            <div class="text-danger small mt-1">{{ form.last_name.errors.0 }}</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Password Row -->
+    <div class="mb-3">
+        <label for="{{ form.password1.id_for_label }}" class="form-label">Password</label>
+        {{ form.password1 }}
+        {% if form.password1.errors %}
+        <div class="text-danger small mt-1">{{ form.password1.errors.0 }}</div>
+        {% endif %}
+    </div>
+
+    <div class="mb-3">
+        <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password</label>
+        {{ form.password2 }}
+        {% if form.password2.errors %}
+        <div class="text-danger small mt-1">{{ form.password2.errors.0 }}</div>
+        {% endif %}
+    </div>
+
+    <!-- Submit Button -->
+    <div class="d-grid">
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-person-check me-2"></i> Continue
+        </button>
+    </div>
+
+    <div class="text-center mt-3">
+        <span class="small">Already have an account?</span>
+        <a href="{% url 'accounts-login' %}" class="small text-decoration-none">Log in</a>
+    </div>
+
+    <!-- Terms & Privacy Disclaimer -->
+    <div class="text-center text-muted small mt-4 px-2">
+        By continuing, you acknowledge that you understand and agree to our
+        <a href="/terms" class="text-decoration-none">Terms & Conditions</a> and
+        <a href="/privacy" class="text-decoration-none">Privacy Policy</a>.
+    </div>
+    {% endblock form %}
