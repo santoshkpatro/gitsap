@@ -151,7 +151,7 @@ class Project(BaseUUIDModel):
         return None
 
     @property
-    def root_tree_contents(self):
+    def root_tree_objects(self):
         """
         Returns the contents of the root tree of the project's default branch.
 
