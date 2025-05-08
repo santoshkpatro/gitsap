@@ -25,6 +25,7 @@ class User(BaseUUIDModel, AbstractBaseUser):
     email = models.EmailField(max_length=128, unique=True)
     first_name = models.CharField(max_length=128, blank=True, null=True)
     last_name = models.CharField(max_length=128, blank=True, null=True)
+    avatar = models.ImageField(upload_to="user_avatars/", blank=True, null=True)
 
     activated_at = models.DateTimeField(null=True, blank=True)
     verified_at = models.DateTimeField(null=True, blank=True)

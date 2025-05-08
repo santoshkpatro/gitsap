@@ -10,7 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
-import os
+import os, boto3
 from pathlib import Path
 from django.contrib.messages import constants as messages
 from dotenv import load_dotenv
@@ -147,6 +147,7 @@ AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
 AWS_S3_REGION_NAME = os.environ.get("AWS_S3_REGION_NAME", None)
+AWS_S3_ENDPOINT_URL = os.environ.get("AWS_S3_ENDPOINT_URL", None)
 
 STORAGES = {
     "default": {
@@ -156,9 +157,17 @@ STORAGES = {
             "secret_key": AWS_SECRET_ACCESS_KEY,
             "bucket_name": AWS_STORAGE_BUCKET_NAME,
             "region_name": AWS_S3_REGION_NAME,
+            "endpoint_url": AWS_S3_ENDPOINT_URL,
         },
     },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.StaticFilesStorage",
     },
 }
+S3_CLIENT = boto3.client(
+    "s3",
+    aws_access_key_id=AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+    region_name=AWS_S3_REGION_NAME,
+    endpoint_url=AWS_S3_ENDPOINT_URL,
+)
