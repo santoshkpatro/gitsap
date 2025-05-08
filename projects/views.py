@@ -9,5 +9,5 @@ class ProjectOverview(View):
         project = get_object_or_404(
             Project, handle=kwargs["project_handle"], owner__username=kwargs["username"]
         )
-        context = {"project": project}
+        context = {"project": project, "repo_objects": project.root_tree_objects}
         return render(request, "projects/overview.html", context)
