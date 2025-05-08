@@ -1,14 +1,20 @@
-import os, uuid, tarfile, pygit2, tempfile
+import os, uuid, tarfile, pygit2, tempfile, subprocess
 from pathlib import Path
 from django.db import models
-from django.core.files.storage import default_storage
-from django.core.files.base import File
 from django.conf import settings
 from django.utils.text import slugify
+from datetime import datetime
+from pathlib import Path
 
 from shared.models import BaseUUIDModel
 
 PROJECT_REPO_BASE = settings.BASE_DIR / "var"
+GIT_OBJ_TYPE_MAP = {
+    pygit2.GIT_OBJECT_COMMIT: "commit",
+    pygit2.GIT_OBJECT_TREE: "tree",
+    pygit2.GIT_OBJECT_BLOB: "blob",
+    pygit2.GIT_OBJECT_TAG: "tag",
+}
 
 
 class Project(BaseUUIDModel):
@@ -112,6 +118,110 @@ class Project(BaseUUIDModel):
 
         # Step 5: Return pygit2.Repository instance
         return pygit2.Repository(str(repo_dir))
+
+    def get_latest_commit_info(self, repo_path, relative_path):
+        """
+        Returns the latest commit info for a given file/directory path.
+
+        Args:
+            repo_path (str): Absolute path to the .git working tree (not .git folder).
+            relative_path (str): Path relative to repo root (e.g., 'README.md').
+
+        Returns:
+            Optional[Dict]: A dictionary with commit hash, timestamp, and message.
+        """
+        try:
+            result = subprocess.run(
+                ["git", "log", "-1", "--format=%H|%ct|%s", "--", relative_path],
+                cwd=repo_path,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                text=True,
+                check=True,
+            )
+            if result.stdout.strip():
+                commit_hash, timestamp, message = result.stdout.strip().split("|", 2)
+                return {
+                    "hash": commit_hash,
+                    "timestamp": datetime.fromtimestamp(int(timestamp)),
+                    "message": message.strip(),
+                }
+        except subprocess.CalledProcessError:
+            pass
+        return None
+
+    @property
+    def root_tree_contents(self):
+        """
+        Returns the contents of the root tree of the project's default branch.
+
+        Args:
+            project (Project): An instance of the Project model.
+
+        Returns:
+            List[Dict]: A list of dictionaries with name, type, and id of each tree entry.
+        """
+        repo = self.repo  # pygit2.Repository instance
+        branch_name = self.default_branch
+        workdir = str(repo.path)  # .git is inside repo.path
+
+        # Get the root commit of the default branch
+        ref = repo.references.get(f"refs/heads/{branch_name}")
+        if not ref:
+            raise ValueError(f"Branch '{branch_name}' not found.")
+        commit = repo[ref.target]
+        tree = commit.tree
+
+        # Sort: folders first, then alphabetically
+        sorted_entries = sorted(
+            tree, key=lambda e: (e.type != pygit2.GIT_OBJECT_TREE, e.name.lower())
+        )
+
+        results = []
+        for entry in sorted_entries:
+            path = entry.name
+            latest_commit = self.get_latest_commit_info(workdir, path)
+
+            results.append(
+                {
+                    "name": entry.name,
+                    "type": GIT_OBJ_TYPE_MAP.get(entry.type, f"unknown({entry.type})"),
+                    "id": str(entry.id),
+                    "last_commit": latest_commit or {},
+                }
+            )
+        return results
+
+    @property
+    def _local_git_path(self):
+        repo_dir = settings.BASE_DIR / "var" / "git-repos" / f"{self.pk}.git"
+
+        if not repo_dir.exists():
+            # Step 1: Create parent directory if needed
+            repo_dir.parent.mkdir(parents=True, exist_ok=True)
+
+            # Step 2: Download the tar.gz from S3 to temp file
+            with tempfile.NamedTemporaryFile(
+                suffix=".tar.gz", delete=False
+            ) as tmp_file:
+                tmp_path = Path(tmp_file.name)
+
+                settings.S3_CLIENT.download_file(
+                    settings.AWS_STORAGE_BUCKET_NAME,
+                    self.resource.name,  # e.g., "project_resources/uuid.tar.gz"
+                    str(tmp_path),
+                )
+
+            # Step 3: Extract contents into repo_dir
+            repo_dir.mkdir(parents=True, exist_ok=True)
+
+            with tarfile.open(tmp_path, "r:gz") as tar:
+                tar.extractall(path=repo_dir)
+
+            # Step 4: Cleanup
+            tmp_path.unlink(missing_ok=True)
+
+        return str((Path(repo_dir)).resolve())
 
 
 class ProjectCollaborator(BaseUUIDModel):

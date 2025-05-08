@@ -1,5 +1,46 @@
 {% extends 'shared/project_base.html' %}
+{% load humanize %}
 
 {% block content %}
-<div>Project Base</div>
+<div class="row">
+    <div class="col-md-9">
+        <ul class="list-group">
+            {% for content in project.root_tree_contents %}
+            <li class="list-group-item px-2 py-2">
+                <div class="d-flex align-items-center text-nowrap">
+
+                    <!-- File Icon + Name (30%) -->
+                    <div style="width: 30%;" class="d-flex align-items-center me-3 flex-shrink-0">
+                        {% if content.type == 'tree' %}
+                        <i class="bi bi-folder-fill text-primary me-2"></i>
+                        {% elif content.type == 'blob' %}
+                        <i class="bi bi-file-earmark text-secondary me-2"></i>
+                        {% endif %}
+                        <div class="text-body text-truncate">{{ content.name }}</div>
+                    </div>
+
+                    <!-- Commit Message (50%) -->
+                    <div style="width: 50%;" class="text-muted small me-3 text-truncate">
+                        {{ content.last_commit.message|truncatechars:80 }}
+                    </div>
+
+                    <!-- Timestamp (20%) -->
+                    <div style="width: 20%;" class="text-secondary small text-end flex-shrink-0">
+                        {{ content.last_commit.timestamp|naturaltime }}
+                    </div>
+
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Right Sidebar -->
+    <div class="col-md-3">
+        <h5 class="mb-2"><strong>About</strong></h5>
+        {% if project.description %}
+        <div class="text-muted">{{ project.description }}</div>
+        {% endif %}
+    </div>
+</div>
 {% endblock content %}
