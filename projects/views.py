@@ -1,11 +1,13 @@
-import subprocess
+import subprocess, base64
 from django.shortcuts import render, get_object_or_404
 from django.views import View
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseNotFound, HttpResponseForbidden
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.contrib.auth import login
 
 from projects.models import Project
+from accounts.models import User
 
 
 class ProjectOverview(View):
@@ -19,6 +21,35 @@ class ProjectOverview(View):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class GitInfoRefsView(View):
+    def validate_auth_credentials(self, request):
+        pass
+        # Check if authentication header is present
+        auth_header = request.META.get("HTTP_AUTHORIZATION", "")
+
+        if not auth_header.startswith("Basic "):
+            return None
+
+        # Decode the credentials
+        try:
+            auth_decoded = base64.b64decode(auth_header[6:]).decode("utf-8")
+            username, password = auth_decoded.split(":", 1)
+        except (ValueError, UnicodeDecodeError):
+            return None
+
+        print(f"Username: {username}, Password: {password}")
+
+        user = User.objects.filter(username=username).first()
+        if not user:
+            return None
+
+        if not user.is_active:
+            return None
+
+        if not user.check_password(password):
+            return None
+
+        return user
+
     """
     Handle Git info/refs requests, which are used by clients to discover
     the capabilities of the server and initiate git clone/fetch operations.
@@ -37,6 +68,19 @@ class GitInfoRefsView(View):
         Returns:
             HttpResponse: Git protocol data
         """
+        auth_user = self.validate_auth_credentials(request)
+
+        if not auth_user and not self.request.user.is_authenticated:
+            return HttpResponse(
+                "Authentication required",
+                status=401,
+                headers={"WWW-Authenticate": 'Basic realm="Git Access"'},
+            )
+
+        if not auth_user:
+            return HttpResponseForbidden("Invalid credentials")
+
+        login(request, auth_user)
 
         # Get the service requested by the client (git-upload-pack for clone/fetch)
         service = request.GET.get("service")
