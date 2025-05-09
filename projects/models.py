@@ -3,6 +3,7 @@ from pathlib import Path
 from django.db import models
 from django.conf import settings
 from django.utils.text import slugify
+from django.utils import timezone
 from datetime import datetime
 from pathlib import Path
 
@@ -30,6 +31,8 @@ class Project(BaseUUIDModel):
     description = models.TextField(blank=True, null=True)
     visibility = models.CharField(choices=Visibility.choices, max_length=16)
     default_branch = models.CharField(max_length=128, default="main")
+
+    resource_id = models.CharField(max_length=64, blank=True)
     resource = models.FileField(upload_to="projects_resources/", blank=True)
 
     collaborators = models.ManyToManyField(
@@ -50,6 +53,7 @@ class Project(BaseUUIDModel):
     def save(self, *args, **kwargs):
         if self._state.adding:
             self.handle = slugify(self.name)
+            self.resource_id = uuid.uuid4().hex
         return super().save(*args, **kwargs)
 
     @property
@@ -68,8 +72,7 @@ class Project(BaseUUIDModel):
         pygit2.init_repository(str(repo_dir), bare=True)
 
         # Step 2: Create tar.gz archive of its contents (not the folder itself)
-        path_uuid = uuid.uuid4().hex
-        s3_key = f"project_resources/{path_uuid}.tar.gz"
+        s3_key = f"project_resources/{self.resource_id}_{int(timezone.now().timestamp())}.tar.gz"
 
         with tempfile.NamedTemporaryFile(suffix=".tar.gz", delete=False) as tmp_file:
             tmp_file_path = Path(tmp_file.name)
@@ -91,6 +94,32 @@ class Project(BaseUUIDModel):
         tmp_file_path.unlink(missing_ok=True)
 
         # Step 5: Save to model
+        self.resource.name = s3_key
+        self.save(update_fields=["resource"])
+
+    def update_cloud_resource_artifact(self):
+        repo_id = f"{self.pk}.git"
+        repo_dir = settings.BASE_DIR / "var" / "git-repos" / repo_id
+
+        # Step 1: Create tar.gz archive of its contents (not the folder itself)
+        s3_key = f"project_resources/{self.resource_id}_{int(timezone.now().timestamp())}.tar.gz"
+
+        with tempfile.NamedTemporaryFile(suffix=".tar.gz", delete=False) as tmp_file:
+            tmp_file_path = Path(tmp_file.name)
+
+            with tarfile.open(tmp_file_path, "w:gz") as tar:
+                for item in repo_dir.iterdir():
+                    tar.add(item, arcname=item.name)
+                # Zip contents only, not .git folder
+            # Step 2: Upload to S3
+            settings.S3_CLIENT.upload_file(
+                Filename=str(tmp_file_path),
+                Bucket=settings.AWS_STORAGE_BUCKET_NAME,
+                Key=s3_key,
+            )
+        # Step 3: Clean up local temp file
+        tmp_file_path.unlink(missing_ok=True)
+        # Step 4: Save to model
         self.resource.name = s3_key
         self.save(update_fields=["resource"])
 
