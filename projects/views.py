@@ -1,13 +1,52 @@
 import subprocess, base64
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views import View
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseForbidden
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.contrib.auth import login
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
+from django.utils.text import slugify
 
-from projects.models import Project
 from accounts.models import User
+from projects.models import Project
+from projects.forms import ProjectCreateForm
+
+
+class ProjectCreateView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        context = {
+            "form": ProjectCreateForm(),
+        }
+        return render(request, "projects/create.html", context)
+
+    def post(self, request, *args, **kwargs):
+        form = ProjectCreateForm(request.POST)
+        context = {"form": form}
+        if not form.is_valid():
+            messages.error(request, "Please correct the errors below.")
+            return render(request, "projects/create.html", context)
+
+        cleaned_data = form.cleaned_data
+        existing_project = Project.objects.filter(
+            owner=request.user, handle=slugify(cleaned_data["name"])
+        )
+        if existing_project.exists():
+            form.add_error("name", "You already have a project with this name.")
+            return render(request, "projects/create.html", context)
+
+        project = Project(
+            **cleaned_data,
+        )
+        project.owner = request.user
+        project.save()
+
+        return redirect(
+            "project-overview",
+            username=request.user.username,
+            project_handle=project.handle,
+        )
 
 
 class ProjectOverview(View):
