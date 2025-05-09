@@ -3,7 +3,12 @@ from django.urls import path
 
 from home.views import IndexView
 from accounts.views import LoginView, RegisterView
-from projects.views import ProjectOverview, GitInfoRefsView, GitUploadPackView
+from projects.views import (
+    ProjectOverview,
+    GitInfoRefsView,
+    GitUploadPackView,
+    GitReceivePackView,
+)
 
 # fmt: off
 urlpatterns = [
@@ -15,5 +20,7 @@ urlpatterns = [
     # Git endpoints for handling git operations
     path("<str:username>/<str:project_handle>.git/info/refs", GitInfoRefsView.as_view(), name="project-git-info-refs"),
     path("<str:username>/<str:project_handle>.git/git-upload-pack", GitUploadPackView.as_view(), name="project-git-upload-pack"),
+    path("<str:username>/<str:project_handle>.git/git-receive-pack", GitReceivePackView.as_view(), name="project-git-receive-pack"),
+
     path("", IndexView.as_view(), name="home-index"),
 ]

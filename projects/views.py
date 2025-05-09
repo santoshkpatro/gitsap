@@ -19,8 +19,18 @@ class ProjectOverview(View):
         return render(request, "projects/overview.html", context)
 
 
+class GitOpsAuthenticationMixin:
+    def has_project_git_action_permissions(self, project, user, is_write):
+        is_public_project = project.visibility == Project.Visibility.PUBLIC
+
+        if not is_write and is_public_project:
+            return True
+
+        return project.project_collaborators.filter(user=user).exists()
+
+
 @method_decorator(csrf_exempt, name="dispatch")
-class GitInfoRefsView(View):
+class GitInfoRefsView(GitOpsAuthenticationMixin, View):
     def validate_auth_credentials(self, request):
         pass
         # Check if authentication header is present
@@ -35,8 +45,6 @@ class GitInfoRefsView(View):
             username, password = auth_decoded.split(":", 1)
         except (ValueError, UnicodeDecodeError):
             return None
-
-        print(f"Username: {username}, Password: {password}")
 
         user = User.objects.filter(username=username).first()
         if not user:
@@ -96,6 +104,10 @@ class GitInfoRefsView(View):
             Project, handle=kwargs["project_handle"], owner__username=kwargs["username"]
         )
 
+        # Check if the user has permission to perform the requested action
+        if not self.has_project_git_action_permissions(project, auth_user, is_write):
+            return HttpResponseForbidden("Permission denied")
+
         # Execute git command to get refs
         cmd = [service, "--stateless-rpc", "--advertise-refs", project._local_git_path]
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
@@ -151,5 +163,51 @@ class GitUploadPackView(View):
         # Return the git command output
         response = HttpResponse(stdout_data)
         response["Content-Type"] = "application/x-git-upload-pack-result"
+
+        return response
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class GitReceivePackView(View):
+    """
+    Handle Git receive-pack requests, which are used to transfer objects
+    from the client to the server during git push operations.
+    """
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests for git-receive-pack.
+
+        This endpoint is called by git clients to upload objects during
+        push operations.
+
+        Args:
+            request: The HTTP request
+            repo_name: Repository name
+
+        Returns:
+            HttpResponse: Git protocol response for the push
+        """
+        project = get_object_or_404(
+            Project, handle=kwargs["project_handle"], owner__username=kwargs["username"]
+        )
+
+        # Execute git command to handle the receive-pack request
+        cmd = ["git-receive-pack", "--stateless-rpc", project._local_git_path]
+        p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+
+        # Pass the client's request body to git command
+        stdout_data = p.communicate(input=request.body)[0]
+
+        # Step 2: Re-archive and update to S3
+        try:
+            project.update_cloud_resource_artifact()
+        except Exception as e:
+            # Optional: log this or set alert
+            print(f"Warning: Failed to update archive after push: {e}")
+
+        # Return the git command output
+        response = HttpResponse(stdout_data)
+        response["Content-Type"] = "application/x-git-receive-pack-result"
 
         return response
