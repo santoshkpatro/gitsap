@@ -53,6 +53,14 @@ class Project(BaseUUIDModel):
             self.handle = slugify(self.name)
         return super().save(*args, **kwargs)
 
+    @property
+    def ssh_clone_url(self):
+        return f"ssh://git@gitsap.com/{self.owner.username}/{self.handle}.git"
+
+    @property
+    def https_clone_url(self):
+        return f"http://localhost:8000/{self.owner.username}/{self.handle}.git"
+
     def _setup_cloud_resource_artifact(self):
         # Step 1: Create local bare repo at var/git-repos/{pk}.git
         repo_id = f"{self.pk}.git"
