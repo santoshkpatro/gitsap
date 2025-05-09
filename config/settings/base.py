@@ -172,3 +172,8 @@ S3_CLIENT = boto3.client(
     region_name=AWS_S3_REGION_NAME,
     endpoint_url=AWS_S3_ENDPOINT_URL,
 )
+
+# Host Configuration
+BASE_URL = os.environ.get("BASE_URL", "http://localhost:8000")
+HTTPS_GIT_HOST_URL = os.environ.get("HTTPS_GIT_HOST_URL", "http://localhost:8000")
+SSH_GIT_HOST_URL = os.environ.get("SSH_GIT_HOST_URL", "ssh://git@localhost:8000")

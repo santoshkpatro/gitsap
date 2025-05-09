@@ -8,7 +8,6 @@ from pathlib import Path
 
 from shared.models import BaseUUIDModel
 
-PROJECT_REPO_BASE = settings.BASE_DIR / "var"
 GIT_OBJ_TYPE_MAP = {
     pygit2.GIT_OBJECT_COMMIT: "commit",
     pygit2.GIT_OBJECT_TREE: "tree",
@@ -55,11 +54,11 @@ class Project(BaseUUIDModel):
 
     @property
     def ssh_clone_url(self):
-        return f"ssh://git@gitsap.com/{self.owner.username}/{self.handle}.git"
+        return f"{settings.SSH_GIT_HOST_URL}/{self.owner.username}/{self.handle}.git"
 
     @property
     def https_clone_url(self):
-        return f"http://localhost:8000/{self.owner.username}/{self.handle}.git"
+        return f"{settings.HTTPS_GIT_HOST_URL}/{self.owner.username}/{self.handle}.git"
 
     def _setup_cloud_resource_artifact(self):
         # Step 1: Create local bare repo at var/git-repos/{pk}.git
