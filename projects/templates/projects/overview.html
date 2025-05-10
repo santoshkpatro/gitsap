@@ -4,20 +4,21 @@
 {% block content %}
 <div class="row">
     <div class="col-md-9">
-        <div class="d-flex justify-content-between align-items-center mb-3 gap-2">
-            <div class="d-flex align-items-center gap-2 flex-wrap w-100">
-                <!-- Branch & Tag Dropdown -->
+
+        <!-- Top Toolbar -->
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+
+            <!-- Left: Branch Info -->
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <!-- Current Branch -->
                 <div class="dropdown">
-                    <button class="btn btn-light dropdown-toggle d-flex align-items-center gap-2" type="button"
+                    <button class="btn btn-light btn-sm dropdown-toggle d-flex align-items-center gap-2" type="button"
                         data-bs-toggle="dropdown" aria-expanded="false">
                         <i data-lucide="git-branch"></i>
-                        <span class="fw-semibold small text-capitalize">
-                            {{ project.default_branch|default:"main" }}
-                        </span>
+                        <span class="fw-semibold text-capitalize">{{ project.default_branch|default:"main" }}</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end p-2" style="min-width: 220px;">
-                        <!-- Branches -->
-                        <li class="mb-2 px-2 text-muted small fw-semibold d-flex align-items-center">
+                        <li class="px-2 text-muted small fw-semibold d-flex align-items-center mb-2">
                             <i data-lucide="git-branch" class="me-2"></i> Branches
                         </li>
                         {% for branch in project.repo_branches %}
@@ -35,8 +36,7 @@
                             <hr class="dropdown-divider my-2">
                         </li>
 
-                        <!-- Tags -->
-                        <li class="mb-2 px-2 text-muted small fw-semibold d-flex align-items-center">
+                        <li class="px-2 text-muted small fw-semibold d-flex align-items-center mb-2">
                             <i data-lucide="tag" class="me-2"></i> Tags
                         </li>
                         {% for tag in project.repo_tags %}
@@ -51,17 +51,28 @@
                     </ul>
                 </div>
 
-                <div class="flex-grow-1 overflow-hidden">
-                    {% include 'projects/_last_commit.html' %}
-                </div>
+                <!-- Branch & Tag Counts -->
+                <span class="text-muted small d-flex align-items-center">
+                    <i data-lucide="git-branch" class="me-1"></i>{{ project.repo_branches|length }}
+                    branches
+                </span>
+                <span class="text-muted small d-flex align-items-center">
+                    <i data-lucide="tag" class="me-1"></i>{{ project.repo_tags|length }}
+                    tags
+                </span>
+            </div>
 
+            <!-- Right: Search + Code -->
+            <div class="d-flex align-items-center gap-2 flex-grow-1 justify-content-end">
+                <input type="search" class="form-control form-control-sm w-auto" placeholder="Search code...">
+
+                <!-- Code Dropdown -->
                 <div class="dropdown">
-                    <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                        aria-expanded="false">
+                    <button class="btn btn-primary btn-sm dropdown-toggle d-flex align-items-center gap-1" type="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
                         <i data-lucide="code" class="me-1"></i> Code
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end p-3" style="min-width: 320px;">
-                        <!-- SSH -->
                         <li class="mb-3">
                             <div class="d-flex align-items-center mb-1">
                                 <i data-lucide="key" class="me-2"></i>
@@ -70,8 +81,6 @@
                             <input type="text" class="form-control form-control-sm" readonly
                                 value="{{ project.ssh_clone_url }}">
                         </li>
-
-                        <!-- HTTPS -->
                         <li class="mb-3">
                             <div class="d-flex align-items-center mb-1">
                                 <i data-lucide="globe" class="me-2"></i>
@@ -80,30 +89,31 @@
                             <input type="text" class="form-control form-control-sm" readonly
                                 value="{{ project.https_clone_url }}">
                         </li>
-
-                        <!-- Download -->
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-                        <li>
+                        <li class="mb-2">
                             <div class="d-flex align-items-center mb-1">
                                 <i data-lucide="download" class="me-2"></i>
                                 <span class="fw-semibold small">Download</span>
                             </div>
                         </li>
                         <li>
-                            <a class="dropdown-item" href="#">
-                                <i data-lucide="file-archive" class="me-2"></i> Download ZIP
-                            </a>
+                            <a class="dropdown-item" href="#"><i data-lucide="file-archive" class="me-2"></i> Download
+                                ZIP</a>
                         </li>
                         <li>
-                            <a class="dropdown-item" href="#">
-                                <i data-lucide="folder-archive" class="me-2"></i> Download TAR.GZ
-                            </a>
+                            <a class="dropdown-item" href="#"><i data-lucide="folder-archive" class="me-2"></i> Download
+                                TAR.GZ</a>
                         </li>
                     </ul>
                 </div>
             </div>
+        </div>
+
+        <!-- Last Commit -->
+        <div class="mb-1">
+            {% include 'projects/_last_commit.html' %}
         </div>
 
         {% if not repo_objects %}
@@ -118,9 +128,22 @@
         <h6 class="mb-2 d-flex align-items-center gap-1">
             <i data-lucide="info" class="me-1"></i><strong>About</strong>
         </h6>
+
         {% if project.description %}
-        <div class="text-muted small">{{ project.description }}</div>
+        <div class="text-muted small mb-3">{{ project.description }}</div>
         {% endif %}
+
+        <ul class="list-unstyled small text-muted">
+            <li class="d-flex align-items-center">
+                {% if project.visibility == "public" %}
+                <i data-lucide="globe" class="me-2 text-success"></i>
+                <span><strong>Public</strong></span>
+                {% else %}
+                <i data-lucide="lock" class="me-2 text-muted"></i>
+                <span><strong>Private</strong></span>
+                {% endif %}
+            </li>
+        </ul>
     </div>
 </div>
 {% endblock content %}

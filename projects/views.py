@@ -287,7 +287,7 @@ class ProjectTreeView(View):
         relative_path = kwargs["relative_path"]
         repo_objects = project.get_tree_objects_at_path(
             ref_name=kwargs["ref"],
-            relative_path=relative_path,
+            relative_path=relative_path.strip("/"),
         )
         tree_browsable_path = reverse(
             "project-tree",
