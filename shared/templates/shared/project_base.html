@@ -84,6 +84,13 @@
         crossorigin="anonymous"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
+        function copyHash() {
+            const hashInput = document.getElementById("commit-hash");
+            navigator.clipboard.writeText(hashInput.value).then(() => {
+                console.log("Copied:", hashInput.value);
+            });
+        }
+
         lucide.createIcons();
     </script>
     <script src="{% static 'shared/js/base.js' %}"></script>
