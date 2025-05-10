@@ -388,6 +388,30 @@ class Project(BaseUUIDModel):
         except KeyError:
             return None
 
+    def get_last_commit_info_for_ref(self, ref_name: str):
+        try:
+            repo = self.repo
+
+            # Support both heads (branches) and tags
+            ref = repo.references.get(f"refs/heads/{ref_name}") or repo.references.get(
+                f"refs/tags/{ref_name}"
+            )
+            if not ref:
+                return None
+
+            commit = repo[ref.target]
+            return {
+                "hash": str(commit.id),
+                "timestamp": commit.commit_time,
+                "message": commit.message.strip(),
+                "author_name": commit.author.name,
+                "author_email": commit.author.email,
+                "datetime": datetime.fromtimestamp(commit.commit_time),
+            }
+        except Exception as e:
+            print("Error in get_last_commit_info_for_ref:", e)
+            return None
+
 
 class ProjectCollaborator(BaseUUIDModel):
     class Role(models.TextChoices):

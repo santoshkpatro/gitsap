@@ -64,12 +64,14 @@ class ProjectOverview(View):
             "project-blob",
             args=[project.owner.username, project.handle, current_ref],
         )
+
         context = {
             "project": project,
             "repo_objects": project.root_tree_objects,
             "current_ref": current_ref,
             "tree_browsable_path": tree_browsable_path,
             "blob_browsable_path": blob_browsable_path,
+            "last_commit": project.get_last_commit_info_for_ref(project.default_branch),
         }
         return render(request, "projects/overview.html", context)
 
@@ -317,8 +319,6 @@ class ProjectBlobView(View):
             ref_name=kwargs["ref"],
             relative_path=relative_path,
         )
-
-        print("Dockerfile", repo_object)
 
         context = {
             "project": project,
