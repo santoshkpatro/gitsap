@@ -287,7 +287,7 @@ class ProjectTreeView(View):
         relative_path = kwargs["relative_path"]
         repo_objects = project.get_tree_objects_at_path(
             ref_name=kwargs["ref"],
-            relative_path=kwargs["relative_path"].strip("/"),
+            relative_path=relative_path,
         )
         tree_browsable_path = reverse(
             "project-tree",
@@ -303,6 +303,9 @@ class ProjectTreeView(View):
             "repo_objects": repo_objects,
             "tree_browsable_path": tree_browsable_path,
             "blob_browsable_path": blob_browsable_path,
+            "last_commit": project.get_last_commit_info(
+                relative_path.strip("/"), current_ref
+            ),
         }
         return render(request, "projects/tree.html", context)
 
@@ -324,5 +327,6 @@ class ProjectBlobView(View):
             "project": project,
             "repo_object": repo_object,
             "current_ref": current_ref,
+            "last_commit": project.get_last_commit_info(relative_path, current_ref),
         }
         return render(request, "projects/blob.html", context)

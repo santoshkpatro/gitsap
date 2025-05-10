@@ -4,8 +4,8 @@
 {% block content %}
 <div class="row">
     <div class="col-md-9">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div class="d-flex align-items-center gap-2">
+        <div class="d-flex justify-content-between align-items-center mb-3 gap-2">
+            <div class="d-flex align-items-center gap-2 flex-wrap w-100">
                 <!-- Branch & Tag Dropdown -->
                 <div class="dropdown">
                     <button class="btn btn-light dropdown-toggle d-flex align-items-center gap-2" type="button"
@@ -51,63 +51,58 @@
                     </ul>
                 </div>
 
-                <!-- Last Commit Summary -->
-                <ul class="list-group border-0 bg-transparent">
-                    <li class="list-group-item border-0 ps-2 py-1 bg-transparent">
-                        <span class="form-text">{{ last_commit.author_name }} |</span>
-                        <span class="form-text">{{ last_commit.message }}</span>
-                    </li>
-                </ul>
-            </div>
+                <div class="flex-grow-1 overflow-hidden">
+                    {% include 'projects/_last_commit.html' %}
+                </div>
 
-            <!-- Code Dropdown -->
-            <div class="dropdown">
-                <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                    aria-expanded="false">
-                    <i data-lucide="code" class="me-1"></i> Code
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end p-3" style="min-width: 320px;">
-                    <!-- SSH -->
-                    <li class="mb-3">
-                        <div class="d-flex align-items-center mb-1">
-                            <i data-lucide="key" class="me-2"></i>
-                            <span class="fw-semibold small">Clone with SSH</span>
-                        </div>
-                        <input type="text" class="form-control form-control-sm" readonly
-                            value="{{ project.ssh_clone_url }}">
-                    </li>
+                <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <i data-lucide="code" class="me-1"></i> Code
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end p-3" style="min-width: 320px;">
+                        <!-- SSH -->
+                        <li class="mb-3">
+                            <div class="d-flex align-items-center mb-1">
+                                <i data-lucide="key" class="me-2"></i>
+                                <span class="fw-semibold small">Clone with SSH</span>
+                            </div>
+                            <input type="text" class="form-control form-control-sm" readonly
+                                value="{{ project.ssh_clone_url }}">
+                        </li>
 
-                    <!-- HTTPS -->
-                    <li class="mb-3">
-                        <div class="d-flex align-items-center mb-1">
-                            <i data-lucide="globe" class="me-2"></i>
-                            <span class="fw-semibold small">Clone with HTTPS</span>
-                        </div>
-                        <input type="text" class="form-control form-control-sm" readonly
-                            value="{{ project.https_clone_url }}">
-                    </li>
+                        <!-- HTTPS -->
+                        <li class="mb-3">
+                            <div class="d-flex align-items-center mb-1">
+                                <i data-lucide="globe" class="me-2"></i>
+                                <span class="fw-semibold small">Clone with HTTPS</span>
+                            </div>
+                            <input type="text" class="form-control form-control-sm" readonly
+                                value="{{ project.https_clone_url }}">
+                        </li>
 
-                    <!-- Download -->
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
-                    <li>
-                        <div class="d-flex align-items-center mb-1">
-                            <i data-lucide="download" class="me-2"></i>
-                            <span class="fw-semibold small">Download</span>
-                        </div>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="#">
-                            <i data-lucide="file-archive" class="me-2"></i> Download ZIP
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="#">
-                            <i data-lucide="folder-archive" class="me-2"></i> Download TAR.GZ
-                        </a>
-                    </li>
-                </ul>
+                        <!-- Download -->
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <div class="d-flex align-items-center mb-1">
+                                <i data-lucide="download" class="me-2"></i>
+                                <span class="fw-semibold small">Download</span>
+                            </div>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#">
+                                <i data-lucide="file-archive" class="me-2"></i> Download ZIP
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#">
+                                <i data-lucide="folder-archive" class="me-2"></i> Download TAR.GZ
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
 

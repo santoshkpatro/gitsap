@@ -15,21 +15,8 @@
 
 
 {% block content %}
-<ul class="list-group">
-    <li class="list-group-item">
-        <div class="d-flex justify-content-between align-items-center mb-1">
-            <div class="text-muted small text-truncate me-3">
-                <i class="bi bi-chat-left-text me-1"></i>
-                {{ repo_object.last_commit.author_name }} |
-                {{ repo_object.last_commit.message|truncatechars:80 }}
-            </div>
-            <div class="text-muted small text-end">
-                <i class="bi bi-git me-1"></i><code>{{ repo_object.last_commit.hash|slice:":8" }}</code> |
-                {{ repo_object.last_commit.timestamp|naturaltime }}
-            </div>
-        </div>
-    </li>
-</ul>
+
+{% include 'projects/_last_commit.html' %}
 
 <div class="code-container">
     <pre
