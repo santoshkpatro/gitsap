@@ -156,17 +156,6 @@ class Project(BaseUUIDModel):
         return pygit2.Repository(str(repo_dir))
 
     def get_latest_commit_info(self, repo_path, relative_path, branch):
-        """
-        Returns the latest commit info for a given file/directory path.
-
-        Args:
-            repo_path (str): Absolute path to the .git working tree (not .git folder).
-            relative_path (str): Path relative to repo root (e.g., 'README.md').
-
-        Returns:
-            Optional[Dict]: A dictionary with commit hash, timestamp, and message.
-        """
-
         try:
             ref = f"refs/heads/{branch}"
             result = subprocess.run(
@@ -250,6 +239,24 @@ class Project(BaseUUIDModel):
             tmp_path.unlink(missing_ok=True)
 
         return str((Path(repo_dir)).resolve())
+
+    @property
+    def repo_branches(self):
+        branches = []
+        for ref in self.repo.listall_references():
+            if ref.startswith("refs/heads/"):
+                branch_name = ref.removeprefix("refs/heads/")
+                branches.append(branch_name)
+        return branches
+
+    @property
+    def repo_tags(self):
+        tags = []
+        for ref in self.repo.listall_references():
+            if ref.startswith("refs/tags/"):
+                tag_name = ref.removeprefix("refs/tags/")
+                tags.append(tag_name)
+        return tags
 
 
 class ProjectCollaborator(BaseUUIDModel):
