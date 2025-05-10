@@ -1,3 +1,4 @@
+/* Base fonts and spacing */
 body {
     font-family: 'Inter', sans-serif;
 }
@@ -9,25 +10,33 @@ body {
 }
 
 .sidebar {
-    width: 240px;
+    width: 200px;
     background-color: #f8f9fa;
     border-right: 1px solid #dee2e6;
     overflow-y: auto;
 }
 
 .sidebar .logo {
-    height: 30px;
-    margin: 0.75rem 0 1.25rem 1.25rem;
+    height: 28px;
+    margin-bottom: 0.5rem;
 }
 
 .sidebar .nav-link {
-    padding: 0.4rem 0.75rem;
-    font-size: 0.925rem;
     display: flex;
     align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
     color: #343a40;
-    border-left: 3px solid transparent;
-    border-radius: 0.15rem;
+    border-radius: 0.25rem;
+    transition: background-color 0.2s ease;
+}
+
+.sidebar .nav-link .icon {
+    width: 16px;
+    height: 16px;
+    color: #6c757d;
+    flex-shrink: 0;
 }
 
 .sidebar .nav-link:hover {
@@ -35,43 +44,50 @@ body {
     color: #000;
 }
 
-.sidebar .nav-link.active {
-    border-left: 4px solid teal;
-    background-color: #e1e4e7;
-    color: teal;
+.sidebar .nav-link.active,
+.sidebar .nav-link:focus,
+.sidebar .nav-link:active {
+    background-color: #e9ecef;
+    color: #000;
     font-weight: 500;
 }
 
-.sidebar .nav li {
-    margin-bottom: 0.15rem;
+.sidebar .nav-link.active .icon {
+    color: #495057;
 }
 
+
+
+/* Topbar */
 .topbar {
     height: 56px;
     min-height: 56px;
-    background-color: teal;
     color: #fff;
+    padding: 0 1.25rem;
 }
 
 .breadcrumb-item+.breadcrumb-item::before {
     color: #fff;
 }
 
+/* Content area */
 .content-area {
     overflow-y: auto;
     padding: 1.5rem;
     flex-grow: 1;
 }
 
+/* Profile image */
 .profile-img {
     width: 36px;
     height: 36px;
     object-fit: cover;
 }
 
+/* Lucide icon sizing */
 .lucide {
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
 }
 
 .lucide-fill svg {
@@ -79,10 +95,19 @@ body {
     stroke: none;
 }
 
+/* Layout fixes */
 .d-flex.vh-100 {
     overflow: hidden;
 }
 
 .flex-grow-1.d-flex.flex-column {
     overflow: hidden;
+}
+
+/* Footer: Why Gitsap */
+.sidebar .why-gitsap {
+    font-size: 0.75rem;
+    padding-top: 0.75rem;
+    text-align: center;
+    color: #6c757d;
 }

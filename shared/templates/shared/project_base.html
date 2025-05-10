@@ -10,92 +10,101 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="{% static 'shared/css/bootstrap.css' %}" rel="stylesheet">
     <link href="{% static 'shared/css/base.css' %}" rel="stylesheet">
-    {% block styles %}
-    {% endblock styles %}
+    {% block styles %}{% endblock styles %}
 </head>
 
 <body>
     <div class="d-flex vh-100">
         <!-- Sidebar -->
-        <div class="sidebar d-flex flex-column p-2">
+        <div class="sidebar d-flex flex-column p-3">
             <!-- Logo -->
-            <a href="#">
+            <a href="#" class="d-flex align-items-center mb-4 ps-1">
                 <img src="{% static 'shared/images/logo.png' %}" alt="Logo" class="logo">
             </a>
 
             <!-- Navigation -->
-            <ul class="nav flex-column mb-auto">
-                <li><a href="#" class="nav-link active"><i data-lucide="code" class="me-2"></i>Code</a></li>
-                <li><a href="#" class="nav-link"><i data-lucide="alert-circle" class="me-2"></i>Issues</a></li>
-                <li><a href="#" class="nav-link"><i data-lucide="git-pull-request" class="me-2"></i>Pull Requests</a>
+            <ul class="nav flex-column gap-1">
+                <li><a href="#" class="nav-link {% if active_tab == 'code' %}active{% endif %}"><i data-lucide="code"
+                            class="icon"></i><span>Code</span></a>
                 </li>
-                <li><a href="#" class="nav-link"><i data-lucide="clock" class="me-2"></i>Commits</a></li>
-                <li><a href="#" class="nav-link"><i data-lucide="workflow" class="me-2"></i>Pipelines</a></li>
-                <li><a href="#" class="nav-link"><i data-lucide="kanban" class="me-2"></i>Work Items</a></li>
-                <li><a href="#" class="nav-link"><i data-lucide="bar-chart-3" class="me-2"></i>Insights</a></li>
-                <li><a href="#" class="nav-link"><i data-lucide="settings" class="me-2"></i>Settings</a></li>
+                <li><a href="#" class="nav-link {% if active_tab == 'issues' %}active{% endif %}"><i
+                            data-lucide="alert-circle" class="icon"></i><span>Issues</span></a>
+                </li>
+                <li><a href="#" class="nav-link"><i data-lucide="git-pull-request" class="icon"></i>
+                        <span>Pull requests</span></a></li>
+                <li><a href="#" class="nav-link"><i data-lucide="clock" class="icon"></i><span>Commits</span></a></li>
+                <li><a href="#" class="nav-link"><i data-lucide="workflow" class="icon"></i><span>Pipelines</span></a>
+                </li>
+                <li><a href="#" class="nav-link"><i data-lucide="kanban" class="icon"></i><span>Work Items</span></a>
+                </li>
+                <li><a href="#" class="nav-link"><i data-lucide="bar-chart-3" class="icon"></i><span>Insights</span></a>
+                </li>
+                <li><a href="#" class="nav-link"><i data-lucide="settings" class="icon"></i><span>Settings</span></a>
+                </li>
             </ul>
 
             <!-- Footer -->
             <div class="mt-auto pt-3 border-top">
-                <ul class="nav flex-column">
-                    <li><a href="#" class="nav-link"><i data-lucide="help-circle" class="me-2"></i>Help</a></li>
-                    <li><a href="#" class="nav-link"><i data-lucide="life-buoy" class="me-2"></i>Support</a></li>
+                <ul class="nav flex-column gap-1 mt-3">
+                    <li><a href="#" class="nav-link"><i data-lucide="help-circle" class="icon"></i><span>Help</span></a>
+                    </li>
+                    <li><a href="#" class="nav-link"><i data-lucide="life-buoy"
+                                class="icon"></i><span>Support</span></a></li>
                 </ul>
+                <div class="why-gitsap text-center mt-3 small text-muted">
+                    &copy; 2025 • <a href="#" class="text-muted text-decoration-none">Why Gitsap?</a>
+                </div>
             </div>
         </div>
 
         <!-- Right Area -->
         <div class="flex-grow-1 d-flex flex-column">
             <!-- Topbar -->
-            <div class="topbar d-flex justify-content-between align-items-center px-4">
-                <!-- Breadcrumb -->
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-0 bg-transparent">
-                        <li class="breadcrumb-item"><a href="#" class="text-white text-decoration-none">Home</a></li>
-                        <li class="breadcrumb-item"><a href="#" class="text-white text-decoration-none">Projects</a>
-                        </li>
-                        <li class="breadcrumb-item active text-white" aria-current="page">MyRepo</li>
-                    </ol>
-                </nav>
+            <div class="topbar d-flex justify-content-between align-items-center px-4 py-2 border-bottom bg-light">
+                <!-- Left -->
+                <div class="d-flex align-items-center gap-2 text-dark fw-semibold">
+                    <i data-lucide="layers" class="text-muted" style="width: 16px; height: 16px;"></i>
+                    <span class="small">{{ project.owner.username }} / {{ project.handle }}</span>
+                </div>
 
-                <!-- Search & Profile -->
+                <!-- Right -->
                 <div class="d-flex align-items-center gap-3">
-                    <form class="d-flex" role="search">
-                        <input class="form-control form-control-sm" type="search" placeholder="Search"
-                            aria-label="Search">
+                    <form class="d-flex align-items-center">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-white border" style="border-right: 0;">
+                                <i data-lucide="search" style="width: 16px; height: 16px;"></i>
+                            </span>
+                            <input type="search" class="form-control border-start-0" placeholder="Search">
+                        </div>
                     </form>
-                    <img src="{% static 'shared/images/profile.jpg' %}" alt="Profile"
-                        class="rounded-circle profile-img">
+                    <a class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1"
+                        href="{% url 'project-create' %}">
+                        <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+                        <span class="d-none d-md-inline">New</span>
+                    </a>
+                    <a href="#" class="text-muted position-relative">
+                        <i data-lucide="bell" style="width: 20px; height: 20px;"></i>
+                    </a>
+                    <a href="#" class="text-muted">
+                        <i data-lucide="user-circle" style="width: 24px; height: 24px;"></i>
+                    </a>
                 </div>
             </div>
 
             <!-- Main Content -->
             <div class="content-area">
-                {% block content %}
-                {% endblock content %}
+                {% block content %}{% endblock content %}
             </div>
         </div>
     </div>
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
         crossorigin="anonymous"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script>
-        function copyHash() {
-            const hashInput = document.getElementById("commit-hash");
-            navigator.clipboard.writeText(hashInput.value).then(() => {
-                console.log("Copied:", hashInput.value);
-            });
-        }
-
-        lucide.createIcons();
-    </script>
+    <script>lucide.createIcons();</script>
     <script src="{% static 'shared/js/base.js' %}"></script>
-    {% block scripts %}
-    {% endblock scripts %}
+    {% block scripts %}{% endblock scripts %}
 </body>
 
 </html>
