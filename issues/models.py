@@ -1,20 +1,28 @@
 from django.db import models
+from django.db.models import Q
 
 from shared.models import BaseUUIDModel
 
 
 class Issue(BaseUUIDModel):
+    class Status(models.TextChoices):
+        OPEN = ("open", "Open")
+        CLOSED = ("closed", "Closed")
+
     project = models.ForeignKey(
         "projects.Project", on_delete=models.CASCADE, related_name="issues"
     )
     title = models.CharField(max_length=255)
     issue_number = models.IntegerField(blank=True)
-    summary = models.TextField()
+    summary = models.TextField(blank=True, null=True)
     created_by = models.ForeignKey(
         "accounts.User",
         on_delete=models.SET_NULL,
         null=True,
         related_name="created_issues",
+    )
+    status = models.CharField(
+        max_length=32, choices=Status.choices, default=Status.OPEN, db_index=True
     )
 
     assignees = models.ManyToManyField(
@@ -34,6 +42,17 @@ class Issue(BaseUUIDModel):
 
     def __str__(self):
         return str(self.title)
+
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            last_issue = (
+                Issue.objects.only("issue_number")
+                .filter(project=self.project)
+                .order_by("-issue_number")
+                .first()
+            )
+            self.issue_number = (last_issue.issue_number + 1) if last_issue else 1
+        return super().save(*args, **kwargs)
 
 
 class IssueAssignee(BaseUUIDModel):

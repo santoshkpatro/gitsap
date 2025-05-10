@@ -63,6 +63,9 @@ class Project(BaseUUIDModel):
     resource_id = models.CharField(max_length=64, blank=True)
     resource = models.FileField(upload_to="projects_resources/", blank=True)
 
+    total_issues_count = models.IntegerField(default=0)
+    open_issues_count = models.IntegerField(default=0)
+
     collaborators = models.ManyToManyField(
         "accounts.User", through="ProjectCollaborator"
     )
@@ -91,6 +94,10 @@ class Project(BaseUUIDModel):
     @property
     def https_clone_url(self):
         return f"{settings.HTTPS_GIT_HOST_URL}/{self.owner.username}/{self.handle}.git"
+
+    @property
+    def closed_issues_count(self):
+        return self.total_issues_count - self.open_issues_count
 
     @property
     def repo(self):
