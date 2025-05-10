@@ -72,6 +72,7 @@ class ProjectOverview(View):
             "tree_browsable_path": tree_browsable_path,
             "blob_browsable_path": blob_browsable_path,
             "last_commit": project.get_last_commit_info_for_ref(project.default_branch),
+            "active_tab": "code",
         }
         return render(request, "projects/overview.html", context)
 
