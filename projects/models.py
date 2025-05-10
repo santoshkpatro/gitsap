@@ -15,6 +15,34 @@ GIT_OBJ_TYPE_MAP = {
     pygit2.GIT_OBJECT_BLOB: "blob",
     pygit2.GIT_OBJECT_TAG: "tag",
 }
+EXTENSION_MAP = {
+    "py": "python",
+    "js": "javascript",
+    "ts": "typescript",
+    "jsx": "jsx",
+    "tsx": "tsx",
+    "json": "json",
+    "html": "markup",  # Prism uses 'markup' for HTML/XML
+    "xml": "markup",
+    "css": "css",
+    "scss": "scss",
+    "sh": "bash",
+    "bash": "bash",
+    "yml": "yaml",
+    "yaml": "yaml",
+    "md": "markdown",
+    "php": "php",
+    "go": "go",
+    "java": "java",
+    "c": "c",
+    "cpp": "cpp",
+    "rb": "ruby",
+    "rs": "rust",
+    "toml": "toml",
+    "swift": "swift",
+    "dockerfile": "docker",
+    "gitignore": "git",
+}
 
 
 class Project(BaseUUIDModel):
@@ -63,6 +91,118 @@ class Project(BaseUUIDModel):
     @property
     def https_clone_url(self):
         return f"{settings.HTTPS_GIT_HOST_URL}/{self.owner.username}/{self.handle}.git"
+
+    @property
+    def repo(self):
+        repo_dir = settings.BASE_DIR / "var" / "git-repos" / f"{self.pk}.git"
+
+        if not repo_dir.exists():
+            # Step 1: Create parent directory if needed
+            repo_dir.parent.mkdir(parents=True, exist_ok=True)
+
+            # Step 2: Download the tar.gz from S3 to temp file
+            with tempfile.NamedTemporaryFile(
+                suffix=".tar.gz", delete=False
+            ) as tmp_file:
+                tmp_path = Path(tmp_file.name)
+
+                settings.S3_CLIENT.download_file(
+                    settings.AWS_STORAGE_BUCKET_NAME,
+                    self.resource.name,  # e.g., "project_resources/uuid.tar.gz"
+                    str(tmp_path),
+                )
+
+            # Step 3: Extract contents into repo_dir
+            repo_dir.mkdir(parents=True, exist_ok=True)
+
+            with tarfile.open(tmp_path, "r:gz") as tar:
+                tar.extractall(path=repo_dir)
+
+            # Step 4: Cleanup
+            tmp_path.unlink(missing_ok=True)
+
+        # Step 5: Return pygit2.Repository instance
+        return pygit2.Repository(str(repo_dir))
+
+    @property
+    def repo_branches(self):
+        branches = []
+        for ref in self.repo.listall_references():
+            if ref.startswith("refs/heads/"):
+                branch_name = ref.removeprefix("refs/heads/")
+                branches.append(branch_name)
+        return branches
+
+    @property
+    def repo_tags(self):
+        tags = []
+        for ref in self.repo.listall_references():
+            if ref.startswith("refs/tags/"):
+                tag_name = ref.removeprefix("refs/tags/")
+                tags.append(tag_name)
+        return tags
+
+    @property
+    def _local_git_path(self):
+        repo_dir = settings.BASE_DIR / "var" / "git-repos" / f"{self.pk}.git"
+
+        if not repo_dir.exists():
+            # Step 1: Create parent directory if needed
+            repo_dir.parent.mkdir(parents=True, exist_ok=True)
+
+            # Step 2: Download the tar.gz from S3 to temp file
+            with tempfile.NamedTemporaryFile(
+                suffix=".tar.gz", delete=False
+            ) as tmp_file:
+                tmp_path = Path(tmp_file.name)
+
+                settings.S3_CLIENT.download_file(
+                    settings.AWS_STORAGE_BUCKET_NAME,
+                    self.resource.name,  # e.g., "project_resources/uuid.tar.gz"
+                    str(tmp_path),
+                )
+
+            # Step 3: Extract contents into repo_dir
+            repo_dir.mkdir(parents=True, exist_ok=True)
+
+            with tarfile.open(tmp_path, "r:gz") as tar:
+                tar.extractall(path=repo_dir)
+
+            # Step 4: Cleanup
+            tmp_path.unlink(missing_ok=True)
+
+        return str((Path(repo_dir)).resolve())
+
+    @property
+    def root_tree_objects(self):
+        repo = self.repo
+        branch_name = self.default_branch
+        workdir = str(repo.path)
+
+        ref = repo.references.get(f"refs/heads/{branch_name}")
+        if not ref:
+            return []  # No commits yet
+
+        commit = repo[ref.target]
+        tree = commit.tree
+
+        sorted_entries = sorted(
+            tree, key=lambda e: (e.type != pygit2.GIT_OBJECT_TREE, e.name.lower())
+        )
+
+        results = []
+        for entry in sorted_entries:
+            path = entry.name
+            latest_commit = self.get_latest_commit_info(workdir, path, branch_name)
+            results.append(
+                {
+                    "name": entry.name,
+                    "type": GIT_OBJ_TYPE_MAP.get(entry.type, f"unknown({entry.type})"),
+                    "id": str(entry.id),
+                    "last_commit": latest_commit or {},
+                }
+            )
+        return results
 
     def _setup_cloud_resource_artifact(self):
         # Step 1: Create local bare repo at var/git-repos/{pk}.git
@@ -123,38 +263,6 @@ class Project(BaseUUIDModel):
         self.resource.name = s3_key
         self.save(update_fields=["resource"])
 
-    @property
-    def repo(self):
-        repo_dir = settings.BASE_DIR / "var" / "git-repos" / f"{self.pk}.git"
-
-        if not repo_dir.exists():
-            # Step 1: Create parent directory if needed
-            repo_dir.parent.mkdir(parents=True, exist_ok=True)
-
-            # Step 2: Download the tar.gz from S3 to temp file
-            with tempfile.NamedTemporaryFile(
-                suffix=".tar.gz", delete=False
-            ) as tmp_file:
-                tmp_path = Path(tmp_file.name)
-
-                settings.S3_CLIENT.download_file(
-                    settings.AWS_STORAGE_BUCKET_NAME,
-                    self.resource.name,  # e.g., "project_resources/uuid.tar.gz"
-                    str(tmp_path),
-                )
-
-            # Step 3: Extract contents into repo_dir
-            repo_dir.mkdir(parents=True, exist_ok=True)
-
-            with tarfile.open(tmp_path, "r:gz") as tar:
-                tar.extractall(path=repo_dir)
-
-            # Step 4: Cleanup
-            tmp_path.unlink(missing_ok=True)
-
-        # Step 5: Return pygit2.Repository instance
-        return pygit2.Repository(str(repo_dir))
-
     def get_latest_commit_info(self, repo_path, relative_path, branch):
         try:
             ref = f"refs/heads/{branch}"
@@ -177,37 +285,6 @@ class Project(BaseUUIDModel):
         except subprocess.CalledProcessError as e:
             print("Error:", e)
         return None
-
-    @property
-    def root_tree_objects(self):
-        repo = self.repo
-        branch_name = self.default_branch
-        workdir = str(repo.path)
-
-        ref = repo.references.get(f"refs/heads/{branch_name}")
-        if not ref:
-            return []  # No commits yet
-
-        commit = repo[ref.target]
-        tree = commit.tree
-
-        sorted_entries = sorted(
-            tree, key=lambda e: (e.type != pygit2.GIT_OBJECT_TREE, e.name.lower())
-        )
-
-        results = []
-        for entry in sorted_entries:
-            path = entry.name
-            latest_commit = self.get_latest_commit_info(workdir, path, branch_name)
-            results.append(
-                {
-                    "name": entry.name,
-                    "type": GIT_OBJ_TYPE_MAP.get(entry.type, f"unknown({entry.type})"),
-                    "id": str(entry.id),
-                    "last_commit": latest_commit or {},
-                }
-            )
-        return results
 
     def get_tree_objects_at_path(self, ref_name, relative_path):
         repo = self.repo
@@ -251,54 +328,53 @@ class Project(BaseUUIDModel):
             )
         return results
 
-    @property
-    def _local_git_path(self):
-        repo_dir = settings.BASE_DIR / "var" / "git-repos" / f"{self.pk}.git"
+    def get_blob_at_path(self, ref_name: str, relative_path: str):
+        repo = self.repo
 
-        if not repo_dir.exists():
-            # Step 1: Create parent directory if needed
-            repo_dir.parent.mkdir(parents=True, exist_ok=True)
+        # Step 1: Resolve the branch or ref
+        ref = repo.references.get(f"refs/heads/{ref_name}")
+        if not ref:
+            return None
 
-            # Step 2: Download the tar.gz from S3 to temp file
-            with tempfile.NamedTemporaryFile(
-                suffix=".tar.gz", delete=False
-            ) as tmp_file:
-                tmp_path = Path(tmp_file.name)
+        commit = repo[ref.target]
+        tree = commit.tree
+        workdir = str(repo.path)
 
-                settings.S3_CLIENT.download_file(
-                    settings.AWS_STORAGE_BUCKET_NAME,
-                    self.resource.name,  # e.g., "project_resources/uuid.tar.gz"
-                    str(tmp_path),
-                )
+        # Step 2: Traverse to the file
+        parts = relative_path.strip("/").split("/")
+        for part in parts[:-1]:
+            try:
+                tree_entry = tree[part]
+                if tree_entry.type != pygit2.GIT_OBJECT_TREE:
+                    return None
+                tree = repo[tree_entry.id]
+            except KeyError:
+                return None
 
-            # Step 3: Extract contents into repo_dir
-            repo_dir.mkdir(parents=True, exist_ok=True)
+        # Step 3: Get the final blob
+        try:
+            blob_entry = tree[parts[-1]]
+            if blob_entry.type != pygit2.GIT_OBJECT_BLOB:
+                return None
+            blob = repo[blob_entry.id]
+            content = blob.data
+            encoding = "utf-8" if b"\0" not in content else "binary"
 
-            with tarfile.open(tmp_path, "r:gz") as tar:
-                tar.extractall(path=repo_dir)
+            last_commit = self.get_latest_commit_info(workdir, relative_path, ref_name)
+            file_ext = relative_path.split(".")[-1]
 
-            # Step 4: Cleanup
-            tmp_path.unlink(missing_ok=True)
-
-        return str((Path(repo_dir)).resolve())
-
-    @property
-    def repo_branches(self):
-        branches = []
-        for ref in self.repo.listall_references():
-            if ref.startswith("refs/heads/"):
-                branch_name = ref.removeprefix("refs/heads/")
-                branches.append(branch_name)
-        return branches
-
-    @property
-    def repo_tags(self):
-        tags = []
-        for ref in self.repo.listall_references():
-            if ref.startswith("refs/tags/"):
-                tag_name = ref.removeprefix("refs/tags/")
-                tags.append(tag_name)
-        return tags
+            return {
+                "name": parts[-1],
+                "id": str(blob.id),
+                "size": blob.size,
+                "content": content,
+                "encoding": encoding,
+                "code": content.decode(encoding, errors="replace"),
+                "language": EXTENSION_MAP.get(file_ext, "plaintext"),
+                "last_commit": last_commit or {},
+            }
+        except KeyError:
+            return None
 
 
 class ProjectCollaborator(BaseUUIDModel):
