@@ -10,45 +10,46 @@
 
             <!-- Left: Branch Info -->
             <div class="d-flex align-items-center gap-3 flex-wrap">
-                <!-- Current Branch -->
+                <!-- Branches & Tags Dropdown -->
                 <div class="dropdown">
                     <button class="btn btn-light btn-sm dropdown-toggle d-flex align-items-center gap-2" type="button"
-                        data-bs-toggle="dropdown" aria-expanded="false">
+                        data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                         <i data-lucide="git-branch"></i>
-                        <span class="fw-semibold text-capitalize">{{ project.default_branch|default:"main" }}</span>
+                        <span class="fw-semibold">{{ project.default_branch|default:"main" }}</span>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end p-2" style="min-width: 220px;">
-                        <li class="px-2 text-muted small fw-semibold d-flex align-items-center mb-2">
-                            <i data-lucide="git-branch" class="me-2"></i> Branches
-                        </li>
+                    <div class="dropdown-menu dropdown-menu-end p-2" style="min-width: 240px;">
+                        <!-- Branches Section -->
+                        <h6 class="dropdown-header d-flex align-items-center gap-1">
+                            <i data-lucide="git-branch" class="me-1"></i> Branches
+                        </h6>
                         {% for branch in project.repo_branches %}
-                        <li>
-                            <a class="dropdown-item small {% if branch == project.default_branch %}active{% endif %}"
-                                href="#">
-                                <i data-lucide="git-branch" class="me-2"></i>{{ branch }}
-                            </a>
-                        </li>
+                        <div
+                            class="dropdown-item small d-flex align-items-center gap-2 {% if branch == project.default_branch %}active{% endif %}">
+                            <i data-lucide="git-commit" class="text-muted" style="width:16px; height:16px;"></i>
+                            {{ branch }}
+                        </div>
                         {% empty %}
-                        <li class="dropdown-item text-muted small">No branches</li>
+                        <span class="dropdown-item text-muted small d-flex align-items-center gap-2">
+                            <i data-lucide="git-branch-x" style="width:16px;"></i> No branches available
+                        </span>
                         {% endfor %}
 
-                        <li>
-                            <hr class="dropdown-divider my-2">
-                        </li>
+                        <hr class="dropdown-divider my-2">
 
-                        <li class="px-2 text-muted small fw-semibold d-flex align-items-center mb-2">
-                            <i data-lucide="tag" class="me-2"></i> Tags
-                        </li>
+                        <!-- Tags Section -->
+                        <h6 class="dropdown-header d-flex align-items-center gap-1">
+                            <i data-lucide="bookmark" class="me-1"></i> Tags
+                        </h6>
                         {% for tag in project.repo_tags %}
-                        <li>
-                            <a class="dropdown-item small" href="#">
-                                <i data-lucide="tag" class="me-2"></i>{{ tag }}
-                            </a>
-                        </li>
+                        <div class="dropdown-item small d-flex align-items-center gap-2">
+                            <i data-lucide="bookmark" class="text-muted" style="width:16px; height:16px;"></i> {{ tag }}
+                        </div>
                         {% empty %}
-                        <li class="dropdown-item text-muted small">No tags</li>
+                        <span class="dropdown-item text-muted small d-flex align-items-center gap-2">
+                            <i data-lucide="bookmark-x" style="width:16px;"></i> No tags available
+                        </span>
                         {% endfor %}
-                    </ul>
+                    </div>
                 </div>
 
                 <!-- Branch & Tag Counts -->
@@ -69,45 +70,50 @@
                 <!-- Code Dropdown -->
                 <div class="dropdown">
                     <button class="btn btn-primary btn-sm dropdown-toggle d-flex align-items-center gap-1" type="button"
-                        data-bs-toggle="dropdown" aria-expanded="false">
+                        data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                         <i data-lucide="code" class="me-1"></i> Code
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end p-3" style="min-width: 320px;">
-                        <li class="mb-3">
-                            <div class="d-flex align-items-center mb-1">
-                                <i data-lucide="key" class="me-2"></i>
-                                <span class="fw-semibold small">Clone with SSH</span>
+                    <div class="dropdown-menu dropdown-menu-end p-3" style="min-width: 340px; max-width: 100%;">
+                        <!-- SSH Clone -->
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold d-flex align-items-center gap-2 mb-1">
+                                <i data-lucide="shield" style="width:16px;"></i> Clone with SSH
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <input id="ssh-url" type="text" class="form-control" readonly
+                                    value="{{ project.ssh_clone_url }}">
+                                <button class="btn btn-outline-secondary" type="button"
+                                    onclick="copyToClipboard('ssh-url')" title="Copy SSH">
+                                    <i data-lucide="clipboard-copy" style="width:16px; height:16px;"></i>
+                                </button>
                             </div>
-                            <input type="text" class="form-control form-control-sm" readonly
-                                value="{{ project.ssh_clone_url }}">
-                        </li>
-                        <li class="mb-3">
-                            <div class="d-flex align-items-center mb-1">
-                                <i data-lucide="globe" class="me-2"></i>
-                                <span class="fw-semibold small">Clone with HTTPS</span>
+                        </div>
+
+                        <!-- HTTPS Clone -->
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold d-flex align-items-center gap-2 mb-1">
+                                <i data-lucide="globe" style="width:16px;"></i> Clone with HTTPS
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <input id="https-url" type="text" class="form-control" readonly
+                                    value="{{ project.https_clone_url }}">
+                                <button class="btn btn-outline-secondary" type="button"
+                                    onclick="copyToClipboard('https-url')" title="Copy HTTPS">
+                                    <i data-lucide="clipboard-copy" style="width:16px; height:16px;"></i>
+                                </button>
                             </div>
-                            <input type="text" class="form-control form-control-sm" readonly
-                                value="{{ project.https_clone_url }}">
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li class="mb-2">
-                            <div class="d-flex align-items-center mb-1">
-                                <i data-lucide="download" class="me-2"></i>
-                                <span class="fw-semibold small">Download</span>
-                            </div>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="#"><i data-lucide="file-archive" class="me-2"></i> Download
-                                ZIP</a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="#"><i data-lucide="folder-archive" class="me-2"></i> Download
-                                TAR.GZ</a>
-                        </li>
-                    </ul>
+                        </div>
+
+                        <hr class="dropdown-divider my-2">
+
+                        <!-- ZIP Download Only -->
+                        <a class="dropdown-item small d-flex align-items-center gap-2" href="#">
+                            <i data-lucide="package" style="width:16px;"></i> Download ZIP Archive
+                        </a>
+                    </div>
                 </div>
+
+
             </div>
         </div>
 
@@ -147,3 +153,18 @@
     </div>
 </div>
 {% endblock content %}
+
+{% block scripts %}
+<script>
+    function copyToClipboard(elementId) {
+        const input = document.getElementById(elementId);
+        if (input) {
+            navigator.clipboard.writeText(input.value).then(() => {
+                // Optional: show visual feedback
+                input.classList.add('border-success');
+                setTimeout(() => input.classList.remove('border-success'), 1000);
+            });
+        }
+    }
+</script>
+{% endblock scripts %}
