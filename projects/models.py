@@ -267,7 +267,15 @@ class Project(BaseUUIDModel):
         try:
             ref = f"refs/heads/{branch}"
             result = subprocess.run(
-                ["git", "log", "-1", "--format=%H|%ct|%s", ref, "--", relative_path],
+                [
+                    "git",
+                    "log",
+                    "-1",
+                    "--format=%H|%ct|%s|%an|%ae",
+                    ref,
+                    "--",
+                    relative_path,
+                ],
                 cwd=repo_path,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.DEVNULL,
@@ -276,11 +284,15 @@ class Project(BaseUUIDModel):
             )
 
             if result.stdout.strip():
-                commit_hash, timestamp, message = result.stdout.strip().split("|", 2)
+                commit_hash, timestamp, message, author_name, author_email = (
+                    result.stdout.strip().split("|", 4)
+                )
                 return {
                     "hash": commit_hash,
                     "timestamp": datetime.fromtimestamp(int(timestamp)),
                     "message": message.strip(),
+                    "author_name": author_name,
+                    "author_email": author_email,
                 }
         except subprocess.CalledProcessError as e:
             print("Error:", e)
