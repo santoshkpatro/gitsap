@@ -8,6 +8,7 @@ from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.utils.text import slugify
+from django.urls import reverse
 from datetime import datetime
 
 from accounts.models import User
@@ -55,7 +56,16 @@ class ProjectOverview(View):
         project = get_object_or_404(
             Project, handle=kwargs["project_handle"], owner__username=kwargs["username"]
         )
-        context = {"project": project, "repo_objects": project.root_tree_objects}
+        current_ref = project.default_branch
+        browsable_path = reverse(
+            "project-tree", args=[project.owner.username, project.handle, current_ref]
+        )
+        context = {
+            "project": project,
+            "repo_objects": project.root_tree_objects,
+            "current_ref": current_ref,
+            "browsable_path": browsable_path,
+        }
         return render(request, "projects/overview.html", context)
 
 
@@ -258,3 +268,28 @@ class GitReceivePackView(View):
         response = HttpResponse(stdout_data)
         response["Content-Type"] = "application/x-git-receive-pack-result"
         return response
+
+
+class ProjectTreeView(View):
+    def get(self, request, *args, **kwargs):
+        project = get_object_or_404(
+            Project, handle=kwargs["project_handle"], owner__username=kwargs["username"]
+        )
+
+        current_ref = kwargs["ref"]
+        relative_path = kwargs["relative_path"]
+        repo_objects = project.get_tree_objects_at_path(
+            ref_name=kwargs["ref"],
+            relative_path=kwargs["relative_path"].strip("/"),
+        )
+        browsable_path = reverse(
+            "project-tree",
+            args=[project.owner.username, project.handle, current_ref, relative_path],
+        )
+
+        context = {
+            "project": project,
+            "repo_objects": repo_objects,
+            "browsable_path": browsable_path,
+        }
+        return render(request, "projects/tree.html", context)

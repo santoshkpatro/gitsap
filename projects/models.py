@@ -209,6 +209,48 @@ class Project(BaseUUIDModel):
             )
         return results
 
+    def get_tree_objects_at_path(self, ref_name, relative_path):
+        repo = self.repo
+        workdir = str(repo.path)
+
+        # Resolve ref to commit
+        ref = repo.references.get(f"refs/heads/{ref_name}")
+        if not ref:
+            return []
+
+        commit = repo[ref.target]
+        tree = commit.tree
+
+        # Traverse to the correct sub-tree based on the relative path
+        parts = relative_path.strip("/").split("/") if relative_path else []
+        for part in parts:
+            try:
+                entry = tree[part]
+                if entry.type != pygit2.GIT_OBJECT_TREE:
+                    return []  # Not a directory
+                tree = repo[entry.id]
+            except KeyError:
+                return []  # Path does not exist
+
+        # Sort: trees first, then blobs
+        sorted_entries = sorted(
+            tree, key=lambda e: (e.type != pygit2.GIT_OBJECT_TREE, e.name.lower())
+        )
+
+        results = []
+        for entry in sorted_entries:
+            path = os.path.join(relative_path, entry.name)
+            latest_commit = self.get_latest_commit_info(workdir, path, ref_name)
+            results.append(
+                {
+                    "name": entry.name,
+                    "type": GIT_OBJ_TYPE_MAP.get(entry.type, f"unknown({entry.type})"),
+                    "id": str(entry.id),
+                    "last_commit": latest_commit or {},
+                }
+            )
+        return results
+
     @property
     def _local_git_path(self):
         repo_dir = settings.BASE_DIR / "var" / "git-repos" / f"{self.pk}.git"
