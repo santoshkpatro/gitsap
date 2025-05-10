@@ -10,6 +10,7 @@ from projects.views import (
     GitUploadPackView,
     GitReceivePackView,
     ProjectTreeView,
+    ProjectBlobView,
 )
 
 project_browse_urlpatterns = [
@@ -17,7 +18,12 @@ project_browse_urlpatterns = [
         r"^tree/(?P<ref>[^/]+)(?P<relative_path>/.*)?$",
         ProjectTreeView.as_view(),
         name="project-tree",
-    )
+    ),
+    re_path(
+        r"^blob/(?P<ref>[^/]+)(?P<relative_path>/.*)?$",
+        ProjectBlobView.as_view(),
+        name="project-blob",
+    ),
 ]
 
 # fmt: off

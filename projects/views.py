@@ -57,14 +57,19 @@ class ProjectOverview(View):
             Project, handle=kwargs["project_handle"], owner__username=kwargs["username"]
         )
         current_ref = project.default_branch
-        browsable_path = reverse(
+        tree_browsable_path = reverse(
             "project-tree", args=[project.owner.username, project.handle, current_ref]
+        )
+        blob_browsable_path = reverse(
+            "project-blob",
+            args=[project.owner.username, project.handle, current_ref],
         )
         context = {
             "project": project,
             "repo_objects": project.root_tree_objects,
             "current_ref": current_ref,
-            "browsable_path": browsable_path,
+            "tree_browsable_path": tree_browsable_path,
+            "blob_browsable_path": blob_browsable_path,
         }
         return render(request, "projects/overview.html", context)
 
@@ -282,14 +287,42 @@ class ProjectTreeView(View):
             ref_name=kwargs["ref"],
             relative_path=kwargs["relative_path"].strip("/"),
         )
-        browsable_path = reverse(
+        tree_browsable_path = reverse(
             "project-tree",
+            args=[project.owner.username, project.handle, current_ref, relative_path],
+        )
+        blob_browsable_path = reverse(
+            "project-blob",
             args=[project.owner.username, project.handle, current_ref, relative_path],
         )
 
         context = {
             "project": project,
             "repo_objects": repo_objects,
-            "browsable_path": browsable_path,
+            "tree_browsable_path": tree_browsable_path,
+            "blob_browsable_path": blob_browsable_path,
         }
         return render(request, "projects/tree.html", context)
+
+
+class ProjectBlobView(View):
+    def get(self, request, *args, **kwargs):
+        project = get_object_or_404(
+            Project, handle=kwargs["project_handle"], owner__username=kwargs["username"]
+        )
+
+        current_ref = kwargs["ref"]
+        relative_path = kwargs["relative_path"].strip("/")
+        repo_object = project.get_blob_at_path(
+            ref_name=kwargs["ref"],
+            relative_path=relative_path,
+        )
+
+        print("Dockerfile", repo_object)
+
+        context = {
+            "project": project,
+            "repo_object": repo_object,
+            "current_ref": current_ref,
+        }
+        return render(request, "projects/blob.html", context)
