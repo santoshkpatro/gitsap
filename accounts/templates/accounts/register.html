@@ -1,7 +1,7 @@
 {% extends 'accounts/base.html' %}
 
 {% block icon %}
-<i class="bi bi-puzzle fs-1 mb-1"></i>
+<i data-lucide="user-plus" class="mb-1" style="width: 36px; height: 36px;"></i>
 {% endblock icon %}
 
 {% block form %}
@@ -60,10 +60,11 @@
     <!-- Submit Button -->
     <div class="d-grid">
         <button type="submit" class="btn btn-primary">
-            <i class="bi bi-person-check me-2"></i> Continue
+            <i data-lucide="check-circle" class="me-2" style="width: 16px; height: 16px;"></i> Continue
         </button>
     </div>
 
+    <!-- Login Link -->
     <div class="text-center mt-3">
         <span class="small">Already have an account?</span>
         <a href="{% url 'accounts-login' %}" class="small text-decoration-none">Log in</a>
@@ -75,4 +76,5 @@
         <a href="/terms" class="text-decoration-none">Terms & Conditions</a> and
         <a href="/privacy" class="text-decoration-none">Privacy Policy</a>.
     </div>
-    {% endblock form %}
+</form>
+{% endblock form %}

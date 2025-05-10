@@ -1,7 +1,7 @@
 {% extends 'accounts/base.html' %}
 
 {% block icon %}
-<i class="bi bi-shield-lock fs-1 mb-1"></i>
+<i data-lucide="shield" class="mb-1" style="width: 36px; height: 36px;"></i>
 {% endblock icon %}
 
 {% block form %}
@@ -15,8 +15,7 @@
 
     <!-- Username/Email Field -->
     <div class="mb-3">
-        <label for="{{ form.username.id_for_label }}" class="form-label">Username or Email
-            address</label>
+        <label for="{{ form.username.id_for_label }}" class="form-label">Username or Email address</label>
         {{ form.username }}
         {% if form.username.errors %}
         <div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>
@@ -40,7 +39,7 @@
     <!-- Submit Button -->
     <div class="d-grid">
         <button type="submit" class="btn btn-primary">
-            <i class="bi bi-box-arrow-in-right me-2"></i> Continue
+            <i data-lucide="log-in" class="me-2" style="width: 16px; height: 16px;"></i> Continue
         </button>
     </div>
 

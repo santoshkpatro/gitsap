@@ -6,23 +6,25 @@
     <div class="col-md-9">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="d-flex align-items-center gap-2">
+                <!-- Branch & Tag Dropdown -->
                 <div class="dropdown">
                     <button class="btn btn-light dropdown-toggle d-flex align-items-center gap-2" type="button"
                         data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-git"></i>
+                        <i data-lucide="git-branch"></i>
                         <span class="fw-semibold small text-capitalize">
                             {{ project.default_branch|default:"main" }}
                         </span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end p-2" style="min-width: 220px;">
+                        <!-- Branches -->
                         <li class="mb-2 px-2 text-muted small fw-semibold d-flex align-items-center">
-                            <i class="bi bi-diagram-3 me-2"></i> Branches
+                            <i data-lucide="git-branch" class="me-2"></i> Branches
                         </li>
                         {% for branch in project.repo_branches %}
                         <li>
                             <a class="dropdown-item small {% if branch == project.default_branch %}active{% endif %}"
                                 href="#">
-                                <i class="bi bi-git me-2"></i>{{ branch }}
+                                <i data-lucide="git-branch" class="me-2"></i>{{ branch }}
                             </a>
                         </li>
                         {% empty %}
@@ -33,13 +35,14 @@
                             <hr class="dropdown-divider my-2">
                         </li>
 
+                        <!-- Tags -->
                         <li class="mb-2 px-2 text-muted small fw-semibold d-flex align-items-center">
-                            <i class="bi bi-tag me-2"></i> Tags
+                            <i data-lucide="tag" class="me-2"></i> Tags
                         </li>
                         {% for tag in project.repo_tags %}
                         <li>
                             <a class="dropdown-item small" href="#">
-                                <i class="bi bi-tag me-2"></i>{{ tag }}
+                                <i data-lucide="tag" class="me-2"></i>{{ tag }}
                             </a>
                         </li>
                         {% empty %}
@@ -48,74 +51,80 @@
                     </ul>
                 </div>
 
-                <ul class="list-group">
-                    <li class="list-group-item">
+                <!-- Last Commit Summary -->
+                <ul class="list-group border-0 bg-transparent">
+                    <li class="list-group-item border-0 ps-2 py-1 bg-transparent">
                         <span class="form-text">{{ last_commit.author_name }} |</span>
                         <span class="form-text">{{ last_commit.message }}</span>
                     </li>
                 </ul>
             </div>
 
+            <!-- Code Dropdown -->
             <div class="dropdown">
                 <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown"
                     aria-expanded="false">
-                    Code
+                    <i data-lucide="code" class="me-1"></i> Code
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end p-3" style="min-width: 320px;">
+                    <!-- SSH -->
                     <li class="mb-3">
                         <div class="d-flex align-items-center mb-1">
-                            <i class="bi bi-key me-2"></i>
+                            <i data-lucide="key" class="me-2"></i>
                             <span class="fw-semibold small">Clone with SSH</span>
                         </div>
                         <input type="text" class="form-control form-control-sm" readonly
                             value="{{ project.ssh_clone_url }}">
                     </li>
+
+                    <!-- HTTPS -->
                     <li class="mb-3">
                         <div class="d-flex align-items-center mb-1">
-                            <i class="bi bi-globe me-2"></i>
+                            <i data-lucide="globe" class="me-2"></i>
                             <span class="fw-semibold small">Clone with HTTPS</span>
                         </div>
                         <input type="text" class="form-control form-control-sm" readonly
                             value="{{ project.https_clone_url }}">
                     </li>
+
+                    <!-- Download -->
                     <li>
                         <hr class="dropdown-divider">
                     </li>
                     <li>
                         <div class="d-flex align-items-center mb-1">
+                            <i data-lucide="download" class="me-2"></i>
                             <span class="fw-semibold small">Download</span>
                         </div>
                     </li>
                     <li>
                         <a class="dropdown-item" href="#">
-                            <i class="bi bi-file-earmark-zip me-2"></i> Download ZIP
+                            <i data-lucide="file-archive" class="me-2"></i> Download ZIP
                         </a>
                     </li>
                     <li>
                         <a class="dropdown-item" href="#">
-                            <i class="bi bi-file-earmark me-2"></i> Download TAR.GZ
+                            <i data-lucide="folder-archive" class="me-2"></i> Download TAR.GZ
                         </a>
                     </li>
                 </ul>
             </div>
-
         </div>
+
         {% if not repo_objects %}
-        <!-- Show empty state -->
         {% include 'projects/_onboarding.html' %}
         {% else %}
-        <!-- Show files list -->
         {% include 'projects/_repo_objects.html' %}
         {% endif %}
-
-
     </div>
 
     <!-- Right Sidebar -->
     <div class="col-md-3">
-        <h5 class="mb-2"><strong>About</strong></h5>
+        <h6 class="mb-2 d-flex align-items-center gap-1">
+            <i data-lucide="info" class="me-1"></i><strong>About</strong>
+        </h6>
         {% if project.description %}
-        <div class="text-muted">{{ project.description }}</div>
+        <div class="text-muted small">{{ project.description }}</div>
         {% endif %}
     </div>
 </div>
