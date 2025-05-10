@@ -1,0 +1,38 @@
+<div class="text-center py-5">
+    <h4 class="text-muted mb-3">This project is empty</h4>
+    <p class="text-secondary">Start working on your project by adding files or pushing an existing repository from the
+        command line.</p>
+
+    <!-- CTA Buttons -->
+    <div class="d-flex justify-content-center gap-2 flex-wrap my-4">
+        <a href="#" class="btn btn-primary">
+            <i class="bi bi-file-earmark-plus"></i> Create new file
+        </a>
+        <a href="#" class="btn btn-outline-primary">
+            <i class="bi bi-book"></i> Add a README
+        </a>
+        <a href="#" class="btn btn-outline-secondary">
+            <i class="bi bi-upload"></i> Upload files
+        </a>
+    </div>
+
+    <!-- Git Instructions -->
+    <div class="bg-light border rounded p-4 mt-4 mx-auto" style="max-width: 640px;">
+        <h6 class="mb-3 text-start">…or create a new repository on the command line</h6>
+        <pre class="rounded p-3 mb-4 text-start"><code>
+            git clone {{ project.https_clone_url }}
+            cd {{ project.handle }}
+            echo "# {{ project.name }}" > README.md
+            git add README.md
+            git commit -m "Initial commit"
+            git push origin {{ project.default_branch }}
+        </code></pre>
+
+        <h6 class="mb-3 text-start">…or push an existing repository from the command line</h6>
+        <pre class="rounded p-3 text-start"><code>
+            git remote add origin {{ project.https_clone_url }}
+            git branch -M {{ project.default_branch }}
+            git push -u origin {{ project.default_branch }}
+        </code></pre>
+    </div>
+</div>

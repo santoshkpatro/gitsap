@@ -155,7 +155,7 @@ class Project(BaseUUIDModel):
         # Step 5: Return pygit2.Repository instance
         return pygit2.Repository(str(repo_dir))
 
-    def get_latest_commit_info(self, repo_path, relative_path):
+    def get_latest_commit_info(self, repo_path, relative_path, branch):
         """
         Returns the latest commit info for a given file/directory path.
 
@@ -166,15 +166,18 @@ class Project(BaseUUIDModel):
         Returns:
             Optional[Dict]: A dictionary with commit hash, timestamp, and message.
         """
+
         try:
+            ref = f"refs/heads/{branch}"
             result = subprocess.run(
-                ["git", "log", "-1", "--format=%H|%ct|%s", "--", relative_path],
+                ["git", "log", "-1", "--format=%H|%ct|%s", ref, "--", relative_path],
                 cwd=repo_path,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.DEVNULL,
                 text=True,
                 check=True,
             )
+
             if result.stdout.strip():
                 commit_hash, timestamp, message = result.stdout.strip().split("|", 2)
                 return {
@@ -182,33 +185,23 @@ class Project(BaseUUIDModel):
                     "timestamp": datetime.fromtimestamp(int(timestamp)),
                     "message": message.strip(),
                 }
-        except subprocess.CalledProcessError:
-            pass
+        except subprocess.CalledProcessError as e:
+            print("Error:", e)
         return None
 
     @property
     def root_tree_objects(self):
-        """
-        Returns the contents of the root tree of the project's default branch.
-
-        Args:
-            project (Project): An instance of the Project model.
-
-        Returns:
-            List[Dict]: A list of dictionaries with name, type, and id of each tree entry.
-        """
-        repo = self.repo  # pygit2.Repository instance
+        repo = self.repo
         branch_name = self.default_branch
-        workdir = str(repo.path)  # .git is inside repo.path
+        workdir = str(repo.path)
 
-        # Get the root commit of the default branch
         ref = repo.references.get(f"refs/heads/{branch_name}")
         if not ref:
-            raise ValueError(f"Branch '{branch_name}' not found.")
+            return []  # No commits yet
+
         commit = repo[ref.target]
         tree = commit.tree
 
-        # Sort: folders first, then alphabetically
         sorted_entries = sorted(
             tree, key=lambda e: (e.type != pygit2.GIT_OBJECT_TREE, e.name.lower())
         )
@@ -216,8 +209,7 @@ class Project(BaseUUIDModel):
         results = []
         for entry in sorted_entries:
             path = entry.name
-            latest_commit = self.get_latest_commit_info(workdir, path)
-
+            latest_commit = self.get_latest_commit_info(workdir, path, branch_name)
             results.append(
                 {
                     "name": entry.name,

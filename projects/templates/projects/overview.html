@@ -50,7 +50,15 @@
             </div>
 
         </div>
+        {% if not repo_objects %}
+        <!-- Show empty state -->
+        {% include 'projects/_onboarding.html' %}
+        {% else %}
+        <!-- Show files list -->
         {% include 'projects/_repo_objects.html' %}
+        {% endif %}
+
+
     </div>
 
     <!-- Right Sidebar -->

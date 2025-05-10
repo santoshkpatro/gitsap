@@ -8,6 +8,7 @@ from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.utils.text import slugify
+from datetime import datetime
 
 from accounts.models import User
 from projects.models import Project
@@ -214,39 +215,46 @@ class GitReceivePackView(View):
     """
 
     def post(self, request, *args, **kwargs):
-        """
-        Handle POST requests for git-receive-pack.
-
-        This endpoint is called by git clients to upload objects during
-        push operations.
-
-        Args:
-            request: The HTTP request
-            repo_name: Repository name
-
-        Returns:
-            HttpResponse: Git protocol response for the push
-        """
         project = get_object_or_404(
             Project, handle=kwargs["project_handle"], owner__username=kwargs["username"]
         )
 
-        # Execute git command to handle the receive-pack request
+        # Step 1: Handle the receive-pack request
         cmd = ["git-receive-pack", "--stateless-rpc", project._local_git_path]
         p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-
-        # Pass the client's request body to git command
         stdout_data = p.communicate(input=request.body)[0]
 
-        # Step 2: Re-archive and update to S3
+        latest_commit_info = None
+
+        try:
+            # Step 2: Extract latest commit info
+            result = subprocess.run(
+                ["git", "log", "-1", "--format=%H|%ct|%s"],
+                cwd=project._local_git_path,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                check=True,
+            )
+            if result.stdout.strip():
+                commit_hash, timestamp, message = result.stdout.strip().split("|", 2)
+                latest_commit_info = {
+                    "hash": commit_hash,
+                    "timestamp": datetime.fromtimestamp(int(timestamp)),
+                    "message": message.strip(),
+                }
+        except subprocess.CalledProcessError as e:
+            print("Failed to fetch commit:", e)
+
+        # Step 3: Re-archive and upload to S3
         try:
             project.update_cloud_resource_artifact()
         except Exception as e:
-            # Optional: log this or set alert
             print(f"Warning: Failed to update archive after push: {e}")
 
-        # Return the git command output
+        # Optionally log or return commit info for debugging
+        print("Latest commit pushed:", latest_commit_info)
+
         response = HttpResponse(stdout_data)
         response["Content-Type"] = "application/x-git-receive-pack-result"
-
         return response
