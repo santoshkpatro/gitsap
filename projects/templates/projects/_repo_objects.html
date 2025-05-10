@@ -9,10 +9,13 @@
             <div style="width: 30%;" class="d-flex align-items-center me-3 flex-shrink-0">
                 {% if object.type == 'tree' %}
                 <i class="bi bi-folder-fill text-primary me-2"></i>
+                <a href="{{browsable_path}}/{{object.name}}" class="text-decoration-none text-body small">
+                    {{ object.name }}
+                </a>
                 {% elif object.type == 'blob' %}
                 <i class="bi bi-file-earmark text-secondary me-2"></i>
+                <a href="#" class="text-decoration-none text-body small">{{ object.name }}</a>
                 {% endif %}
-                <div class="">{{ object.name }}</div>
             </div>
 
             <!-- Commit Message (50%) -->
