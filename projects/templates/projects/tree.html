@@ -2,5 +2,9 @@
 {% load humanize %}
 
 {% block content %}
+<div class="mb-2">
+    {% include 'projects/_last_commit.html' %}
+</div>
+
 {% include 'projects/_repo_objects.html' %}
 {% endblock content %}

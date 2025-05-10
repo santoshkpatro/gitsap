@@ -200,7 +200,7 @@ class Project(BaseUUIDModel):
         results = []
         for entry in sorted_entries:
             path = entry.name
-            latest_commit = self.get_latest_commit_info(workdir, path, branch_name)
+            latest_commit = self.get_last_commit_info(path, branch_name)
             results.append(
                 {
                     "name": entry.name,
@@ -270,7 +270,7 @@ class Project(BaseUUIDModel):
         self.resource.name = s3_key
         self.save(update_fields=["resource"])
 
-    def get_latest_commit_info(self, repo_path, relative_path, branch):
+    def get_last_commit_info(self, relative_path, branch):
         try:
             ref = f"refs/heads/{branch}"
             result = subprocess.run(
@@ -283,7 +283,7 @@ class Project(BaseUUIDModel):
                     "--",
                     relative_path,
                 ],
-                cwd=repo_path,
+                cwd=self._local_git_path,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.DEVNULL,
                 text=True,
@@ -336,7 +336,7 @@ class Project(BaseUUIDModel):
         results = []
         for entry in sorted_entries:
             path = os.path.join(relative_path, entry.name)
-            latest_commit = self.get_latest_commit_info(workdir, path, ref_name)
+            latest_commit = self.get_last_commit_info(path, ref_name)
             results.append(
                 {
                     "name": entry.name,
@@ -379,7 +379,7 @@ class Project(BaseUUIDModel):
             content = blob.data
             encoding = "utf-8" if b"\0" not in content else "binary"
 
-            last_commit = self.get_latest_commit_info(workdir, relative_path, ref_name)
+            last_commit = self.get_last_commit_info(relative_path, ref_name)
             file_ext = relative_path.split(".")[-1]
 
             return {
@@ -409,11 +409,10 @@ class Project(BaseUUIDModel):
             commit = repo[ref.target]
             return {
                 "hash": str(commit.id),
-                "timestamp": commit.commit_time,
+                "timestamp": datetime.fromtimestamp(commit.commit_time),
                 "message": commit.message.strip(),
                 "author_name": commit.author.name,
                 "author_email": commit.author.email,
-                "datetime": datetime.fromtimestamp(commit.commit_time),
             }
         except Exception as e:
             print("Error in get_last_commit_info_for_ref:", e)
