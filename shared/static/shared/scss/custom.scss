@@ -1,21 +1,20 @@
 // Custom.scss
-// Option A: Include all of Bootstrap
+$primary: teal;
 
-// 1. Override Bootstrap variables BEFORE importing bootstrap
-$primary: teal; // or use a specific shade e.g. #20c997
+$font-size-base: 0.9rem; // Decrease overall base font size
 
-// Remove input and button box-shadows
 $btn-box-shadow: none;
 $btn-focus-box-shadow: none;
 $input-box-shadow: none;
 $input-focus-box-shadow: none;
 
-// Sharpen border radii globally
 $border-radius: 0.2rem;
-$btn-border-radius: 0.2rem;
+$btn-border-radius: 0.375rem;
 $input-border-radius: 0.2rem;
 
-// Alerts
+$btn-padding-y: 0.35rem;
+$btn-padding-x: 0.75rem;
+
 $alert-padding-y: 0.25rem;
 $alert-padding-x: 0.75rem;
 $alert-font-size: 0.85rem;
@@ -25,8 +24,4 @@ $btn-close-height: 0.75rem;
 $btn-close-padding-x: 0.25rem;
 $btn-close-padding-y: 0.25rem;
 
-// Include any default variable overrides here (though functions won’t be available)
-
 @import "../../../../node_modules/bootstrap/scss/bootstrap";
-
-// Then add additional custom code here
