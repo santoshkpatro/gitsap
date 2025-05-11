@@ -15,18 +15,30 @@
                     <button class="btn btn-light btn-sm dropdown-toggle d-flex align-items-center gap-2" type="button"
                         data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                         <i data-lucide="git-branch"></i>
-                        <span class="fw-semibold">{{ project.default_branch|default:"main" }}</span>
+                        <span class="fw-semibold">{{ current_ref }}</span>
                     </button>
-                    <div class="dropdown-menu dropdown-menu-end p-2" style="min-width: 240px;">
+                    <div class="dropdown-menu dropdown-menu-end p-2" style="min-width: 260px;">
                         <!-- Branches Section -->
                         <h6 class="dropdown-header d-flex align-items-center gap-1">
-                            <i data-lucide="git-branch" class="me-1"></i> Branches
+                            Branches
                         </h6>
+
                         {% for branch in project.repo_branches %}
-                        <a href="{% url 'project-tree' username=project.owner.username project_handle=project.handle ref_and_path=branch %}"
-                            class="dropdown-item small d-flex align-items-center gap-2 {% if branch == project.default_branch %}active{% endif %}">
-                            <i data-lucide="git-commit" class="text-muted" style="width:16px; height:16px;"></i>
-                            {{ branch }}
+                        <a href="{% url 'project-overview' username=project.owner.username project_handle=project.handle %}?ref={{ branch }}"
+                            class="dropdown-item small d-flex align-items-center gap-2 justify-content-between">
+
+                            <div class="d-flex align-items-center gap-2">
+                                {% if branch == current_ref %}
+                                <i data-lucide="check" class="text-success" style="width:16px; height:16px;"></i>
+                                {% else %}
+                                <i data-lucide="git-branch" class="text-muted" style="width:16px; height:16px;"></i>
+                                {% endif %}
+                                <span>{{ branch }}</span>
+                            </div>
+
+                            {% if branch == project.default_branch %}
+                            <span class="badge text-bg-light">default</span>
+                            {% endif %}
                         </a>
                         {% empty %}
                         <span class="dropdown-item text-muted small d-flex align-items-center gap-2">
@@ -34,11 +46,12 @@
                         </span>
                         {% endfor %}
 
+
                         <hr class="dropdown-divider my-2">
 
                         <!-- Tags Section -->
                         <h6 class="dropdown-header d-flex align-items-center gap-1">
-                            <i data-lucide="bookmark" class="me-1"></i> Tags
+                            Tags
                         </h6>
                         {% for tag in project.repo_tags %}
                         <div class="dropdown-item small d-flex align-items-center gap-2">
@@ -65,6 +78,11 @@
 
             <!-- Right: Search + Code -->
             <div class="d-flex align-items-center gap-2 flex-grow-1 justify-content-end">
+                <span class="text-muted small d-flex align-items-center">
+                    <i data-lucide="history" class="me-1"></i>{{ commits_count|default:0 }}
+                    commits
+                </span>
+
                 <input type="search" class="form-control form-control-sm w-auto" placeholder="Search code...">
 
                 <!-- Code Dropdown -->
