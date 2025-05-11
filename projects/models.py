@@ -6,6 +6,7 @@ from django.utils.text import slugify
 from django.utils import timezone
 from datetime import datetime
 from pathlib import Path
+from urllib.parse import quote
 
 from shared.models import BaseUUIDModel
 
