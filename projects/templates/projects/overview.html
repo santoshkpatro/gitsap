@@ -79,8 +79,11 @@
             <!-- Right: Search + Code -->
             <div class="d-flex align-items-center gap-2 flex-grow-1 justify-content-end">
                 <span class="text-muted small d-flex align-items-center">
-                    <i data-lucide="history" class="me-1"></i>{{ commits_count|default:0 }}
-                    commits
+                    <a href="{% url 'project-commit-history' username=project.owner.username project_handle=project.handle ref=current_ref %}"
+                        class="text-decoration-none">
+                        <i data-lucide="history" class="me-1"></i>{{ commits_count|default:0 }}
+                        commits
+                    </a>
                 </span>
 
                 <input type="search" class="form-control form-control-sm w-auto" placeholder="Search code...">

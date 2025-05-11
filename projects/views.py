@@ -1,4 +1,6 @@
 import subprocess, base64
+from collections import defaultdict
+from django.utils.timezone import localtime
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import View
 from django.http import (
@@ -311,3 +313,33 @@ class ProjectBlobView(View):
             "active_tab": "code",
         }
         return render(request, "projects/blob.html", context)
+
+
+class ProjectCommitHistoryView(View):
+    def get(self, request, *args, **kwargs):
+        project = get_object_or_404(
+            Project, handle=kwargs["project_handle"], owner__username=kwargs["username"]
+        )
+        ref = kwargs.get("ref")
+        skip = int(request.GET.get("skip", 0))
+        commit_history = project.get_commit_history(ref, max_count=21, skip=skip)
+
+        visible_commits = commit_history[:20]
+        has_more = len(commit_history) > 20
+
+        grouped_commits = defaultdict(list)
+        for commit in visible_commits:
+            local_date = commit["timestamp"].date()
+            grouped_commits[local_date].append(commit)
+
+        context = {
+            "project": project,
+            "grouped_commits": dict(grouped_commits),
+            "current_ref": ref,
+            "active_tab": "code",
+            "has_more": has_more,
+            "next_skip": skip + 20,
+            "prev_skip": max(0, skip - 20),
+            "skip": skip,
+        }
+        return render(request, "projects/commit_history.html", context)

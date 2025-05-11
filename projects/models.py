@@ -453,6 +453,54 @@ class Project(BaseUUIDModel):
 
         return commits_count
 
+    def get_commit_history(self, ref_name: str, max_count: int = 50, skip: int = 0):
+        """
+        Get commit history for a given ref/branch.
+        Supports pagination using `skip` to offset the number of commits.
+        """
+        try:
+            result = subprocess.run(
+                [
+                    "git",
+                    "log",
+                    f"refs/heads/{ref_name}",
+                    f"--skip={skip}",
+                    f"-n{max_count}",
+                    "--format=%H|%ct|%s|%an|%ae",
+                ],
+                cwd=self._local_git_path,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,  # <- Show stderr if needed
+                text=True,
+                check=True,
+            )
+
+            history = []
+            for line in result.stdout.strip().splitlines():
+                if not line.strip():
+                    continue
+                try:
+                    commit_hash, timestamp, message, author_name, author_email = (
+                        line.split("|", 4)
+                    )
+                    history.append(
+                        {
+                            "hash": commit_hash,
+                            "timestamp": datetime.fromtimestamp(int(timestamp)),
+                            "message": message.strip(),
+                            "author_name": author_name,
+                            "author_email": author_email,
+                        }
+                    )
+                except ValueError:
+                    continue  # skip malformed lines
+
+            return history
+
+        except subprocess.CalledProcessError as e:
+            print("Git log error:", e.stderr)
+            return []
+
 
 class ProjectCollaborator(BaseUUIDModel):
     class Role(models.TextChoices):
