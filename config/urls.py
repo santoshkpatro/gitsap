@@ -3,12 +3,10 @@ from django.urls import path, include, re_path
 
 from home.views import IndexView
 from accounts.views import LoginView, RegisterView
+from git.views import GitInfoRefsView, GitUploadPackView, GitReceivePackView
 from projects.views import (
     ProjectOverview,
     ProjectCreateView,
-    GitInfoRefsView,
-    GitUploadPackView,
-    GitReceivePackView,
     ProjectTreeView,
     ProjectBlobView,
 )
