@@ -273,16 +273,20 @@ class Project(BaseUUIDModel):
     def get_last_commit_info(self, relative_path, branch):
         try:
             ref = f"refs/heads/{branch}"
+            cmd = [
+                "git",
+                "log",
+                "-1",
+                "--format=%H|%ct|%s|%an|%ae",
+                ref,
+            ]
+
+            # Only add the path if it's provided
+            if relative_path:
+                cmd += ["--", relative_path]
+
             result = subprocess.run(
-                [
-                    "git",
-                    "log",
-                    "-1",
-                    "--format=%H|%ct|%s|%an|%ae",
-                    ref,
-                    "--",
-                    relative_path,
-                ],
+                cmd,
                 cwd=self._local_git_path,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.DEVNULL,
