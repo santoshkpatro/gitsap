@@ -284,19 +284,20 @@ class ProjectTreeView(View):
             Project, handle=kwargs["project_handle"], owner__username=kwargs["username"]
         )
 
-        current_ref = kwargs.get("ref")
-        relative_path = kwargs.get("relative_path", "/")
+        ref_and_path = kwargs.get("ref_and_path", "")
+        ref, relative_path = project.resolve_ref_and_path(ref_and_path)
+
         repo_objects = project.get_tree_objects_at_path(
-            ref_name=kwargs["ref"],
+            ref_name=ref,
             relative_path=relative_path.strip("/"),
         )
         tree_browsable_path = reverse(
             "project-tree",
-            args=[project.owner.username, project.handle, current_ref, relative_path],
+            args=[project.owner.username, project.handle, ref_and_path],
         )
         blob_browsable_path = reverse(
             "project-blob",
-            args=[project.owner.username, project.handle, current_ref, relative_path],
+            args=[project.owner.username, project.handle, ref_and_path],
         )
 
         context = {
@@ -304,9 +305,7 @@ class ProjectTreeView(View):
             "repo_objects": repo_objects,
             "tree_browsable_path": tree_browsable_path,
             "blob_browsable_path": blob_browsable_path,
-            "last_commit": project.get_last_commit_info(
-                relative_path.strip("/"), current_ref
-            ),
+            "last_commit": project.get_last_commit_info(relative_path.strip("/"), ref),
             "active_tab": "code",
         }
         return render(request, "projects/tree.html", context)
@@ -317,19 +316,19 @@ class ProjectBlobView(View):
         project = get_object_or_404(
             Project, handle=kwargs["project_handle"], owner__username=kwargs["username"]
         )
+        ref_and_path = kwargs.get("ref_and_path", "")
+        ref, relative_path = project.resolve_ref_and_path(ref_and_path)
 
-        current_ref = kwargs["ref"]
-        relative_path = kwargs["relative_path"].strip("/")
         repo_object = project.get_blob_at_path(
-            ref_name=kwargs["ref"],
-            relative_path=relative_path,
+            ref_name=ref,
+            relative_path=relative_path.strip("/"),
         )
 
         context = {
             "project": project,
             "repo_object": repo_object,
-            "current_ref": current_ref,
-            "last_commit": project.get_last_commit_info(relative_path, current_ref),
+            "current_ref": ref,
+            "last_commit": project.get_last_commit_info(relative_path, ref),
             "active_tab": "code",
         }
         return render(request, "projects/blob.html", context)

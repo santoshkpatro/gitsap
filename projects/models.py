@@ -423,6 +423,23 @@ class Project(BaseUUIDModel):
             print("Error in get_last_commit_info_for_ref:", e)
             return None
 
+    def resolve_ref_and_path(self, ref_and_path: str) -> tuple[str, str]:
+        repo = self.repo
+        parts = ref_and_path.strip("/").split("/")
+
+        for i in range(len(parts), 0, -1):
+            candidate_ref = "/".join(parts[:i])
+            try:
+                # Try resolving the candidate as a ref
+                obj = repo.revparse_single(candidate_ref)
+                if obj.type == pygit2.GIT_OBJECT_COMMIT:
+                    relative_path = "/".join(parts[i:])
+                    return candidate_ref, relative_path
+            except (KeyError, pygit2.GitError):
+                continue
+
+        raise ValueError("Unable to resolve ref from path")
+
 
 class ProjectCollaborator(BaseUUIDModel):
     class Role(models.TextChoices):
