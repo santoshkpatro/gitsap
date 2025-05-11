@@ -1,7 +1,12 @@
 import subprocess, base64
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import View
-from django.http import HttpResponse, HttpResponseNotFound, HttpResponseForbidden
+from django.http import (
+    HttpResponse,
+    HttpResponseNotFound,
+    HttpResponseForbidden,
+    StreamingHttpResponse,
+)
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.contrib.auth import login
@@ -9,7 +14,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.utils.text import slugify
 from django.urls import reverse
-from datetime import datetime
 
 from accounts.models import User
 from projects.models import Project
@@ -56,7 +60,7 @@ class ProjectOverview(View):
         project = get_object_or_404(
             Project, handle=kwargs["project_handle"], owner__username=kwargs["username"]
         )
-        current_ref = project.default_branch
+        current_ref = request.GET.get("ref", project.default_branch)
         tree_browsable_path = reverse(
             "project-tree", args=[project.owner.username, project.handle, current_ref]
         )
@@ -67,12 +71,16 @@ class ProjectOverview(View):
 
         context = {
             "project": project,
-            "repo_objects": project.root_tree_objects,
+            "repo_objects": project.get_tree_objects_at_path(
+                ref_name=current_ref,
+                relative_path="",
+            ),
             "current_ref": current_ref,
             "tree_browsable_path": tree_browsable_path,
             "blob_browsable_path": blob_browsable_path,
             "last_commit": project.get_last_commit_info_for_ref(project.default_branch),
             "active_tab": "code",
+            "commits_count": project.get_commits_count(current_ref),
         }
         return render(request, "projects/overview.html", context)
 
@@ -136,15 +144,12 @@ class GitInfoRefsView(GitOpsAuthenticationMixin, View):
         """
         auth_user = self.validate_auth_credentials(request)
 
-        if not auth_user and not self.request.user.is_authenticated:
+        if not auth_user:
             return HttpResponse(
                 "Authentication required",
                 status=401,
                 headers={"WWW-Authenticate": 'Basic realm="Git Access"'},
             )
-
-        if not auth_user:
-            return HttpResponseForbidden("Invalid credentials")
 
         login(request, auth_user)
 
@@ -242,36 +247,11 @@ class GitReceivePackView(View):
         p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         stdout_data = p.communicate(input=request.body)[0]
 
-        latest_commit_info = None
-
-        try:
-            # Step 2: Extract latest commit info
-            result = subprocess.run(
-                ["git", "log", "-1", "--format=%H|%ct|%s"],
-                cwd=project._local_git_path,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                check=True,
-            )
-            if result.stdout.strip():
-                commit_hash, timestamp, message = result.stdout.strip().split("|", 2)
-                latest_commit_info = {
-                    "hash": commit_hash,
-                    "timestamp": datetime.fromtimestamp(int(timestamp)),
-                    "message": message.strip(),
-                }
-        except subprocess.CalledProcessError as e:
-            print("Failed to fetch commit:", e)
-
         # Step 3: Re-archive and upload to S3
         try:
             project.update_cloud_resource_artifact()
         except Exception as e:
             print(f"Warning: Failed to update archive after push: {e}")
-
-        # Optionally log or return commit info for debugging
-        print("Latest commit pushed:", latest_commit_info)
 
         response = HttpResponse(stdout_data)
         response["Content-Type"] = "application/x-git-receive-pack-result"

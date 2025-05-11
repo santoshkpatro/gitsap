@@ -440,6 +440,19 @@ class Project(BaseUUIDModel):
 
         raise ValueError("Unable to resolve ref from path")
 
+    def get_commits_count(self, ref_name: str):
+        repo = self.repo
+        ref = repo.references.get(f"refs/heads/{ref_name}")
+        if not ref:
+            return 0
+
+        commit = repo[ref.target]
+        commits_count = 0
+        for _ in repo.walk(commit.id, pygit2.GIT_SORT_NONE):
+            commits_count += 1
+
+        return commits_count
+
 
 class ProjectCollaborator(BaseUUIDModel):
     class Role(models.TextChoices):
