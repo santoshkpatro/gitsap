@@ -34,7 +34,7 @@ urlpatterns = [
     path("create/", ProjectCreateView.as_view(), name="project-create"),
     
     path("<str:username>/<str:project_handle>/", ProjectOverview.as_view(), name="project-overview"),
-    path("<str:username>/<str:project_handle>/-/", include(project_browse_urlpatterns)),
+    path("<str:username>/<str:project_handle>/browse/", include(project_browse_urlpatterns)),
 
     # Git endpoints for handling git operations
     path("<str:username>/<str:project_handle>.git/info/refs", GitInfoRefsView.as_view(), name="project-git-info-refs"),
