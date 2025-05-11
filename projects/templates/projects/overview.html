@@ -1,4 +1,5 @@
 {% extends 'shared/project_base.html' %}
+{% load encode_filters %}
 {% load humanize %}
 
 {% block content %}
@@ -23,7 +24,7 @@
                             <i data-lucide="git-branch" class="me-1"></i> Branches
                         </h6>
                         {% for branch in project.repo_branches %}
-                        <a href="{% url 'project-tree' username=project.owner.username project_handle=project.handle ref=branch %}"
+                        <a href="{% url 'project-tree' username=project.owner.username project_handle=project.handle ref=branch|full_urlencode %}"
                             class="dropdown-item small d-flex align-items-center gap-2 {% if branch == project.default_branch %}active{% endif %}">
                             <i data-lucide="git-commit" class="text-muted" style="width:16px; height:16px;"></i>
                             {{ branch }}
