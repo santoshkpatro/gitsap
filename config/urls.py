@@ -15,12 +15,12 @@ from projects.views import (
 
 project_browse_urlpatterns = [
     re_path(
-        r"^tree/(?P<ref>[^/]+)(?P<relative_path>/.*)?$",
+        r"^tree/(?P<ref_and_path>.+)$",  # Capture entire string after /tree/
         ProjectTreeView.as_view(),
         name="project-tree",
     ),
     re_path(
-        r"^blob/(?P<ref>[^/]+)(?P<relative_path>/.*)?$",
+        r"^blob/(?P<ref_and_path>.+)$",  # Capture entire string after /blob/
         ProjectBlobView.as_view(),
         name="project-blob",
     ),
