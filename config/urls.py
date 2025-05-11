@@ -9,6 +9,7 @@ from projects.views import (
     ProjectCreateView,
     ProjectTreeView,
     ProjectBlobView,
+    ProjectCommitHistoryView,
 )
 
 project_browse_urlpatterns = [
@@ -21,6 +22,11 @@ project_browse_urlpatterns = [
         r"^blob/(?P<ref_and_path>.+)$",  # Capture entire string after /blob/
         ProjectBlobView.as_view(),
         name="project-blob",
+    ),
+    re_path(
+        r"^commits/(?P<ref>.+)$",  # Capture entire string after /commits/
+        ProjectCommitHistoryView.as_view(),
+        name="project-commit-history",
     ),
 ]
 

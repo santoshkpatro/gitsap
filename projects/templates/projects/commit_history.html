@@ -1,0 +1,127 @@
+{% extends 'shared/project_base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container mt-2">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <!-- Left: Commits on + Branch Dropdown -->
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <span class="fw-semibold">Commits on</span>
+
+            <div class="dropdown">
+                <button class="btn btn-light btn-sm dropdown-toggle d-flex align-items-center gap-2" type="button"
+                    data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                    <i data-lucide="git-branch"></i>
+                    <span class="fw-semibold">{{ current_ref }}</span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end p-2" style="min-width: 260px;">
+                    <!-- Branches -->
+                    <h6 class="dropdown-header d-flex align-items-center gap-1">Branches</h6>
+                    {% for branch in project.repo_branches %}
+                    <a href="{% url 'project-commit-history' username=project.owner.username project_handle=project.handle ref=branch %}"
+                        class="dropdown-item small d-flex align-items-center gap-2 justify-content-between">
+                        <div class="d-flex align-items-center gap-2">
+                            {% if branch == current_ref %}
+                            <i data-lucide="check" class="text-success" style="width:16px;"></i>
+                            {% else %}
+                            <i data-lucide="git-branch" class="text-muted" style="width:16px;"></i>
+                            {% endif %}
+                            <span>{{ branch }}</span>
+                        </div>
+                        {% if branch == project.default_branch %}
+                        <span class="badge text-bg-light">default</span>
+                        {% endif %}
+                    </a>
+                    {% empty %}
+                    <span class="dropdown-item text-muted small d-flex align-items-center gap-2">
+                        <i data-lucide="git-branch-x" style="width:16px;"></i> No branches available
+                    </span>
+                    {% endfor %}
+
+                    <hr class="dropdown-divider my-2">
+
+                    <!-- Tags -->
+                    <h6 class="dropdown-header d-flex align-items-center gap-1">Tags</h6>
+                    {% for tag in project.repo_tags %}
+                    <div class="dropdown-item small d-flex align-items-center gap-2">
+                        <i data-lucide="bookmark" class="text-muted" style="width:16px;"></i> {{ tag }}
+                    </div>
+                    {% empty %}
+                    <span class="dropdown-item text-muted small d-flex align-items-center gap-2">
+                        <i data-lucide="bookmark-x" style="width:16px;"></i> No tags available
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Author dropdown -->
+        <div class="dropdown">
+            <button class="btn btn-light btn-sm dropdown-toggle d-flex align-items-center gap-2" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                <i data-lucide="user-round" class="text-muted"></i>
+                <span class="fw-medium small text-muted">Filter author</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-end p-2" style="min-width: 200px;">
+                <div class="dropdown-item small text-muted">Coming soon...</div>
+            </div>
+        </div>
+    </div>
+
+
+    {% for date, commits in grouped_commits.items %}
+    <div class="mb-4">
+        <div class="text-muted small fw-semibold border-bottom pb-1">
+            {{ date|date:"F j, Y" }}
+        </div>
+
+        <div class="list-group">
+            {% for commit in commits %}
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <!-- Left: icon + message -->
+                <div class="d-flex align-items-center gap-3 overflow-hidden">
+                    <!-- Icon -->
+                    <i data-lucide="git-commit" class="text-muted" style="width: 20px; height: 20px;"></i>
+
+                    <!-- Message + Meta -->
+                    <div class="overflow-hidden">
+                        <div class="fw-semibold text-dark text-truncate" title="{{ commit.message }}">
+                            {{ commit.message }}
+                        </div>
+                        <div class="text-muted small text-truncate">
+                            {{ commit.author_name }} committed {{ commit.timestamp|naturaltime }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: hash + copy + browse -->
+                <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                    <code class="text-muted small mb-0">{{ commit.hash|slice:":8" }}</code>
+
+                    <button type="button" class="btn btn-sm btn-outline-secondary btn-copy"
+                        data-copy="{{ commit.hash }}">
+                        <i data-lucide="copy" style="width: 16px; height: 16px;"></i>
+                    </button>
+
+                    <a href="#" class="btn btn-sm btn-outline-primary">
+                        <i data-lucide="folder" class="me-1" style="width: 16px; height: 16px;"></i>
+                        Browse
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Pagination Buttons -->
+    <div class="d-flex justify-content-end mt-4 gap-2">
+        {% if skip > 0 %}
+        <a href="?skip={{ prev_skip }}" class="btn btn-sm btn-outline-secondary">Previous</a>
+        {% endif %}
+        {% if has_more %}
+        <a href="?skip={{ next_skip }}" class="btn btn-sm btn-outline-secondary">Next</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock content %}
