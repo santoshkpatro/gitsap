@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 
 from home.views import IndexView
-from accounts.views import LoginView, RegisterView
+from accounts.views import LoginView, RegisterView, LogoutView
 from git.views import GitInfoRefsView, GitUploadPackView, GitReceivePackView
 from projects.views import (
     ProjectOverview,
@@ -35,6 +35,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/login/", LoginView.as_view(), name="accounts-login"),
     path("accounts/register/", RegisterView.as_view(), name="accounts-register"),
+    path("accounts/logout/", LogoutView.as_view(), name="accounts-logout"),
     path("create/", ProjectCreateView.as_view(), name="project-create"),
     
     path("<str:username>/<str:project_handle>/", ProjectOverview.as_view(), name="project-overview"),

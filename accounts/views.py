@@ -109,3 +109,10 @@ class RegisterView(View):
             "Your account has been created successfully. Please check your inbox (and spam folder) to verify your email before logging in.",
         )
         return redirect("accounts-login")
+
+
+class LogoutView(View):
+    def get(self, request):
+        logout(request)
+        messages.success(request, "You have been logged out successfully.")
+        return redirect("accounts-login")
