@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.db.models import Q
 
 from projects.mixins import ProjectAccessMixin
-from issues.models import Issue
+from issues.models import Issue, IssueActivity
 from issues.forms import IssueCreateForm
 
 
@@ -78,10 +78,12 @@ class IssueDetailView(ProjectAccessMixin, View):
             project=project,
             issue_number=issue_number,
         )
+        activities = IssueActivity.objects.filter(issue=issue).order_by("-created_at")
 
         context = {
             "issue": issue,
             "project": project,
             "active_tab": "issues",
+            "activities": activities,
         }
         return render(request, "issues/detail.html", context)
