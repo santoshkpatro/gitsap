@@ -96,7 +96,9 @@ class IssueActivity(BaseUUIDModel):
         "accounts.User", on_delete=models.CASCADE, related_name="issue_activities"
     )
     activity_type = models.CharField(max_length=10, choices=ActivityType.choices)
-    content = models.TextField()
+
+    content = models.TextField(blank=True, null=True)
+    content_html = models.TextField(blank=True, null=True)
 
     class Meta:
         db_table = "issues_activities"
