@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.contrib import messages
+from django.db.models import Q
 
 from projects.mixins import ProjectAccessMixin
 from issues.models import Issue
@@ -10,11 +11,21 @@ from issues.forms import IssueCreateForm
 class IssueListView(ProjectAccessMixin, View):
     def get(self, request, *args, **kwargs):
         project = request.project
-        issues = Issue.objects.filter(project=project).order_by("-created_at")
+        status = request.GET.get("status", "open")
+        if status == "all":
+            status_filter = Q(status__in=["open", "closed"])
+        else:
+            status_filter = Q(status=status)
+        issues = (
+            Issue.objects.filter(project=project)
+            .filter(status_filter)
+            .order_by("-issue_number")
+        )
         context = {
             "issues": issues,
             "project": project,
             "active_tab": "issues",
+            "status": status,
         }
         return render(request, "issues/list.html", context)
 
@@ -46,7 +57,7 @@ class IssueCreateView(ProjectAccessMixin, View):
         issue = Issue(
             **cleaned_data,
             project=project,
-            created_by=request.user,
+            author=request.user,
         )
         issue.save()
 
