@@ -15,6 +15,7 @@ class Issue(BaseUUIDModel):
     title = models.CharField(max_length=255)
     issue_number = models.IntegerField(blank=True)
     summary = models.TextField(blank=True, null=True)
+    summary_html = models.TextField(blank=True, null=True)
     created_by = models.ForeignKey(
         "accounts.User",
         on_delete=models.SET_NULL,

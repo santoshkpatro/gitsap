@@ -1,0 +1,130 @@
+{% extends 'shared/project_base.html' %}
+
+{% block styles %}
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+<style>
+    .ql-toolbar.ql-snow {
+        border-radius: 0.375rem 0.375rem 0 0;
+        border-color: #ced4da;
+        background-color: #f8f9fa;
+    }
+
+    .ql-container.ql-snow {
+        border-radius: 0 0 0.375rem 0.375rem;
+        border-color: #ced4da;
+        font-size: 0.95rem;
+    }
+
+    #editor {
+        min-height: 300px;
+    }
+
+    .ql-editor.ql-blank::before {
+        font-style: normal;
+        color: #6c757d;
+        font-size: 0.9rem;
+        left: 1rem;
+    }
+</style>
+{% endblock styles %}
+
+{% block content %}
+<div class="container mt-2">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <h4 class="mb-4 d-flex align-items-center gap-2">
+                <i data-lucide="plus-circle"></i> New Issue
+            </h4>
+
+            <form method="post"
+                action="{% url 'issue-create' username=project.owner.username project_handle=project.handle %}">
+                {% csrf_token %}
+                <div class="row g-4">
+                    <!-- Left Column: Title + Editor -->
+                    <div class="col-md-9">
+                        <div class="mb-3">
+                            <label class="form-label d-flex align-items-center gap-1 fw-semibold small">
+                                <i data-lucide="type"></i> Title
+                            </label>
+                            {{ form.title }}
+                        </div>
+
+                        <!-- Hidden textarea to store HTML -->
+                        {{ form.summary_html }}
+
+                        <div class="mb-3">
+                            <label class="form-label d-flex align-items-center gap-1 fw-semibold small">
+                                <i data-lucide="file-text"></i> Summary
+                            </label>
+                            <div id="editor"></div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="submit" class="btn btn-primary d-flex align-items-center gap-2">
+                                <i data-lucide="check-circle"></i> Submit new issue
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Metadata (Assignees, Tags, etc.) -->
+                    <div class="col-md-3">
+                        <div class="p-3">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small d-flex align-items-center gap-1">
+                                    <i data-lucide="user-plus"></i> Assignees
+                                </label>
+                                <div class="text-muted small">No assignees</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small d-flex align-items-center gap-1">
+                                    <i data-lucide="tag"></i> Labels
+                                </label>
+                                <div class="text-muted small">None yet</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small d-flex align-items-center gap-1">
+                                    <i data-lucide="flag"></i> Milestone
+                                </label>
+                                <div class="text-muted small">No milestone</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<script>
+
+    const quill = new Quill('#editor', {
+        theme: 'snow',
+        placeholder: 'Describe the issue in detail...',
+        modules: {
+            toolbar: [
+                [{ header: [1, 2, false] }],
+                ['bold', 'italic', 'underline', 'code'],
+                [{ list: 'ordered' }, { list: 'bullet' }],
+                ['link', 'blockquote', 'code-block'],
+                ['clean']
+            ]
+        }
+    });
+
+    const hidden = document.querySelector('textarea[name="summary_html"]');
+
+    window.addEventListener('DOMContentLoaded', () => {
+        if (hidden.value.trim()) {
+            quill.root.innerHTML = hidden.value;
+        }
+    });
+
+    quill.on('text-change', function () {
+        hidden.value = quill.root.innerHTML;
+    });
+</script>
+{% endblock scripts %}

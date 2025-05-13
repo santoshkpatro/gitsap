@@ -1,0 +1,37 @@
+from django import forms
+from django.utils.html import strip_tags
+
+
+class IssueCreateForm(forms.Form):
+    title = forms.CharField(
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Enter your username or email",
+                "required": "required",
+            }
+        )
+    )
+    summary_html = forms.CharField(
+        widget=forms.Textarea(
+            attrs={
+                "class": "form-control d-none",
+                "placeholder": "Write a summary of the issue",
+            }
+        )
+    )
+
+    def clean_summary_html(self):
+        html = self.cleaned_data.get("summary_html", "").strip()
+        if not strip_tags(html).strip():
+            return None
+        return html
+
+    def clean(self):
+        cleaned_data = super().clean()
+        summary_html = cleaned_data.get("summary_html")
+        if summary_html:
+            cleaned_data["summary"] = strip_tags(summary_html).strip() or None
+        else:
+            cleaned_data["summary"] = None
+        return cleaned_data
