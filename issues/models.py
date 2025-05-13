@@ -1,5 +1,4 @@
-from django.db import models
-from django.db.models import Q
+from django.db import models, transaction
 
 from shared.models import BaseUUIDModel
 
@@ -16,7 +15,7 @@ class Issue(BaseUUIDModel):
     issue_number = models.IntegerField(blank=True)
     summary = models.TextField(blank=True, null=True)
     summary_html = models.TextField(blank=True, null=True)
-    created_by = models.ForeignKey(
+    author = models.ForeignKey(
         "accounts.User",
         on_delete=models.SET_NULL,
         null=True,
@@ -54,6 +53,15 @@ class Issue(BaseUUIDModel):
             )
             self.issue_number = (last_issue.issue_number + 1) if last_issue else 1
         return super().save(*args, **kwargs)
+
+    @transaction.atomic
+    def close(self):
+        project = self.project
+        self.status = Issue.Status.CLOSED
+        self.save(update_fields=["status"])
+
+        project.open_issues_count -= 1
+        project.save(update_fields=["open_issues_count"])
 
 
 class IssueAssignee(BaseUUIDModel):

@@ -1,5 +1,122 @@
 {% extends 'shared/project_base.html' %}
+{% load humanize %}
+
+{% block styles %}
+<style>
+    .issue-title-link {
+        text-decoration: none;
+    }
+
+    .issue-title-link:hover {
+        text-decoration: underline;
+    }
+
+    .author-link {
+        text-decoration: none;
+    }
+
+    .author-link:hover {
+        color: #0d6efd;
+    }
+</style>
+{% endblock styles %}
 
 {% block content %}
-<div>Issues List</div>
+<div class="container mt-2">
+
+    <!-- Page Heading -->
+    <div class="d-flex align-items-center gap-2 mb-3">
+        <i data-lucide="notebook-pen" class="text-primary" style="width: 22px; height: 22px;"></i>
+        <h5 class="mb-0 fw-semibold">Issues</h5>
+        <span class="text-muted small">Track bugs, improvements, and feature requests</span>
+    </div>
+
+    <!-- Top: Search + New Issue -->
+    <div class="d-flex align-items-center justify-content-between mb-2">
+        <form class="flex-grow-1 me-3" method="get">
+            <input type="text" name="q" class="form-control form-control-sm" placeholder="Search issues..."
+                value="{{ request.GET.q }}">
+        </form>
+        <a href="{% url 'issue-create' username=project.owner.username project_handle=project.handle %}"
+            class="btn btn-sm btn-primary d-flex align-items-center gap-1">
+            <i data-lucide="file-plus"></i> New Issue
+        </a>
+    </div>
+
+    <!-- Issue List -->
+    <ul class="list-group list-group-flush border rounded">
+
+        <!-- Filter Tabs -->
+        <li class="list-group-item">
+            <ul class="nav nav-pills align-items-center">
+                <li class="nav-item">
+                    <a href="?status=open"
+                        class="nav-link py-1 px-3 small d-flex align-items-center gap-2 {% if status == 'open' %}fw-semibold bg-light text-dark{% endif %}">
+                        <i data-lucide="circle-dot" style="width:14px;height:14px;" class="text-primary"></i> Open
+                        <span class="badge text-bg-secondary">{{ project.open_issues_count }}</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="?status=closed"
+                        class="nav-link py-1 px-3 small d-flex align-items-center gap-2 {% if status == 'closed' %}fw-semibold bg-light text-dark{% endif %}">
+                        <i data-lucide="check-circle-2" style="width:14px;height:14px;" class="text-muted"></i> Closed
+                        <span class="badge text-bg-secondary">{{ project.closed_issues_count }}</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="?status=all"
+                        class="nav-link py-1 px-3 small d-flex align-items-center gap-2 {% if status == 'all' or not request.GET.status %}fw-semibold bg-light text-dark{% endif %}">
+                        <i data-lucide="list" style="width:14px;height:14px;"></i> All
+                        <span class="badge text-bg-secondary">{{ project.total_issues_count }}</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <!-- Issue Items -->
+        {% for issue in issues %}
+        <li class="list-group-item d-flex justify-content-between">
+            <!-- Left: Icon, Title, Meta -->
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    {% if issue.status == "open" %}
+                    <i data-lucide="circle-dot" class="text-primary" style="width: 16px; height: 16px;"></i>
+                    {% else %}
+                    <i data-lucide="check-circle-2" class="text-muted" style="width: 16px; height: 16px;"></i>
+                    {% endif %}
+
+                    <a href="{% url 'issue-detail' username=project.owner.username project_handle=project.handle issue_number=issue.issue_number %}"
+                        class="fw-semibold issue-title-link {% if status == 'all' and issue.status == 'closed' %}text-muted{% else %}text-dark{% endif %}">
+                        {{ issue.title }}
+                    </a>
+                </div>
+
+                <div class="text-muted small d-flex align-items-center gap-2">
+                    <span class="ms-4">#{{ issue.issue_number }} opened {{ issue.created_at|naturaltime }} by
+                        <a href="#" class="text-muted author-link">{{ issue.author.username }}</a>
+                    </span>
+
+                    {% if issue.labels.exists %}
+                    &middot;
+                    {% for label in issue.labels.all %}
+                    <span class="badge rounded-pill text-bg-secondary">{{ label.name }}</span>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Right: Last updated -->
+            <div class="text-muted small d-none d-md-block text-end">
+                <i data-lucide="history" style="width: 14px; height: 14px;" class="me-1"></i>
+                {{ issue.updated_at|naturaltime }}
+            </div>
+        </li>
+        {% empty %}
+        <li class="list-group-item text-muted text-center py-4">
+            <i data-lucide="inbox" class="mb-2" style="width: 24px; height: 24px;"></i><br>
+            No issues found.
+        </li>
+        {% endfor %}
+    </ul>
+</div>
 {% endblock content %}
