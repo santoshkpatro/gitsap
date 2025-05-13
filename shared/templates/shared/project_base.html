@@ -28,8 +28,9 @@
                         class="nav-link {% if active_tab == 'code' %}active{% endif %}"><i data-lucide="code"
                             class="icon"></i><span>Code</span></a>
                 </li>
-                <li><a href="#" class="nav-link {% if active_tab == 'issues' %}active{% endif %}"><i
-                            data-lucide="alert-circle" class="icon"></i><span>Issues</span></a>
+                <li><a href="{% url 'issue-list' username=project.owner.username project_handle=project.handle %}"
+                        class="nav-link {% if active_tab == 'issues' %}active{% endif %}"><i data-lucide="alert-circle"
+                            class="icon"></i><span>Issues</span></a>
                 </li>
                 <li><a href="#" class="nav-link"><i data-lucide="git-pull-request" class="icon"></i>
                         <span>Pull requests</span></a></li>
