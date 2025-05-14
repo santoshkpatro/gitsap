@@ -114,6 +114,27 @@ class IssueCloseView(ProjectAccessMixin, View):
         )
 
 
+class IssueReOpenView(ProjectAccessMixin, View):
+    def get(self, request, *args, **kwargs):
+        issue_number = kwargs.get("issue_number")
+        issue = get_object_or_404(
+            Issue,
+            project=request.project,
+            issue_number=issue_number,
+        )
+        if issue.status == Issue.Status.OPEN:
+            messages.error(request, "Issue is already open.")
+        else:
+            issue.re_open()
+            messages.success(request, "Issue reopened successfully.")
+        return redirect(
+            "issue-detail",
+            username=request.project.owner.username,
+            project_handle=request.project.handle,
+            issue_number=issue_number,
+        )
+
+
 class IssueCommentCreateView(ProjectAccessMixin, View):
     def post(self, request, *args, **kwargs):
         issue_number = kwargs.get("issue_number")
