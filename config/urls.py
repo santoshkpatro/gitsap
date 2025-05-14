@@ -17,6 +17,7 @@ from issues.views import (
     IssueDetailView,
     IssueCommentCreateView,
     IssueCloseView,
+    IssueReOpenView,
 )
 
 project_browse_urlpatterns = [
@@ -51,6 +52,7 @@ urlpatterns = [
     path("<str:username>/<str:project_handle>/issues/create/", IssueCreateView.as_view(), name="issue-create"),
     path("<str:username>/<str:project_handle>/issues/<int:issue_number>/", IssueDetailView.as_view(), name="issue-detail"),
     path("<str:username>/<str:project_handle>/issues/<int:issue_number>/close/", IssueCloseView.as_view(), name="issue-close"),
+    path("<str:username>/<str:project_handle>/issues/<int:issue_number>/reopen/", IssueReOpenView.as_view(), name="issue-reopen"),
     path("<str:username>/<str:project_handle>/issues/<int:issue_number>/comments/", IssueCommentCreateView.as_view(), name="issue-comment-create"),
 
     # Git endpoints for handling git operations

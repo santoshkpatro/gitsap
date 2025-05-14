@@ -63,6 +63,15 @@ class Issue(BaseUUIDModel):
         project.open_issues_count -= 1
         project.save(update_fields=["open_issues_count"])
 
+    @transaction.atomic
+    def re_open(self):
+        project = self.project
+        self.status = Issue.Status.OPEN
+        self.save(update_fields=["status"])
+
+        project.open_issues_count += 1
+        project.save(update_fields=["open_issues_count"])
+
 
 class IssueAssignee(BaseUUIDModel):
     issue = models.ForeignKey(
