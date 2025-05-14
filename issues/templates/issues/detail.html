@@ -2,6 +2,8 @@
 {% load humanize %}
 
 {% block styles %}
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+
 <style>
     .timeline {
         position: relative;
@@ -72,6 +74,29 @@
         align-items: center;
         /* ensures proper vertical centering */
     }
+
+    .ql-toolbar.ql-snow {
+        border-radius: 0.375rem 0.375rem 0 0;
+        border-color: #ced4da;
+        background-color: #f8f9fa;
+    }
+
+    .ql-container.ql-snow {
+        border-radius: 0 0 0.375rem 0.375rem;
+        border-color: #ced4da;
+        font-size: 0.95rem;
+    }
+
+    #editor {
+        min-height: 100px;
+    }
+
+    .ql-editor.ql-blank::before {
+        font-style: normal;
+        color: #6c757d;
+        font-size: 0.9rem;
+        left: 1rem;
+    }
 </style>
 {% endblock styles %}
 
@@ -80,7 +105,7 @@
     <div class="timeline">
 
         <div class="timeline-entry" style="align-items: flex-start;">
-            <div class="timeline-icon text-info">
+            <div class="timeline-icon text-primary">
                 <i data-lucide="file-volume-2" class="lucide"></i>
             </div>
             <div class="timeline-body">
@@ -94,71 +119,89 @@
             </div>
         </div>
 
-        <div class="timeline-entry">
-            <div class="timeline-icon text-success">
-                <i data-lucide="check-check" class="lucide"></i>
-            </div>
-            <div class="timeline-line">
-                <span><strong>Stripe</strong> completed the payment transfer.</span>
-                <span class="timeline-time">{{ "2022-04-27"|naturaltime }}</span>
-            </div>
-        </div>
-
-        <div class="timeline-entry">
-            <div class="timeline-icon text-primary">
-                <i data-lucide="check" class="lucide"></i>
-            </div>
-            <div class="timeline-line">
-                <span><strong>Stripe</strong> processed the payment transfer.</span>
-                <span class="timeline-time">{{ "2022-04-25"|naturaltime }}</span>
-            </div>
-        </div>
-
-        <div class="timeline-entry">
-            <div class="timeline-icon text-warning">
-                <i data-lucide="zap" class="lucide"></i>
-            </div>
-            <div class="timeline-line">
-                <span><strong>Magid</strong> triggered the payment transfer event.</span>
-                <span class="timeline-time">{{ "2022-04-25"|naturaltime }}</span>
-            </div>
-        </div>
-
-        <div class="timeline-entry">
-            <div class="timeline-icon text-muted">
-                <i data-lucide="banknote" class="lucide"></i>
-            </div>
-            <div class="timeline-line">
-                <span>The landlord, <strong>Max Mustermann</strong>, connected their bank account.</span>
-                <span class="timeline-time">{{ "2022-04-25"|naturaltime }}</span>
-            </div>
-        </div>
-
+        {% for activity in activities %}
+        {% if activity.activity_type == 'comment' %}
         <div class="timeline-entry" style="align-items: flex-start;">
-            <div class="timeline-icon text-info">
+            <div class="timeline-icon text-primary">
                 <i data-lucide="message-square" class="lucide"></i>
             </div>
             <div class="timeline-body">
                 <div class="timeline-line">
-                    <span><strong>Magid</strong> commented.</span>
-                    <span class="timeline-time">{{ "2022-04-21"|naturaltime }}</span>
+                    <span><strong>{{ activity.author.username }}</strong> commented.</span>
+                    <span class="timeline-time">{{ activity.created_at|naturaltime }}</span>
                 </div>
                 <div class="timeline-note">
-                    Emailed the landlord to connect their bank account.
+                    {{ activity.content_html|safe }}
                 </div>
             </div>
         </div>
-
+        {% else %}
         <div class="timeline-entry">
-            <div class="timeline-icon text-danger">
-                <i data-lucide="x-circle" class="lucide"></i>
+            <div class="timeline-icon text-primary">
+                <i data-lucide="activity" class="lucide"></i>
             </div>
             <div class="timeline-line">
-                <span><strong>Payment transfer</strong> failed due to missing connected bank account.</span>
-                <span class="timeline-time">{{ "2022-04-21"|naturaltime }}</span>
+                <span><strong>{{ activity.author.username }}</strong> {{ activity.content_html|safe }}</span>
+                <span class="timeline-time">{{ activity.created_at|naturaltime }}</span>
             </div>
         </div>
+        {% endif %}
+        {% endfor %}
 
+
+        <div class="timeline-entry">
+            <div class="timeline-icon text-primary">
+                <i data-lucide="message-circle-more" class="lucide"></i>
+            </div>
+            <div class="timeline-editor">
+                <form
+                    action="{% url 'issue-comment-create' username=request.user.username project_handle=project.handle issue_number=issue.issue_number %}"
+                    method="post">
+                    {% csrf_token %}
+                    <div id="editor"></div>
+                    <textarea name="content_html" hidden></textarea>
+                    <div class="mt-2 d-flex justify-content-end gap-2">
+                        <a class="btn btn-light btn-sm"
+                            href="{% url 'issue-close' username=request.user.username project_handle=project.handle issue_number=issue.issue_number %}">
+                            <i data-lucide="x-octagon" class="me-1" style="width:16px;"></i> Close Issue
+                        </a>
+                        <button class="btn btn-primary btn-sm" type="submit">
+                            <i data-lucide="send" class="me-1" style="width:16px;"></i> Comment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock content %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<script>
+    const quill = new Quill('#editor', {
+        theme: 'snow',
+        placeholder: 'Describe your comment...',
+        modules: {
+            toolbar: [
+                [{ header: [1, 2, false] }],
+                ['bold', 'italic', 'underline', 'code'],
+                [{ list: 'ordered' }, { list: 'bullet' }],
+                ['link', 'blockquote', 'code-block'],
+                ['clean']
+            ]
+        }
+    });
+
+    const hidden = document.querySelector('textarea[name="content_html"]');
+    window.addEventListener('DOMContentLoaded', () => {
+        if (hidden.value.trim()) {
+            quill.root.innerHTML = hidden.value;
+        }
+    });
+
+    quill.on('text-change', function () {
+        hidden.value = quill.root.innerHTML;
+    });
+</script>
+{% endblock scripts %}

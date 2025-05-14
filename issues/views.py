@@ -5,7 +5,7 @@ from django.db.models import Q
 
 from projects.mixins import ProjectAccessMixin
 from issues.models import Issue, IssueActivity
-from issues.forms import IssueCreateForm
+from issues.forms import IssueCreateForm, IssueCommentCreateForm
 
 
 class IssueListView(ProjectAccessMixin, View):
@@ -91,3 +91,58 @@ class IssueDetailView(ProjectAccessMixin, View):
             "activities": activities,
         }
         return render(request, "issues/detail.html", context)
+
+
+class IssueCloseView(ProjectAccessMixin, View):
+    def get(self, request, *args, **kwargs):
+        issue_number = kwargs.get("issue_number")
+        issue = get_object_or_404(
+            Issue,
+            project=request.project,
+            issue_number=issue_number,
+        )
+        if issue.status == Issue.Status.CLOSED:
+            messages.error(request, "Issue is already closed.")
+        else:
+            issue.close()
+            messages.success(request, "Issue closed successfully.")
+        return redirect(
+            "issue-detail",
+            username=request.project.owner.username,
+            project_handle=request.project.handle,
+            issue_number=issue_number,
+        )
+
+
+class IssueCommentCreateView(ProjectAccessMixin, View):
+    def post(self, request, *args, **kwargs):
+        issue_number = kwargs.get("issue_number")
+        issue = get_object_or_404(
+            Issue,
+            project=request.project,
+            issue_number=issue_number,
+        )
+        form = IssueCommentCreateForm(request.POST)
+        if not form.is_valid():
+            messages.error(request, "Please correct the errors below.")
+            return redirect(
+                "issue-detail",
+                username=request.project.owner.username,
+                project_handle=request.project.handle,
+                issue_number=kwargs.get("issue_number"),
+            )
+
+        cleaned_data = form.cleaned_data
+        IssueActivity.objects.create(
+            **cleaned_data,
+            issue=issue,
+            author=request.user,
+            activity_type=IssueActivity.ActivityType.COMMENT,
+        )
+        messages.success(request, "Comment added successfully.")
+        return redirect(
+            "issue-detail",
+            username=request.project.owner.username,
+            project_handle=request.project.handle,
+            issue_number=issue_number,
+        )
