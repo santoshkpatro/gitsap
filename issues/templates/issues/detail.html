@@ -3,96 +3,162 @@
 
 {% block styles %}
 <style>
-    .issue-status {
-        font-size: 0.875rem;
-        font-weight: 500;
+    .timeline {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        margin-left: 2rem;
     }
 
-    .meta-label {
-        font-size: 0.85rem;
-        font-weight: 500;
+    .timeline::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 16px;
+        bottom: 0;
+        width: 2px;
+        background-color: #dee2e6;
+        z-index: 0;
+    }
+
+    .timeline-entry {
+        display: flex;
+        align-items: center;
+        /* align icon and text center */
+        position: relative;
+    }
+
+    .timeline-icon {
+        width: 32px;
+        height: 32px;
+        border: 1px solid #dee2e6;
+        border-radius: 50%;
+        background-color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        z-index: 1;
+        margin-right: 0.75rem;
+    }
+
+    .timeline-icon i {
+        width: 16px;
+        height: 16px;
+    }
+
+    .timeline-body {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .timeline-time {
+        font-size: 0.875rem;
         color: #6c757d;
+        margin-left: 0.4rem;
+    }
+
+    .timeline-note {
+        background-color: #f8f9fa;
+        padding: 0.75rem;
+        margin-top: 0.4rem;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
+    }
+
+    .timeline-line {
+        display: flex;
+        align-items: center;
+        /* ensures proper vertical centering */
     }
 </style>
 {% endblock styles %}
 
 {% block content %}
 <div class="container mt-2">
-    <!-- Top Section -->
-    <div class="d-flex justify-content-between align-items-center mb-2">
-        <h4 class="fw-semibold mb-0 text-dark">
-            {{ issue.title }}
-            <span class="text-secondary">
-                #{{ issue.issue_number }}
-            </span>
-        </h4>
-        <div class="d-flex align-items-center gap-2">
-            <a href="#"
-                class="btn btn-sm btn-outline-primary edit-btn {% if request.user != issue.author %}disabled{% endif %}">
-                <i data-lucide="edit-3" class="me-1" style="width: 16px;"></i> Edit
-            </a>
-        </div>
-    </div>
+    <div class="timeline">
 
-    <!-- Meta Info -->
-    <div class="d-flex align-items-center gap-2 mb-2">
-        <i data-lucide="{% if issue.status == 'open' %}circle{% else %}check{% endif %}" class="text-primary"
-            style="width: 16px;"></i>
-        <span class="badge bg-primary issue-status text-light">{{ issue.get_status_display }}</span>
-        <span class="text-muted small">Opened {{ issue.created_at|naturaltime }} by <strong>
-                {{ issue.author.username }}</strong></span>
-    </div>
-
-    <hr class="my-3" />
-
-    <!-- Grid Layout -->
-    <div class="row">
-        <!-- Left: Summary -->
-        <div class="col-lg-9 mb-4">
-            <div class="meta-label d-flex align-items-center gap-1 mb-2">
-                <i data-lucide="align-left" style="width: 16px;"></i>
-                Summary
+        <div class="timeline-entry" style="align-items: flex-start;">
+            <div class="timeline-icon text-info">
+                <i data-lucide="file-volume-2" class="lucide"></i>
             </div>
-            <div class="bg-white border rounded p-3">
-                {% if issue.summary_html %}
-                {{ issue.summary_html|safe }}
-                {% else %}
-                <p class="text-muted mb-0">No summary provided.</p>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Right: Sidebar -->
-        <div class="col-lg-3">
-            <!-- Assignees -->
-            <div class="rounded p-3 mb-3">
-                <div class="meta-label d-flex align-items-center gap-1 mb-2">
-                    <i data-lucide="user" style="width: 16px;"></i>
-                    Assignees
+            <div class="timeline-body">
+                <div class="timeline-line">
+                    <span><strong>{{ issue.author.username }}</strong> added a summary to the issue.</span>
+                    <span class="timeline-time">{{ issue.created_at|naturaltime }}</span>
                 </div>
-                {% if issue.assignees.all %}
-                <ul class="list-unstyled small mb-0">
-                    {% for user in issue.assignees.all %}
-                    <li class="d-flex align-items-center gap-1 mb-1">
-                        <i data-lucide="circle-user" style="width: 14px;"></i>
-                        {{ user.get_display_name }}
-                    </li>
-                    {% endfor %}
-                </ul>
-                {% else %}
-                <p class="text-muted small mb-0">No assignees</p>
-                {% endif %}
-            </div>
-
-            <!-- Labels -->
-            <div class="rounded p-3">
-                <div class="meta-label d-flex align-items-center gap-1 mb-2">
-                    <i data-lucide="tag" style="width: 16px;"></i>
-                    Labels
+                <div class="timeline-note">
+                    {{ issue.summary_html|safe }}
                 </div>
-                <p class="text-muted small mb-0">No labels</p>
             </div>
         </div>
+
+        <div class="timeline-entry">
+            <div class="timeline-icon text-success">
+                <i data-lucide="check-check" class="lucide"></i>
+            </div>
+            <div class="timeline-line">
+                <span><strong>Stripe</strong> completed the payment transfer.</span>
+                <span class="timeline-time">{{ "2022-04-27"|naturaltime }}</span>
+            </div>
+        </div>
+
+        <div class="timeline-entry">
+            <div class="timeline-icon text-primary">
+                <i data-lucide="check" class="lucide"></i>
+            </div>
+            <div class="timeline-line">
+                <span><strong>Stripe</strong> processed the payment transfer.</span>
+                <span class="timeline-time">{{ "2022-04-25"|naturaltime }}</span>
+            </div>
+        </div>
+
+        <div class="timeline-entry">
+            <div class="timeline-icon text-warning">
+                <i data-lucide="zap" class="lucide"></i>
+            </div>
+            <div class="timeline-line">
+                <span><strong>Magid</strong> triggered the payment transfer event.</span>
+                <span class="timeline-time">{{ "2022-04-25"|naturaltime }}</span>
+            </div>
+        </div>
+
+        <div class="timeline-entry">
+            <div class="timeline-icon text-muted">
+                <i data-lucide="banknote" class="lucide"></i>
+            </div>
+            <div class="timeline-line">
+                <span>The landlord, <strong>Max Mustermann</strong>, connected their bank account.</span>
+                <span class="timeline-time">{{ "2022-04-25"|naturaltime }}</span>
+            </div>
+        </div>
+
+        <div class="timeline-entry" style="align-items: flex-start;">
+            <div class="timeline-icon text-info">
+                <i data-lucide="message-square" class="lucide"></i>
+            </div>
+            <div class="timeline-body">
+                <div class="timeline-line">
+                    <span><strong>Magid</strong> commented.</span>
+                    <span class="timeline-time">{{ "2022-04-21"|naturaltime }}</span>
+                </div>
+                <div class="timeline-note">
+                    Emailed the landlord to connect their bank account.
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-entry">
+            <div class="timeline-icon text-danger">
+                <i data-lucide="x-circle" class="lucide"></i>
+            </div>
+            <div class="timeline-line">
+                <span><strong>Payment transfer</strong> failed due to missing connected bank account.</span>
+                <span class="timeline-time">{{ "2022-04-21"|naturaltime }}</span>
+            </div>
+        </div>
+
     </div>
 </div>
 {% endblock content %}

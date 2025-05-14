@@ -78,7 +78,11 @@ class IssueDetailView(ProjectAccessMixin, View):
             project=project,
             issue_number=issue_number,
         )
-        activities = IssueActivity.objects.filter(issue=issue).order_by("-created_at")
+        activities = (
+            IssueActivity.objects.filter(issue=issue)
+            .order_by("-created_at")
+            .select_related("author")
+        )
 
         context = {
             "issue": issue,
