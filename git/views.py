@@ -5,6 +5,7 @@ from django.http import (
     HttpResponse,
     HttpResponseNotFound,
     HttpResponseForbidden,
+    StreamingHttpResponse,
 )
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -122,66 +123,67 @@ class GitInfoRefsView(GitOpsAuthenticationMixin, View):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class GitUploadPackView(View):
-    """
-    Handle Git upload-pack requests, which are used to transfer objects
-    from the server to the client during git clone/fetch operations.
-    """
-
     def post(self, request, *args, **kwargs):
-        """
-        Handle POST requests for git-upload-pack.
-
-        This endpoint is called by git clients to download objects during
-        clone/fetch operations.
-
-        Args:
-            request: The HTTP request
-            repo_name: Repository name
-
-        Returns:
-            HttpResponse: Git protocol data with packed objects
-        """
         project = get_object_or_404(
-            Project, handle=kwargs["project_handle"], owner__username=kwargs["username"]
+            Project,
+            handle=kwargs["project_handle"],
+            owner__username=kwargs["username"],
         )
 
-        # Execute git command to handle the upload-pack request
         cmd = ["git-upload-pack", "--stateless-rpc", project._local_git_path]
         p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
-        # Pass the client's request body to git command
-        stdout_data = p.communicate(input=request.body)[0]
+        def stream():
+            try:
+                for chunk in request:
+                    if chunk:
+                        p.stdin.write(chunk)
+                p.stdin.close()
+                while True:
+                    out = p.stdout.read(8192)
+                    if not out:
+                        break
+                    yield out
+            finally:
+                p.stdout.close()
 
-        # Return the git command output
-        response = HttpResponse(stdout_data)
-        response["Content-Type"] = "application/x-git-upload-pack-result"
-
-        return response
+        return StreamingHttpResponse(
+            stream(), content_type="application/x-git-upload-pack-result"
+        )
 
 
 @method_decorator(csrf_exempt, name="dispatch")
 class GitReceivePackView(View):
-    """
-    Handle Git receive-pack requests, which are used to transfer objects
-    from the client to the server during git push operations.
-    """
-
     def post(self, request, *args, **kwargs):
         project = get_object_or_404(
-            Project, handle=kwargs["project_handle"], owner__username=kwargs["username"]
+            Project,
+            handle=kwargs["project_handle"],
+            owner__username=kwargs["username"],
         )
 
-        # Step 1: Handle the receive-pack request
         cmd = ["git-receive-pack", "--stateless-rpc", project._local_git_path]
         p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-        stdout_data = p.communicate(input=request.body)[0]
 
-        # Step 3: Re-archive and upload to S3
-        try:
-            project.update_cloud_resource_artifact()
-        except Exception as e:
-            print(f"Warning: Failed to update archive after push: {e}")
+        def stream():
+            try:
+                for chunk in request:
+                    if chunk:
+                        p.stdin.write(chunk)
+                p.stdin.close()
 
-        response = HttpResponse(stdout_data)
-        response["Content-Type"] = "application/x-git-receive-pack-result"
-        return response
+                while True:
+                    out = p.stdout.read(8192)
+                    if not out:
+                        break
+                    yield out
+            finally:
+                p.stdout.close()
+
+                try:
+                    project.update_cloud_resource_artifact()
+                except Exception as e:
+                    print(f"Warning: Failed to update archive after push: {e}")
+
+        return StreamingHttpResponse(
+            stream(), content_type="application/x-git-receive-pack-result"
+        )

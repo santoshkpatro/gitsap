@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include, re_path
+from django.http import HttpResponse
 
 from home.views import IndexView
 from accounts.views import LoginView, RegisterView, LogoutView
@@ -38,6 +39,7 @@ project_browse_urlpatterns = [
     ),
 ]
 
+
 # fmt: off
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -59,6 +61,5 @@ urlpatterns = [
     path("<str:username>/<str:project_handle>.git/info/refs", GitInfoRefsView.as_view(), name="project-git-info-refs"),
     path("<str:username>/<str:project_handle>.git/git-upload-pack", GitUploadPackView.as_view(), name="project-git-upload-pack"),
     path("<str:username>/<str:project_handle>.git/git-receive-pack", GitReceivePackView.as_view(), name="project-git-receive-pack"),
-
     path("", IndexView.as_view(), name="home-index"),
 ]
