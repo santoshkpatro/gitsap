@@ -501,6 +501,37 @@ class Project(BaseUUIDModel):
             print("Git log error:", e.stderr)
             return []
 
+    def get_diff_between_branches(self, source_branch: str, target_branch: str):
+        repo = self.repo
+
+        try:
+            source_commit = repo.revparse_single(f"refs/heads/{source_branch}")
+            target_commit = repo.revparse_single(f"refs/heads/{target_branch}")
+        except KeyError:
+            return {"error": "One or both branches not found"}
+
+        # Trees from both commits
+        source_tree = source_commit.tree
+        target_tree = target_commit.tree
+
+        # Show what source_branch introduces over target_branch
+        diff = repo.diff(target_tree, source_tree)
+
+        changes = []
+        for patch in diff:
+            changes.append(
+                {
+                    "old_file_path": patch.delta.old_file.path,
+                    "new_file_path": patch.delta.new_file.path,
+                    "status": patch.delta.status_char(),  # 'A', 'M', 'D', etc.
+                    "added_lines": patch.line_stats[1],
+                    "deleted_lines": patch.line_stats[2],
+                    "patch": patch.text,
+                }
+            )
+
+        return changes
+
 
 class ProjectCollaborator(BaseUUIDModel):
     class Role(models.TextChoices):
