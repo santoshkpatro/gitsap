@@ -82,7 +82,7 @@ class IssueAssignee(BaseUUIDModel):
     )
 
     class Meta:
-        db_table = "issues_assignees"
+        db_table = "issue_assignees"
         constraints = [
             models.UniqueConstraint(
                 fields=["issue", "user"], name="unique_issue_assignee"
@@ -110,7 +110,7 @@ class IssueActivity(BaseUUIDModel):
     content_html = models.TextField(blank=True, null=True)
 
     class Meta:
-        db_table = "issues_activities"
+        db_table = "issue_activities"
         ordering = ["-created_at"]
 
     def __str__(self):
