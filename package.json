@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "sass:build": "sass shared/static/shared/scss/custom.scss shared/static/shared/css/bootstrap.css"
+    "sass:build": "sass shared/static/shared/scss/custom.scss shared/static/shared/css/bootstrap.css",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "repository": {
     "type": "git",
@@ -19,7 +22,8 @@
   },
   "homepage": "https://github.com/santoshkpatro/gitsap#readme",
   "devDependencies": {
-    "sass": "^1.87.0"
+    "sass": "^1.87.0",
+    "vitepress": "^1.6.3"
   },
   "dependencies": {
     "bootstrap": "^5.3.6"
