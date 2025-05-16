@@ -101,9 +101,6 @@
         <h5 class="fw-semibold d-flex align-items-center gap-2 mb-0">
             Comparing changes between branches
         </h5>
-        <a href="#" class="btn btn-primary btn-sm d-flex align-items-center gap-1">
-            <i data-lucide="git-pull-request"></i> Create pull request
-        </a>
     </div>
 
     <!-- Branch compare & stats -->
@@ -184,11 +181,13 @@
     </div>
 
     {% if not diffs %}
-    <div class="alert alert-light border d-flex align-items-start gap-3 p-3">
-        <i data-lucide="git-pull-request" class="mt-1"></i>
-        <div>
-            <strong>There isn’t anything to compare.</strong><br>
-            Choose two different branches to see what’s changed or to start a new pull request.
+    <div class="d-flex justify-content-center mt-5">
+        <div class="text-center text-muted d-flex flex-column align-items-center gap-2">
+            <i data-lucide="git-pull-request" style="width: 28px; height: 28px;"></i>
+            <div>
+                <strong>There isn’t anything to compare.</strong><br>
+                Choose two different branches to see what’s changed or to start a new pull request.
+            </div>
         </div>
     </div>
     {% endif %}
@@ -196,7 +195,15 @@
     <!-- Commit List -->
     {% if commits %}
     <div class="mb-4">
-        <h6 class="fw-semibold mb-3"><i data-lucide="git-commit" class="me-1"></i> Commits</h6>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-semibold mb-0 d-flex align-items-center gap-2">
+                <i data-lucide="git-commit"></i> Commits
+            </h6>
+            <a href="#" class="btn btn-primary btn-sm d-flex align-items-center gap-1">
+                <i data-lucide="git-pull-request"></i> Create pull request
+            </a>
+        </div>
+
         <ul class="list-group">
             {% for commit in commits %}
             <li class="list-group-item">
@@ -217,6 +224,7 @@
         </ul>
     </div>
     {% endif %}
+
 
     <!-- File Diffs -->
     {% for file in diffs %}
