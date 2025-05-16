@@ -18,13 +18,8 @@
     <div class="d-flex vh-100">
         <!-- Sidebar -->
         <div class="sidebar d-flex flex-column p-3">
-            <!-- Logo -->
-            <a href="#" class="d-flex align-items-center mb-4 ps-1">
-                <img src="{% static 'shared/images/logo.png' %}" alt="Logo" class="logo">
-            </a>
-
             <!-- Navigation -->
-            <ul class="nav flex-column gap-1">
+            <ul class="nav flex-column gap-1 mt-2">
                 <li><a href="{% url 'project-overview' username=project.owner.username project_handle=project.handle %}"
                         class="nav-link {% if active_tab == 'code' %}active{% endif %}"><i data-lucide="code"
                             class="icon"></i><span>Code</span></a>
@@ -69,7 +64,9 @@
             <div class="topbar d-flex justify-content-between align-items-center px-4 py-2 border-bottom bg-light">
                 <!-- Left -->
                 <div class="d-flex align-items-center gap-2 text-dark fw-semibold">
-                    <i data-lucide="layers" class="text-muted" style="width: 16px; height: 16px;"></i>
+                    <img src="{% static 'shared/images/logo.png' %}" alt="Gitsap Logo"
+                        style="height: 32px; width: 32px; object-fit: contain;">
+
                     <span class="small">{{ project.owner.username }} / {{ project.handle }}</span>
                 </div>
 

@@ -7,7 +7,7 @@ class IssueCreateForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 "class": "form-control",
-                "placeholder": "Enter your username or email",
+                "placeholder": "Enter a title for the issue",
                 "required": "required",
             }
         )
