@@ -64,21 +64,84 @@
 
     .diff-added {
         background-color: #d4f8d4;
-        /* Sharper green */
     }
 
     .diff-deleted {
         background-color: #fddcdc;
-        /* Sharper red */
     }
 </style>
 {% endblock styles %}
 
 {% block content %}
-<div class="container mt-4">
-    <h5 class="fw-semibold d-flex align-items-center gap-2 mb-4">
-        <i data-lucide="git-compare"></i> Comparing Changes
-    </h5>
+<div class="container mt-2">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h5 class="fw-semibold d-flex align-items-center gap-2 mb-0">
+            <i data-lucide="git-compare"></i> Comparing changes
+        </h5>
+        <a href="#" class="btn btn-primary d-flex align-items-center gap-1">
+            <i data-lucide="git-pull-request"></i> Create pull request
+        </a>
+    </div>
+
+    <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
+        <div class="d-flex align-items-center gap-2">
+            <i data-lucide="git-branch"></i>
+
+            <!-- Target Branch Dropdown -->
+            <div class="dropdown">
+                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <span class="text-secondary">target:</span> {{ target_branch }}
+                </button>
+                <ul class="dropdown-menu">
+                    {% for branch in project.repo_branches %}
+                    <li>
+                        <a class="dropdown-item d-flex justify-content-between align-items-center"
+                            href="?source={{ source_branch }}&target={{ branch }}">
+                            {{ branch }}
+                            {% if branch == target_branch %}
+                            <i data-lucide="check" class="text-success"></i>
+                            {% endif %}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <i data-lucide="arrow-left" class="text-muted"></i>
+
+            <!-- Source Branch Dropdown -->
+            <div class="dropdown">
+                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <span class="text-secondary">source:</span> {{ source_branch }}
+                </button>
+                <ul class="dropdown-menu">
+                    {% for branch in project.repo_branches %}
+                    <li>
+                        <a class="dropdown-item d-flex justify-content-between align-items-center"
+                            href="?source={{ branch }}&target={{ target_branch }}">
+                            {{ branch }}
+                            {% if branch == source_branch %}
+                            <i data-lucide="check" class="text-success"></i>
+                            {% endif %}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Addition / Deletion Counters -->
+        <div class="d-flex align-items-center gap-2 text-muted small">
+            <span class="text-success">
+                <i data-lucide="plus"></i> {{ total_additions }} additions
+            </span>
+            <span class="text-danger">
+                <i data-lucide="minus"></i> {{ total_deletions }} deletions
+            </span>
+        </div>
+    </div>
+
+
 
     {% for file in diffs %}
     <div class="diff-block">
@@ -111,3 +174,7 @@
     {% endfor %}
 </div>
 {% endblock content %}
+
+{% block scripts %}
+
+{% endblock scripts %}

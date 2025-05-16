@@ -11,12 +11,16 @@ class PullRequestCompareView(ProjectAccessMixin, View):
         target_branch = request.GET.get("target", project.default_branch)
 
         diffs = project.get_diff_between_branches(source_branch, target_branch)
+        total_additions = sum(f["added_lines"] for f in diffs)
+        total_deletions = sum(f["deleted_lines"] for f in diffs)
 
         context = {
             "project": project,
             "source_branch": source_branch,
             "target_branch": target_branch,
             "diffs": diffs,
+            "total_additions": total_additions,
+            "total_deletions": total_deletions,
             "active_tab": "pull_requests",
         }
         return render(request, "pull_requests/compare.html", context)
