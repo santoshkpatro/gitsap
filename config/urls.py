@@ -20,6 +20,7 @@ from issues.views import (
     IssueCloseView,
     IssueReOpenView,
 )
+from pull_requests.views import PullRequestCompareView
 
 project_browse_urlpatterns = [
     re_path(
@@ -56,6 +57,7 @@ urlpatterns = [
     path("<str:username>/<str:project_handle>/issues/<int:issue_number>/close/", IssueCloseView.as_view(), name="issue-close"),
     path("<str:username>/<str:project_handle>/issues/<int:issue_number>/reopen/", IssueReOpenView.as_view(), name="issue-reopen"),
     path("<str:username>/<str:project_handle>/issues/<int:issue_number>/comments/", IssueCommentCreateView.as_view(), name="issue-comment-create"),
+    path("<str:username>/<str:project_handle>/pull-requests/compare/", PullRequestCompareView.as_view(), name="pull-request-compare"),
 
     # Git endpoints for handling git operations
     path("<str:username>/<str:project_handle>.git/info/refs", GitInfoRefsView.as_view(), name="project-git-info-refs"),

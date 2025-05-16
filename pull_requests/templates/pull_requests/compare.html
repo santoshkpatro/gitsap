@@ -1,0 +1,70 @@
+{% extends 'shared/project_base.html' %}
+{% load static %}
+
+{% block styles %}
+<style>
+    .diff-line {
+        display: flex;
+        font-family: Menlo, Monaco, Consolas, monospace;
+        font-size: 0.75rem;
+        white-space: pre;
+    }
+
+    .diff-line span.ln {
+        width: 3rem;
+        text-align: right;
+        padding-right: 0.5rem;
+        color: #888;
+        flex-shrink: 0;
+    }
+
+    .diff-line span.content {
+        flex-grow: 1;
+        padding-left: 0.5rem;
+    }
+
+    /* GitHub-style backgrounds */
+    .diff-line.added {
+        background-color: #e6ffed;
+    }
+
+    .diff-line.deleted {
+        background-color: #ffeef0;
+    }
+
+    .diff-line.context {
+        background-color: #f6f8fa;
+    }
+</style>
+{% endblock styles %}
+
+{% block content %}
+<div class="container mt-4">
+    <h5 class="mb-3 fw-semibold">Compare Changes</h5>
+
+    {% for change in diffs %}
+    <div class="mb-4">
+        <!-- File Header -->
+        <div class="mb-2 d-flex justify-content-between align-items-center">
+            <strong>{{ change.new_file_path }}</strong>
+            <small class="text-muted">+{{ change.added_lines }} / -{{ change.deleted_lines }}</small>
+        </div>
+
+        <!-- Diff Body -->
+        <div>
+            {% for line in change.lines %}
+            <div class="diff-line {{ line.type }}">
+                <!-- <span class="ln">{{ line.lineno_old|default:"" }}</span> -->
+                <span class="ln">{{ line.lineno_new|default:"" }}</span>
+                <span class="content">{{ line.content }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+
+{% endblock %}

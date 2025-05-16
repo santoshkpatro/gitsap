@@ -510,23 +510,71 @@ class Project(BaseUUIDModel):
         except KeyError:
             return {"error": "One or both branches not found"}
 
-        # Trees from both commits
         source_tree = source_commit.tree
         target_tree = target_commit.tree
-
-        # Show what source_branch introduces over target_branch
-        diff = repo.diff(target_tree, source_tree)
+        diff = repo.diff(target_tree, source_tree, context_lines=3)
 
         changes = []
         for patch in diff:
+            delta = patch.delta
+            new_path = delta.new_file.path
+            status = delta.status_char()
+
+            lines = []
+            added_lines = deleted_lines = 0
+
+            for hunk in patch.hunks:
+                old_lineno = hunk.old_start
+                new_lineno = hunk.new_start
+
+                for line in hunk.lines:
+                    origin = line.origin  # '+', '-', or ' '
+                    content = line.content.rstrip("\n")
+
+                    if origin == "+":
+                        lines.append(
+                            {
+                                "type": "added",
+                                "lineno_old": None,
+                                "lineno_new": new_lineno,
+                                "content": content,
+                            }
+                        )
+                        new_lineno += 1
+                        added_lines += 1
+
+                    elif origin == "-":
+                        lines.append(
+                            {
+                                "type": "deleted",
+                                "lineno_old": old_lineno,
+                                "lineno_new": None,
+                                "content": content,
+                            }
+                        )
+                        old_lineno += 1
+                        deleted_lines += 1
+
+                    else:
+                        lines.append(
+                            {
+                                "type": "context",
+                                "lineno_old": old_lineno,
+                                "lineno_new": new_lineno,
+                                "content": content,
+                            }
+                        )
+                        old_lineno += 1
+                        new_lineno += 1
+
             changes.append(
                 {
-                    "old_file_path": patch.delta.old_file.path,
-                    "new_file_path": patch.delta.new_file.path,
-                    "status": patch.delta.status_char(),  # 'A', 'M', 'D', etc.
-                    "added_lines": patch.line_stats[1],
-                    "deleted_lines": patch.line_stats[2],
-                    "patch": patch.text,
+                    "old_file_path": delta.old_file.path,
+                    "new_file_path": new_path,
+                    "status": status,
+                    "added_lines": added_lines,
+                    "deleted_lines": deleted_lines,
+                    "lines": lines,
                 }
             )
 
