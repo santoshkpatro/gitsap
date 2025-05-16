@@ -313,4 +313,6 @@ dist
 
 # Files and Media
 /media
-/var
+/
+
+.DS_Store
