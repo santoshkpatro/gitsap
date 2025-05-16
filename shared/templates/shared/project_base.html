@@ -33,7 +33,9 @@
                         class="nav-link {% if active_tab == 'issues' %}active{% endif %}"><i data-lucide="alert-circle"
                             class="icon"></i><span>Issues</span></a>
                 </li>
-                <li><a href="#" class="nav-link"><i data-lucide="git-pull-request" class="icon"></i>
+                <li><a href="{% url 'pull-request-list' username=project.owner.username project_handle=project.handle  %}"
+                        class="nav-link {% if active_tab == 'pull_requests' %}active{% endif %}"><i
+                            data-lucide="git-pull-request" class="icon"></i>
                         <span>Pull requests</span></a></li>
                 <li><a href="#" class="nav-link"><i data-lucide="workflow" class="icon"></i><span>Pipelines</span></a>
                 </li>

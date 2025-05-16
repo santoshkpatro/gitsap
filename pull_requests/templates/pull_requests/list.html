@@ -1,0 +1,8 @@
+{% extends 'shared/project_base.html' %}
+
+{% block content %}
+<a class="btn btn-primary"
+    href="{% url 'pull-request-compare' username=project.owner.username project_handle=project.handle %}">New pull
+    request
+</a>
+{% endblock content %}
