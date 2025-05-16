@@ -6,7 +6,6 @@ from django.utils.text import slugify
 from django.utils import timezone
 from datetime import datetime
 from pathlib import Path
-from urllib.parse import quote
 
 from shared.models import BaseUUIDModel
 
@@ -66,6 +65,9 @@ class Project(BaseUUIDModel):
 
     total_issues_count = models.IntegerField(default=0)
     open_issues_count = models.IntegerField(default=0)
+
+    total_pull_requests_count = models.IntegerField(default=0)
+    open_pull_requests_count = models.IntegerField(default=0)
 
     collaborators = models.ManyToManyField(
         "accounts.User", through="ProjectCollaborator"

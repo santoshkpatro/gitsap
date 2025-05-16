@@ -37,7 +37,12 @@ class PullRequest(BaseUUIDModel):
             models.UniqueConstraint(
                 fields=["project", "pull_request_number"],
                 name="unique_pull_request_number",
-            )
+            ),
+            models.UniqueConstraint(
+                fields=["project", "source_branch", "target_branch"],
+                condition=models.Q(status="open"),
+                name="unique_open_pull_request_per_branch_pair",
+            ),
         ]
 
     def save(self, *args, **kwargs):
