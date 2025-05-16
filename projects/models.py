@@ -578,7 +578,54 @@ class Project(BaseUUIDModel):
                 }
             )
 
+        changes.sort(key=lambda c: c["new_file_path"] or c["old_file_path"])
         return changes
+
+    def get_commit_diff_between_refs(self, source_ref: str, target_ref: str):
+        """
+        Returns a list of commits present in `source_ref` but not in `target_ref`,
+        like `git log target_ref..source_ref`.
+        """
+        try:
+            result = subprocess.run(
+                [
+                    "git",
+                    "log",
+                    f"{target_ref}..{source_ref}",
+                    "--format=%H|%ct|%s|%an|%ae",
+                ],
+                cwd=self._local_git_path,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                check=True,
+            )
+
+            commits = []
+            for line in result.stdout.strip().splitlines():
+                if not line.strip():
+                    continue
+                try:
+                    commit_hash, timestamp, message, author_name, author_email = (
+                        line.split("|", 4)
+                    )
+                    commits.append(
+                        {
+                            "hash": commit_hash,
+                            "timestamp": datetime.fromtimestamp(int(timestamp)),
+                            "message": message.strip(),
+                            "author_name": author_name,
+                            "author_email": author_email,
+                        }
+                    )
+                except ValueError:
+                    continue  # Skip malformed lines
+
+            return commits
+
+        except subprocess.CalledProcessError as e:
+            print("Git commit diff error:", e.stderr)
+            return []
 
 
 class ProjectCollaborator(BaseUUIDModel):
