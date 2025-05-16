@@ -1,70 +1,113 @@
 {% extends 'shared/project_base.html' %}
-{% load static %}
 
 {% block styles %}
 <style>
+    .diff-block {
+        font-family: Menlo, Monaco, Consolas, monospace;
+        font-size: 13px;
+        background-color: #f6f8fa;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        margin-bottom: 2rem;
+        overflow: hidden;
+    }
+
+    .diff-header {
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+        border-bottom: 1px solid #d0d7de;
+        background-color: #f3f4f6;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .diff-lines {
+        display: flex;
+        flex-direction: column;
+    }
+
     .diff-line {
         display: flex;
-        font-family: Menlo, Monaco, Consolas, monospace;
-        font-size: 0.75rem;
-        white-space: pre;
+        line-height: 1.45;
+        padding-left: 0.25rem;
     }
 
-    .diff-line span.ln {
+    .diff-line .ln {
         width: 3rem;
         text-align: right;
+        color: #8c959f;
         padding-right: 0.5rem;
-        color: #888;
-        flex-shrink: 0;
-    }
-
-    .diff-line span.content {
-        flex-grow: 1;
-        padding-left: 0.5rem;
-    }
-
-    /* GitHub-style backgrounds */
-    .diff-line.added {
-        background-color: #e6ffed;
-    }
-
-    .diff-line.deleted {
-        background-color: #ffeef0;
-    }
-
-    .diff-line.context {
         background-color: #f6f8fa;
+        border-right: 1px solid #d0d7de;
+        flex-shrink: 0;
+        user-select: none;
+    }
+
+    .diff-line .marker {
+        width: 1.5rem;
+        text-align: center;
+        color: #6a737d;
+        flex-shrink: 0;
+        background-color: #f6f8fa;
+    }
+
+    .diff-line .code {
+        flex-grow: 1;
+        padding-left: 0.75rem;
+        white-space: pre-wrap;
+    }
+
+    .diff-context {
+        background-color: #f6f8fa;
+    }
+
+    .diff-added {
+        background-color: #d4f8d4;
+        /* Sharper green */
+    }
+
+    .diff-deleted {
+        background-color: #fddcdc;
+        /* Sharper red */
     }
 </style>
 {% endblock styles %}
 
 {% block content %}
 <div class="container mt-4">
-    <h5 class="mb-3 fw-semibold">Compare Changes</h5>
+    <h5 class="fw-semibold d-flex align-items-center gap-2 mb-4">
+        <i data-lucide="git-compare"></i> Comparing Changes
+    </h5>
 
-    {% for change in diffs %}
-    <div class="mb-4">
-        <!-- File Header -->
-        <div class="mb-2 d-flex justify-content-between align-items-center">
-            <strong>{{ change.new_file_path }}</strong>
-            <small class="text-muted">+{{ change.added_lines }} / -{{ change.deleted_lines }}</small>
+    {% for file in diffs %}
+    <div class="diff-block">
+        <div class="diff-header">
+            <div><i data-lucide="file"></i> {{ file.new_file_path }}</div>
+            <div class="text-muted">
+                {% if file.status == 'A' %}<i data-lucide="plus"></i> Added
+                {% elif file.status == 'D' %}<i data-lucide="minus"></i> Deleted
+                {% else %}<i data-lucide="edit-2"></i> Modified
+                {% endif %}
+            </div>
         </div>
-
-        <!-- Diff Body -->
-        <div>
-            {% for line in change.lines %}
-            <div class="diff-line {{ line.type }}">
-                <!-- <span class="ln">{{ line.lineno_old|default:"" }}</span> -->
-                <span class="ln">{{ line.lineno_new|default:"" }}</span>
-                <span class="content">{{ line.content }}</span>
+        <div class="diff-lines">
+            {% for line in file.lines %}
+            <div class="diff-line 
+                {% if line.type == 'added' %}diff-added
+                {% elif line.type == 'deleted' %}diff-deleted
+                {% else %}diff-context
+                {% endif %}
+            ">
+                <div class="ln">{{ line.lineno_new|default:"" }}</div>
+                <div class="marker">
+                    {% if line.type == 'added' %}+{% elif line.type == 'deleted' %}-{% else %}&nbsp;{% endif %}
+                </div>
+                <div class="code">{{ line.content }}</div>
             </div>
             {% endfor %}
         </div>
     </div>
     {% endfor %}
 </div>
-{% endblock %}
-
-{% block scripts %}
-
-{% endblock %}
+{% endblock content %}
