@@ -1,3 +1,4 @@
+from collections import defaultdict
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib import messages
@@ -136,7 +137,15 @@ class PullRequestDetailView(ProjectAccessMixin, View):
                 )
                 context["activities"] = activities
             case "commits":
-                pass
+                commits = project.get_commit_diff_between_refs(
+                    pull_request.source_branch, pull_request.target_branch
+                )
+                grouped_commits = defaultdict(list)
+                for commit in commits:
+                    local_date = commit["timestamp"].date()
+                    grouped_commits[local_date].append(commit)
+
+                context["grouped_commits"] = dict(grouped_commits)
             case "changes":
                 pass
             case _:
