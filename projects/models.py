@@ -1,4 +1,4 @@
-import os, uuid, tarfile, pygit2, tempfile, subprocess
+import os, uuid, tarfile, pygit2, tempfile, subprocess, shutil
 from pathlib import Path
 from django.db import models
 from django.conf import settings
@@ -637,6 +637,108 @@ class Project(BaseUUIDModel):
         except subprocess.CalledProcessError as e:
             print("Git commit diff error:", e.stderr)
             return []
+
+    def get_merge_conflicts(self, source_branch: str, target_branch: str):
+        repo = self.repo
+
+        try:
+            source_commit = repo.revparse_single(f"refs/heads/{source_branch}")
+            target_commit = repo.revparse_single(f"refs/heads/{target_branch}")
+        except KeyError:
+            return []
+
+        repo.checkout_tree(target_commit.tree, strategy=pygit2.GIT_CHECKOUT_SAFE)
+        repo.set_head(f"refs/heads/{target_branch}")
+        repo.merge(source_commit.id)
+
+        conflicts = []
+        if repo.index.conflicts:
+            for conflict in repo.index.conflicts:
+                ours = conflict[1]
+                theirs = conflict[2]
+                conflicts.append(
+                    {
+                        "path": ours.path if ours else theirs.path,
+                        "ours": ours.id.hex if ours else None,
+                        "theirs": theirs.id.hex if theirs else None,
+                    }
+                )
+
+        repo.state_cleanup()
+        return conflicts
+
+    def merge_branches(
+        self, source_branch: str, target_branch: str, user_name: str, user_email: str
+    ):
+        """
+        Clone the bare repo to a temp non-bare repo,
+        perform a merge using pygit2, and push back if no conflicts.
+        """
+
+        bare_repo_path = self._local_git_path
+        temp_dir = tempfile.mkdtemp()
+
+        try:
+            # Step 1: Clone from bare to temp non-bare repo
+            repo = pygit2.clone_repository(
+                url=f"file://{bare_repo_path}",
+                path=temp_dir,
+                bare=False,
+                checkout_branch=target_branch,
+            )
+
+            # Step 2: Resolve the commits
+            source_commit = repo.revparse_single(f"refs/remotes/origin/{source_branch}")
+            target_commit = repo.revparse_single(f"refs/heads/{target_branch}")
+
+            # Step 3: Checkout target branch
+            repo.checkout(
+                f"refs/heads/{target_branch}", strategy=pygit2.GIT_CHECKOUT_FORCE
+            )
+            repo.set_head(f"refs/heads/{target_branch}")
+
+            # Step 4: Merge source into target
+            repo.merge(source_commit.id)
+
+            if repo.index.conflicts:
+                # Abort merge if conflicts
+                repo.state_cleanup()
+                return {
+                    "merged": False,
+                    "conflicts": [
+                        conflict[1].path
+                        for conflict in repo.index.conflicts
+                        if conflict[1]
+                    ],
+                }
+
+            # Step 5: Write tree and create merge commit
+            tree = repo.index.write_tree()
+            author = pygit2.Signature(user_name, user_email)
+            committer = pygit2.Signature(user_name, user_email)
+            merge_commit = repo.create_commit(
+                f"refs/heads/{target_branch}",
+                author,
+                committer,
+                f"Merge branch '{source_branch}' into {target_branch}",
+                tree,
+                [target_commit.id, source_commit.id],
+            )
+
+            # Step 6: Push back to origin
+            remote = repo.remotes["origin"]
+            remote.push(
+                [f"refs/heads/{target_branch}"],
+            )
+
+            repo.state_cleanup()
+            return {"merged": True, "merge_commit": str(merge_commit)}
+
+        except Exception as e:
+            return {"merged": False, "error": str(e)}
+
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
 
 
 class ProjectCollaborator(BaseUUIDModel):

@@ -67,3 +67,13 @@ class User(BaseUUIDModel, AbstractBaseUser):
     @property
     def is_active(self):
         return self.activated_at is not None
+
+    @property
+    def name(self):
+        if self.first_name and self.last_name:
+            return f"{self.first_name} {self.last_name}"
+        elif self.first_name:
+            return self.first_name
+        elif self.last_name:
+            return self.last_name
+        return self.email.split("@")[0]
