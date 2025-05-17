@@ -147,7 +147,10 @@ class PullRequestDetailView(ProjectAccessMixin, View):
 
                 context["grouped_commits"] = dict(grouped_commits)
             case "changes":
-                pass
+                diffs = project.get_diff_between_branches(
+                    pull_request.source_branch, pull_request.target_branch
+                )
+                context["diffs"] = diffs
             case _:
                 messages.error(request, "Invalid tab selected.")
                 return redirect(

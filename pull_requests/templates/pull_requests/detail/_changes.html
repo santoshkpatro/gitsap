@@ -1,0 +1,40 @@
+<!-- File Diffs -->
+{% for file in diffs %}
+<div class="diff-block">
+    <div class="diff-header">
+        <div><i data-lucide="file"></i> {{ file.new_file_path }}</div>
+        <div class="text-muted">
+            {% if file.status == 'A' %}<i data-lucide="plus"></i> Added
+            {% elif file.status == 'D' %}<i data-lucide="minus"></i> Deleted
+            {% else %}<i data-lucide="edit-2"></i> Modified
+            {% endif %}
+        </div>
+    </div>
+    <div class="diff-lines">
+        {% for line in file.lines %}
+        <div class="diff-line 
+            {% if line.type == 'added' %}diff-added
+            {% elif line.type == 'deleted' %}diff-deleted
+            {% else %}diff-context
+            {% endif %}
+        ">
+            <div class="ln">{{ line.lineno_new|default:"" }}</div>
+            <div class="marker">
+                {% if line.type == 'added' %}+{% elif line.type == 'deleted' %}-{% else %}&nbsp;{% endif %}
+            </div>
+            <div class="code">{{ line.content }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% empty %}
+<div class="d-flex justify-content-center mt-5">
+    <div class="text-center text-muted d-flex flex-column align-items-center gap-2">
+        <i data-lucide="git-pull-request" style="width: 28px; height: 28px;"></i>
+        <div>
+            <strong>There isn’t anything to compare.</strong><br>
+            Choose two different branches to see what’s changed or to start a new pull request.
+        </div>
+    </div>
+</div>
+{% endfor %}
