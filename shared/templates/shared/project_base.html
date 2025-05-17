@@ -5,8 +5,15 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- For SEO indexing -->
+    {% block meta_description %}
+    {% endblock %}
+
     <link rel="shortcut icon" href="{% static 'shared/images/favicon.ico' %}" type="image/x-icon">
-    <title>Gitsap</title>
+    <title>
+        {% block title %}Gitsap{% endblock title %}
+    </title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="{% static 'shared/css/bootstrap.css' %}" rel="stylesheet">
     <link href="{% static 'shared/css/base.css' %}" rel="stylesheet">
@@ -20,27 +27,40 @@
         <div class="sidebar d-flex flex-column p-3">
             <!-- Navigation -->
             <ul class="nav flex-column gap-1 mt-2">
-                <li><a href="{% url 'project-overview' username=project.owner.username project_handle=project.handle %}"
-                        class="nav-link {% if active_tab == 'code' %}active{% endif %}"><i data-lucide="code"
-                            class="icon"></i><span>Code</span></a>
+                <li>
+                    <a href="{% url 'project-overview' username=project.owner.username project_handle=project.handle %}"
+                        class="nav-link {% if active_tab == 'code' %}active{% endif %}">
+                        <i data-lucide="code" class="icon"></i><span>Code</span>
+                    </a>
                 </li>
-                <li><a href="{% url 'issue-list' username=project.owner.username project_handle=project.handle %}"
-                        class="nav-link {% if active_tab == 'issues' %}active{% endif %}"><i data-lucide="alert-circle"
-                            class="icon"></i><span>Issues</span></a>
+                <li>
+                    <a href="{% url 'issue-list' username=project.owner.username project_handle=project.handle %}"
+                        class="nav-link {% if active_tab == 'issues' %}active{% endif %}">
+                        <i data-lucide="alert-circle" class="icon"></i>
+                        <span>Issues</span>
+                    </a>
                 </li>
-                <li><a href="{% url 'pull-request-list' username=project.owner.username project_handle=project.handle  %}"
-                        class="nav-link {% if active_tab == 'pull_requests' %}active{% endif %}"><i
-                            data-lucide="git-pull-request" class="icon"></i>
-                        <span>Pull requests</span></a></li>
-                <li><a href="#" class="nav-link"><i data-lucide="workflow" class="icon"></i><span>Pipelines</span></a>
+                <li>
+                    <a href="{% url 'pull-request-list' username=project.owner.username project_handle=project.handle  %}"
+                        class="nav-link {% if active_tab == 'pull_requests' %}active{% endif %}">
+                        <i data-lucide="git-pull-request" class="icon"></i>
+                        <span>Pull requests</span>
+                    </a>
                 </li>
-                <li><a href="#" class="nav-link"><i data-lucide="kanban" class="icon"></i><span>Work Items</span></a>
+                <li>
+                    <a href="#" class="nav-link"><i data-lucide="workflow" class="icon"></i><span>Pipelines</span></a>
                 </li>
-                <li><a href="#" class="nav-link"><i data-lucide="library" class="icon"></i><span>Wiki</span></a>
+                <li>
+                    <a href="#" class="nav-link"><i data-lucide="kanban" class="icon"></i><span>Work Items</span></a>
                 </li>
-                <li><a href="#" class="nav-link"><i data-lucide="bar-chart-3" class="icon"></i><span>Insights</span></a>
+                <li>
+                    <a href="#" class="nav-link"><i data-lucide="library" class="icon"></i><span>Wiki</span></a>
                 </li>
-                <li><a href="#" class="nav-link"><i data-lucide="settings" class="icon"></i><span>Settings</span></a>
+                <li>
+                    <a href="#" class="nav-link"><i data-lucide="bar-chart-3" class="icon"></i><span>Insights</span></a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link"><i data-lucide="settings" class="icon"></i><span>Settings</span></a>
                 </li>
             </ul>
 
