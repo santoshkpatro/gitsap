@@ -1,0 +1,51 @@
+{% load humanize %}
+
+<div class="timeline">
+    <div class="timeline-entry">
+        <div
+            class="timeline-icon {% if pull_request.status == 'closed' %}text-secondary{% else %}text-primary{% endif %}">
+            <i data-lucide="file-text"></i>
+        </div>
+        <div class="timeline-body w-100">
+            <div class="timeline-line">
+                <span><strong>{{ pull_request.author.username }}</strong> opened this pull request.</span>
+                <span class="timeline-time">{{ pull_request.created_at|naturaltime }}</span>
+            </div>
+            {% if pull_request.description_html %}
+            <div class="timeline-note">
+                {{ pull_request.description_html|safe }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% for activity in activities %}
+    <div class="timeline-entry">
+        <div
+            class="timeline-icon {% if pull_request.status == 'closed' %}text-secondary{% else %}text-primary{% endif %}">
+            {% if activity.activity_type == 'comment' %}
+            <i data-lucide="message-square" class="lucide"></i>
+            {% else %}
+            <i data-lucide="activity" class="lucide"></i>
+            {% endif %}
+        </div>
+        <div class="timeline-body w-100">
+            <div class="timeline-line">
+                {% if activity.activity_type == 'comment' %}
+                <span><strong>{{ activity.author.username }}</strong> commented.</span>
+                {% else %}
+                <span>
+                    <strong>{{ activity.author.username }}</strong> {{ activity.content_html|safe }}
+                </span>
+                {% endif %}
+                <span class="timeline-time">{{ activity.created_at|naturaltime }}</span>
+            </div>
+            {% if activity.activity_type == 'comment' %}
+            <div class="timeline-note">
+                {{ activity.content_html|safe }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>

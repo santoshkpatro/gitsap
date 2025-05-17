@@ -5,7 +5,7 @@ from django.db.models import Q
 
 from projects.mixins import ProjectAccessMixin
 from pull_requests.forms import PullRequestCreateForm
-from pull_requests.models import PullRequest
+from pull_requests.models import PullRequest, PullRequestActivity
 
 
 class PullRequestListView(ProjectAccessMixin, View):
@@ -13,7 +13,7 @@ class PullRequestListView(ProjectAccessMixin, View):
         project = request.project
         status = request.GET.get("status", "open")
         if status == "all":
-            status_filter = Q(status__in=["open", "closed"])
+            status_filter = Q(status__in=["open", "closed", "merged"])
         else:
             status_filter = Q(status=status)
 
@@ -111,3 +111,40 @@ class PullRequestCreateView(ProjectAccessMixin, View):
             username=project.owner.username,
             project_handle=project.handle,
         )
+
+
+class PullRequestDetailView(ProjectAccessMixin, View):
+    def get(self, request, *args, **kwargs):
+        project = request.project
+        pull_request_number = kwargs.get("pull_request_number")
+        pull_request = PullRequest.objects.get(
+            project=project, pull_request_number=pull_request_number
+        )
+        current_tab = request.GET.get("tab", "activity")
+        context = {
+            "project": project,
+            "active_tab": "pull_requests",
+            "pull_request": pull_request,
+            "current_tab": current_tab,
+        }
+        match current_tab:
+            case "activity":
+                activities = (
+                    PullRequestActivity.objects.filter(pull_request=pull_request)
+                    .order_by("-created_at")
+                    .select_related("author")
+                )
+                context["activities"] = activities
+            case "commits":
+                pass
+            case "changes":
+                pass
+            case _:
+                messages.error(request, "Invalid tab selected.")
+                return redirect(
+                    "pull-request-detail",
+                    username=project.owner.username,
+                    project_handle=project.handle,
+                    pull_request_number=pull_request_number,
+                )
+        return render(request, "pull_requests/detail.html", context)

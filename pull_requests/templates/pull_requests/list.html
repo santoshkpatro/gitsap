@@ -85,7 +85,7 @@
                     <i data-lucide="git-merge" class="text-muted" style="width: 16px; height: 16px;"></i>
                     {% endif %}
 
-                    <a href="#"
+                    <a href="{% url 'pull-request-detail' username=project.owner.username project_handle=project.handle pull_request_number=pr.pull_request_number %}"
                         class="fw-semibold pr-title-link {% if status == 'all' and pr.status == 'closed' %}text-muted{% else %}text-dark{% endif %}">
                         {{ pr.title }}
                     </a>
