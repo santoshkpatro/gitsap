@@ -196,7 +196,10 @@
                             {% csrf_token %}
                             <div id="editor"></div>
                             <textarea name="content_html" hidden></textarea>
-                            <div class="mt-2 d-flex justify-content-end gap-2">
+                            <div class="mt-2 gap-2">
+                                <button class="btn btn-primary btn-sm" type="submit">
+                                    <i data-lucide="send" class="me-1" style="width:16px;"></i> Comment
+                                </button>
                                 {% if issue.status == 'open' %}
                                 <a class="btn btn-light btn-sm"
                                     href="{% url 'issue-close' username=request.user.username project_handle=project.handle issue_number=issue.issue_number %}">
@@ -208,9 +211,6 @@
                                     <i data-lucide="rotate-ccw" class="me-1" style="width:16px;"></i> Re-Open Issue
                                 </a>
                                 {% endif %}
-                                <button class="btn btn-primary btn-sm" type="submit">
-                                    <i data-lucide="send" class="me-1" style="width:16px;"></i> Comment
-                                </button>
                             </div>
                         </form>
                         {% else %}
