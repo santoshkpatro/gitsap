@@ -25,6 +25,12 @@ def decrement_pull_request_count(sender, instance, **kwargs):
 
     if instance.status == PullRequest.Status.OPEN:
         project.open_pull_requests_count -= 1
+    elif instance.status == PullRequest.Status.MERGED:
+        project.merged_pull_requests_count -= 1
     project.save(
-        update_fields=["total_pull_requests_count", "open_pull_requests_count"]
+        update_fields=[
+            "total_pull_requests_count",
+            "open_pull_requests_count",
+            "merged_pull_requests_count",
+        ]
     )

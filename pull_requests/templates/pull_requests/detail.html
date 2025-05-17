@@ -156,3 +156,33 @@
     {% endif %}
 </div>
 {% endblock content %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<script>
+    const quill = new Quill('#editor', {
+        theme: 'snow',
+        placeholder: 'Describe your comment...',
+        modules: {
+            toolbar: [
+                [{ header: [1, 2, false] }],
+                ['bold', 'italic', 'underline', 'code'],
+                [{ list: 'ordered' }, { list: 'bullet' }],
+                ['link', 'blockquote', 'code-block'],
+                ['clean']
+            ]
+        }
+    });
+
+    const hidden = document.querySelector('textarea[name="content_html"]');
+    window.addEventListener('DOMContentLoaded', () => {
+        if (hidden.value.trim()) {
+            quill.root.innerHTML = hidden.value;
+        }
+    });
+
+    quill.on('text-change', function () {
+        hidden.value = quill.root.innerHTML;
+    });
+</script>
+{% endblock scripts %}

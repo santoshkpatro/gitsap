@@ -59,6 +59,20 @@ class PullRequest(BaseUUIDModel):
             )
         return super().save(*args, **kwargs)
 
+    @transaction.atomic
+    def merge(self):
+        project = self.project
+
+        self.status = self.Status.MERGED
+        self.save(update_fields=["status"])
+
+        project.open_pull_requests_count -= 1
+        project.merged_pull_requests_count += 1
+
+        project.save(
+            update_fields=["open_pull_requests_count", "merged_pull_requests_count"]
+        )
+
 
 class PullRequestAssignee(BaseUUIDModel):
     pull_request = models.ForeignKey(
