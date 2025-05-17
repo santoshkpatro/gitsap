@@ -185,4 +185,24 @@
         hidden.value = quill.root.innerHTML;
     });
 </script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const showMergeConfirmBtn = document.getElementById("show-merge-confirm");
+        const mergeCard = document.getElementById("merge-card");
+        const mergeConfirmCard = document.getElementById("merge-confirm-card");
+        const cancelMergeBtn = document.getElementById("cancel-merge");
+
+        showMergeConfirmBtn.addEventListener("click", function () {
+            mergeCard.classList.add("d-none");
+            mergeConfirmCard.classList.remove("d-none");
+        });
+
+        cancelMergeBtn.addEventListener("click", function () {
+            mergeConfirmCard.classList.add("d-none");
+            mergeCard.classList.remove("d-none");
+        });
+    });
+</script>
+
 {% endblock scripts %}

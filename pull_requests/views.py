@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.db.models import Q
 
 from projects.mixins import ProjectAccessMixin
-from pull_requests.forms import PullRequestCreateForm
+from pull_requests.forms import PullRequestCreateForm, PullRequestMergeConfirmForm
 from pull_requests.models import PullRequest, PullRequestActivity
 
 
@@ -122,11 +122,16 @@ class PullRequestDetailView(ProjectAccessMixin, View):
             project=project, pull_request_number=pull_request_number
         )
         current_tab = request.GET.get("tab", "activity")
+        default_commit_message = f"Merge pull request #{pull_request.pull_request_number} from {pull_request.source_branch}"
+        pr_merge_form = PullRequestMergeConfirmForm()
+        pr_merge_form.fields["commit_message"].initial = default_commit_message
         context = {
             "project": project,
-            "active_tab": "pull_requests",
             "pull_request": pull_request,
             "current_tab": current_tab,
+            "default_commit_message": default_commit_message,
+            "active_tab": "pull_requests",
+            "pr_merge_form": pr_merge_form,
         }
         match current_tab:
             case "activity":
@@ -163,9 +168,22 @@ class PullRequestDetailView(ProjectAccessMixin, View):
 
 
 class PullRequestMergeView(ProjectAccessMixin, View):
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         project = request.project
         pull_request_number = kwargs.get("pull_request_number")
+
+        form = PullRequestMergeConfirmForm(request.POST)
+        if not form.is_valid():
+            messages.error(
+                request,
+                "There was an error merging the pull request. Please check the form and try again.",
+            )
+            return redirect(
+                "pull-request-detail",
+                username=project.owner.username,
+                project_handle=project.handle,
+                pull_request_number=pull_request_number,
+            )
 
         pull_request = PullRequest.objects.get(
             project=project,
@@ -181,12 +199,19 @@ class PullRequestMergeView(ProjectAccessMixin, View):
                 pull_request_number=pull_request_number,
             )
 
+        cleaned_data = form.cleaned_data
+        commit_message = cleaned_data.get(
+            "commit_message",
+            f"Merge pull request #{pull_request.pull_request_number} from {pull_request.source_branch}",
+        )
+
         # Attempt merge
         response = project.merge_branches(
             source_branch=pull_request.source_branch,
             target_branch=pull_request.target_branch,
             user_name=request.user.name,
             user_email=request.user.email,
+            commit_message=commit_message,
         )
 
         if not response.get("merged"):
