@@ -68,6 +68,7 @@ class Project(BaseUUIDModel):
 
     total_pull_requests_count = models.IntegerField(default=0)
     open_pull_requests_count = models.IntegerField(default=0)
+    merged_pull_requests_count = models.IntegerField(default=0)
 
     collaborators = models.ManyToManyField(
         "accounts.User", through="ProjectCollaborator"
@@ -101,6 +102,14 @@ class Project(BaseUUIDModel):
     @property
     def closed_issues_count(self):
         return self.total_issues_count - self.open_issues_count
+
+    @property
+    def closed_pull_requests_count(self):
+        return (
+            self.total_pull_requests_count
+            - self.open_pull_requests_count
+            - self.merged_pull_requests_count
+        )
 
     @property
     def repo(self):
