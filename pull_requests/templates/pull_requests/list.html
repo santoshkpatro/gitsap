@@ -57,6 +57,13 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="?status=merged"
+                        class="nav-link py-1 px-3 small d-flex align-items-center gap-2 {% if status == 'merged' %}fw-semibold bg-light text-dark{% endif %}">
+                        <i data-lucide="git-merge" style="width:14px;height:14px;" class="text-success"></i> Merged
+                        <span class="badge text-bg-secondary">{{ project.merged_pull_requests_count }}</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="?status=closed"
                         class="nav-link py-1 px-3 small d-flex align-items-center gap-2 {% if status == 'closed' %}fw-semibold bg-light text-dark{% endif %}">
                         <i data-lucide="check-circle-2" style="width:14px;height:14px;" class="text-muted"></i> Closed
