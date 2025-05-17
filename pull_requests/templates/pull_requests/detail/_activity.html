@@ -48,4 +48,51 @@
         </div>
     </div>
     {% endfor %}
+
+    <div class="timeline-entry">
+        <div
+            class="timeline-icon {% if pull_request.status == 'closed' %}text-secondary{% else %}text-primary{% endif %}">
+            <i data-lucide="git-merge" class="lucide"></i>
+        </div>
+        <div class="timeline-body w-100">
+            <div class="timeline-line">
+                <a class="btn btn-primary btn-sm"
+                    href="{% url 'pull-request-merge' username=request.user.username project_handle=project.handle pull_request_number=pull_request.pull_request_number %}">
+                    <i data-lucide="git-merge" class="me-1" style="width:16px;"></i> Merge pull request
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="timeline-entry">
+        <div
+            class="timeline-icon {% if pull_request.status == 'closed' %}text-secondary{% else %}text-primary{% endif %}">
+            <i data-lucide="message-circle-more" class="lucide"></i>
+        </div>
+        <div class="timeline-body w-100">
+            {% if request.user.is_authenticated %}
+            <form action="#" method="post">
+                {% csrf_token %}
+                <div id="editor"></div>
+                <textarea name="content_html" hidden></textarea>
+                <div class="mt-2 gap-2">
+                    <button class="btn btn-secondary btn-sm" type="submit">
+                        <i data-lucide="send" class="me-1" style="width:16px;"></i> Comment
+                    </button>
+                    {% if pull_request.status == 'open' %}
+                    <a class="btn btn-light btn-sm" href="#">
+                        <i data-lucide="rotate-ccw" class="me-1" style="width:16px;"></i> Close
+                    </a>
+                    {% endif %}
+                </div>
+            </form>
+            {% else %}
+            <div class="alert alert-light d-flex align-items-center gap-2 small mt-2" role="alert">
+                <i data-lucide="log-in" style="width: 16px;"></i>
+                Please <a href="{% url 'login' %}" class="ms-1">login</a> to add a comment.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
 </div>

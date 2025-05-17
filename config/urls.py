@@ -24,6 +24,7 @@ from pull_requests.views import (
     PullRequestListView,
     PullRequestCreateView,
     PullRequestDetailView,
+    PullRequestMergeView,
 )
 
 # fmt: off
@@ -47,6 +48,7 @@ project_urlpatterns = [
     path("pull-requests/", PullRequestListView.as_view(), name="pull-request-list"),
     path("pull-requests/create/", PullRequestCreateView.as_view(), name="pull-request-create"),
     path("pull-requests/<int:pull_request_number>/", PullRequestDetailView.as_view(), name="pull-request-detail"),
+    path("pull-requests/<int:pull_request_number>/merge/", PullRequestMergeView.as_view(), name="pull-request-merge"),
 ]
 
 
