@@ -668,7 +668,12 @@ class Project(BaseUUIDModel):
         return conflicts
 
     def merge_branches(
-        self, source_branch: str, target_branch: str, user_name: str, user_email: str
+        self,
+        source_branch: str,
+        target_branch: str,
+        user_name: str,
+        user_email: str,
+        commit_message: str = None,
     ):
         """
         Clone the bare repo to a temp non-bare repo,
@@ -716,11 +721,13 @@ class Project(BaseUUIDModel):
             tree = repo.index.write_tree()
             author = pygit2.Signature(user_name, user_email)
             committer = pygit2.Signature(user_name, user_email)
+            if not commit_message:
+                commit_message = f"Merge branch '{source_branch}' into {target_branch}"
             merge_commit = repo.create_commit(
                 f"refs/heads/{target_branch}",
                 author,
                 committer,
-                f"Merge branch '{source_branch}' into {target_branch}",
+                commit_message,
                 tree,
                 [target_commit.id, source_commit.id],
             )

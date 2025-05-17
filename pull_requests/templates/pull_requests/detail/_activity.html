@@ -49,20 +49,53 @@
     </div>
     {% endfor %}
 
+    {% if pull_request.status == 'open' %}
     <div class="timeline-entry">
         <div
             class="timeline-icon {% if pull_request.status == 'closed' %}text-secondary{% else %}text-primary{% endif %}">
             <i data-lucide="git-merge" class="lucide"></i>
         </div>
         <div class="timeline-body w-100">
-            <div class="timeline-line">
-                <a class="btn btn-primary btn-sm"
-                    href="{% url 'pull-request-merge' username=request.user.username project_handle=project.handle pull_request_number=pull_request.pull_request_number %}">
-                    <i data-lucide="git-merge" class="me-1" style="width:16px;"></i> Merge pull request
-                </a>
+            <!-- Merge Card: initial state -->
+            <div class="card p-3" id="merge-card">
+                <div>
+                    <div class="mb-4">
+                        <div class="fw-semibold mb-1">Merge can be performed automatically</div>
+                        <div class="text-muted small">This pull request has no conflicts with the base branch.</div>
+                    </div>
+                    <button class="btn btn-primary btn-sm" id="show-merge-confirm">
+                        <i data-lucide="git-merge" class="me-1" style="width:16px;"></i> Merge pull request
+                    </button>
+                </div>
             </div>
+
+            <!-- Merge Confirm Card: hidden initially -->
+            <div class="card p-3 d-none" id="merge-confirm-card">
+                <div class="mb-3">
+                    <div class="fw-semibold mb-1">Merge can be performed automatically</div>
+                    <div class="text-muted small">This pull request has no conflicts with the base branch.</div>
+                </div>
+                <form method="post"
+                    action="{% url 'pull-request-merge' username=request.user.username project_handle=project.handle pull_request_number=pull_request.pull_request_number %}">
+                    {% csrf_token %}
+                    <div class="mb-2">
+                        <label for="commit-message" class="form-label small fw-semibold">Commit message</label>
+                        {{ pr_merge_form.commit_message }}
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i data-lucide="check" class="me-1" style="width:16px;"></i> Confirm merge
+                        </button>
+                        <button type="button" class="btn btn-light btn-sm" id="cancel-merge">
+                            <i data-lucide="x" class="me-1" style="width:16px;"></i> Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+
         </div>
     </div>
+    {% endif %}
 
     <div class="timeline-entry">
         <div

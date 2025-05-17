@@ -41,3 +41,16 @@ class PullRequestCreateForm(forms.Form):
         else:
             cleaned_data["description"] = None
         return cleaned_data
+
+
+class PullRequestMergeConfirmForm(forms.Form):
+    commit_message = forms.CharField(
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Enter a commit message",
+                "required": "required",
+            }
+        ),
+        required=True,
+    )
