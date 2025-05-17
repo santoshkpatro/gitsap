@@ -23,6 +23,7 @@ from pull_requests.views import (
     PullRequestCompareView,
     PullRequestListView,
     PullRequestCreateView,
+    PullRequestDetailView,
 )
 
 # fmt: off
@@ -45,6 +46,7 @@ project_urlpatterns = [
     path("pull-requests/compare/", PullRequestCompareView.as_view(), name="pull-request-compare"),
     path("pull-requests/", PullRequestListView.as_view(), name="pull-request-list"),
     path("pull-requests/create/", PullRequestCreateView.as_view(), name="pull-request-create"),
+    path("pull-requests/<int:pull_request_number>/", PullRequestDetailView.as_view(), name="pull-request-detail"),
 ]
 
 

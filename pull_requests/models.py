@@ -7,6 +7,7 @@ class PullRequest(BaseUUIDModel):
     class Status(models.TextChoices):
         OPEN = ("open", "Open")
         CLOSED = ("closed", "Closed")
+        MERGED = ("merged", "Merged")
 
     project = models.ForeignKey(
         "projects.Project", on_delete=models.CASCADE, related_name="pull_requests"
