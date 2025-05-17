@@ -81,12 +81,10 @@
 {% block content %}
 <div class="container mt-2">
     <div class="mb-3 d-flex align-items-start gap-2">
-        <i data-lucide="{% if pull_request.status == 'closed' %}check-circle-2{% else %}git-pull-request{% endif %}"
-            class="mt-1 ms-1 {% if pull_request.status == 'closed' %}text-secondary{% else %}text-primary{% endif %}"
-            style="width: 20px; height: 20px;"></i>
         <div class="flex-grow-1">
             <h3 class="mb-1 fw-semibold d-flex align-items-center gap-2 flex-wrap">
-                #{{ pull_request.pull_request_number }} - {{ pull_request.title }}
+                <span class="text-secondary">#{{ pull_request.pull_request_number }}</span>
+                - {{ pull_request.title }}
                 {% if request.user == pull_request.author %}
                 <a href="#" class="text-muted" title="Edit pull request">
                     <i data-lucide="edit-3" style="width: 16px; height: 16px;"></i>
@@ -94,17 +92,30 @@
                 {% endif %}
             </h3>
             <div class="d-flex align-items-center gap-3 flex-wrap small text-muted">
-                <span class="badge {% if pull_request.status == 'open' %}bg-primary{% else %}bg-secondary{% endif %}">
+                <span
+                    class="badge d-inline-flex align-items-center gap-1 py-1 px-2
+                            {% if pull_request.status == 'open' %}bg-primary text-white{% else %}bg-secondary text-white{% endif %}"
+                    style="font-size: 0.85rem;">
+                    {% if pull_request.status == 'open' %}
+                    <i data-lucide="git-pull-request" style="width: 14px; height: 14px;"></i>
+                    {% elif pull_request.status == 'merged' %}
+                    <i data-lucide="git-merge" style="width: 14px; height: 14px;"></i>
+                    {% else %}
+                    <i data-lucide="check-circle-2" style="width: 14px; height: 14px;"></i>
+                    {% endif %}
                     {{ pull_request.get_status_display }}
                 </span>
                 <span>
                     created
                     {{ pull_request.created_at|naturaltime }} by <strong>{{ pull_request.author.username }}</strong>
                 </span>
-                <span>
+                <span class="d-flex align-items-center gap-1">
                     <i data-lucide="git-branch" style="width:14px"></i>
-                    {{ pull_request.source_branch }} → {{ pull_request.target_branch }}
+                    {{ pull_request.target_branch }}
+                    <i data-lucide="arrow-left" style="width:14px"></i>
+                    {{ pull_request.source_branch }}
                 </span>
+
             </div>
         </div>
     </div>
@@ -145,3 +156,33 @@
     {% endif %}
 </div>
 {% endblock content %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<script>
+    const quill = new Quill('#editor', {
+        theme: 'snow',
+        placeholder: 'Describe your comment...',
+        modules: {
+            toolbar: [
+                [{ header: [1, 2, false] }],
+                ['bold', 'italic', 'underline', 'code'],
+                [{ list: 'ordered' }, { list: 'bullet' }],
+                ['link', 'blockquote', 'code-block'],
+                ['clean']
+            ]
+        }
+    });
+
+    const hidden = document.querySelector('textarea[name="content_html"]');
+    window.addEventListener('DOMContentLoaded', () => {
+        if (hidden.value.trim()) {
+            quill.root.innerHTML = hidden.value;
+        }
+    });
+
+    quill.on('text-change', function () {
+        hidden.value = quill.root.innerHTML;
+    });
+</script>
+{% endblock scripts %}

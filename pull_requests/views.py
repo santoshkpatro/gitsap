@@ -160,3 +160,58 @@ class PullRequestDetailView(ProjectAccessMixin, View):
                     pull_request_number=pull_request_number,
                 )
         return render(request, "pull_requests/detail.html", context)
+
+
+class PullRequestMergeView(ProjectAccessMixin, View):
+    def get(self, request, *args, **kwargs):
+        project = request.project
+        pull_request_number = kwargs.get("pull_request_number")
+
+        pull_request = PullRequest.objects.get(
+            project=project,
+            pull_request_number=pull_request_number,
+        )
+
+        if pull_request.status == PullRequest.Status.MERGED:
+            messages.error(request, "This pull request has already been merged.")
+            return redirect(
+                "pull-request-detail",
+                username=project.owner.username,
+                project_handle=project.handle,
+                pull_request_number=pull_request_number,
+            )
+
+        # Attempt merge
+        response = project.merge_branches(
+            source_branch=pull_request.source_branch,
+            target_branch=pull_request.target_branch,
+            user_name=request.user.name,
+            user_email=request.user.email,
+        )
+
+        if not response.get("merged"):
+            if response.get("conflicts"):
+                messages.error(request, "Merge failed due to conflicts.")
+            elif response.get("error"):
+                messages.error(request, f"Merge failed: {response['error']}")
+            else:
+                messages.error(request, "Merge failed for unknown reasons.")
+
+            return redirect(
+                "pull-request-detail",
+                username=project.owner.username,
+                project_handle=project.handle,
+                pull_request_number=pull_request_number,
+            )
+
+        # If merge is successful
+        pull_request.merge()  # mark PR as merged
+        project.update_cloud_resource_artifact()  # upload updated git tar
+
+        messages.success(request, "Pull request merged successfully.")
+        return redirect(
+            "pull-request-detail",
+            username=project.owner.username,
+            project_handle=project.handle,
+            pull_request_number=pull_request_number,
+        )
