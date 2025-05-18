@@ -110,7 +110,7 @@
                     <div class="text-muted small">Write a commit message to finalize the merge.</div>
                 </div>
                 <form method="post"
-                    action="{% url 'pull-request-merge' username=request.user.username project_handle=project.handle pull_request_number=pull_request.pull_request_number %}">
+                    action="{% url 'pull-request-merge' username=project.owner_username project_handle=project.handle pull_request_number=pull_request.pull_request_number %}">
                     {% csrf_token %}
                     <div class="mb-2">
                         <label for="commit-message" class="form-label small fw-semibold">Commit message</label>
@@ -157,7 +157,7 @@
             {% else %}
             <div class="alert alert-light d-flex align-items-center gap-2 small mt-2" role="alert">
                 <i data-lucide="log-in" style="width: 16px;"></i>
-                Please <a href="{% url 'login' %}" class="ms-1">login</a> to add a comment.
+                Please <a href="{% url 'accounts-login' %}" class="ms-1">login</a> to add a comment.
             </div>
             {% endif %}
         </div>

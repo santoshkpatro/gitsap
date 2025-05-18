@@ -105,12 +105,10 @@
     </div>
 
     <div class="mb-3 d-flex align-items-start gap-2">
-        <i data-lucide="{% if issue.status == 'closed' %}check-circle-2{% else %}circle-dot{% endif %}"
-            class="mt-1 ms-1 {% if issue.status == 'closed' %}text-secondary{% else %}text-primary{% endif %}"
-            style="width: 20px; height: 20px;"></i>
         <div class="flex-grow-1">
             <h3 class="mb-1 fw-semibold d-flex align-items-center gap-2 flex-wrap">
-                #{{ issue.issue_number }} - {{ issue.title }}
+                <span class="text-secondary">#{{ issue.issue_number }}</span>
+                - {{ issue.title }}
                 {% if request.user == issue.author %}
                 <a href="#" class="text-muted" title="Edit issue">
                     <i data-lucide="edit-3" style="width: 16px; height: 16px;"></i>
@@ -118,11 +116,17 @@
                 {% endif %}
             </h3>
             <div class="d-flex align-items-center gap-3 flex-wrap small text-muted">
-                {% if issue.status == 'open' %}
-                <span class="badge bg-primary">{{ issue.get_status_display }}</span>
-                {% else %}
-                <span class="badge bg-secondary">{{ issue.get_status_display }}</span>
-                {% endif %}
+                <span
+                    class="badge d-inline-flex align-items-center gap-1 py-1 px-2
+                            {% if issue.status == 'open' %}bg-primary text-white{% else %}bg-secondary text-white{% endif %}"
+                    style="font-size: 0.85rem;">
+                    {% if issue.status == 'open' %}
+                    <i data-lucide="circle-dot" style="width: 14px; height: 14px;"></i>
+                    {% else %}
+                    <i data-lucide="check-circle-2" style="width: 14px; height: 14px;"></i>
+                    {% endif %}
+                    {{ issue.get_status_display }}
+                </span>
                 <span>created {{ issue.created_at|naturaltime }} by
                     <strong>{{ issue.author.username }}</strong>
                 </span>
@@ -191,7 +195,7 @@
                     <div class="timeline-body w-100">
                         {% if request.user.is_authenticated %}
                         <form
-                            action="{% url 'issue-comment-create' username=request.user.username project_handle=project.handle issue_number=issue.issue_number %}"
+                            action="{% url 'issue-comment-create' project.owner_username project_handle=project.handle issue_number=issue.issue_number %}"
                             method="post">
                             {% csrf_token %}
                             <div id="editor"></div>
@@ -202,12 +206,12 @@
                                 </button>
                                 {% if issue.status == 'open' %}
                                 <a class="btn btn-light btn-sm"
-                                    href="{% url 'issue-close' username=request.user.username project_handle=project.handle issue_number=issue.issue_number %}">
+                                    href="{% url 'issue-close' username=project.owner_username project_handle=project.handle issue_number=issue.issue_number %}">
                                     <i data-lucide="x-octagon" class="me-1" style="width:16px;"></i> Close Issue
                                 </a>
                                 {% else %}
                                 <a class="btn btn-light btn-sm"
-                                    href="{% url 'issue-reopen' username=request.user.username project_handle=project.handle issue_number=issue.issue_number %}">
+                                    href="{% url 'issue-reopen' username=project.owner_username project_handle=project.handle issue_number=issue.issue_number %}">
                                     <i data-lucide="rotate-ccw" class="me-1" style="width:16px;"></i> Re-Open Issue
                                 </a>
                                 {% endif %}
@@ -216,7 +220,7 @@
                         {% else %}
                         <div class="alert alert-light d-flex align-items-center gap-2 small mt-2" role="alert">
                             <i data-lucide="log-in" style="width: 16px;"></i>
-                            Please <a href="{% url 'login' %}" class="ms-1">login</a> to add a comment.
+                            Please <a href="{% url 'accounts-login' %}" class="ms-1">login</a> to add a comment.
                         </div>
                         {% endif %}
                     </div>

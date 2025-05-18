@@ -41,7 +41,7 @@ class ProjectCreateView(LoginRequiredMixin, View):
 
         return redirect(
             "project-overview",
-            username=request.user.username,
+            username=project.owner_username,
             project_handle=project.handle,
         )
 
