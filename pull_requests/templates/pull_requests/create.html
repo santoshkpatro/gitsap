@@ -221,7 +221,7 @@
     <!-- Commit List -->
     {% if commits %}
     <form method="post"
-        action="{% url 'pull-request-create' username=project.owner.username project_handle=project.handle %}">
+        action="{% url 'pull-request-create' username=project.owner_username project_handle=project.handle %}">
         {% csrf_token %}
         <div class="row g-4">
             <!-- Left Column: Title + Editor -->

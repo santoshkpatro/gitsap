@@ -24,7 +24,7 @@
                         </h6>
 
                         {% for branch in project.repo_branches %}
-                        <a href="{% url 'project-overview' username=project.owner.username project_handle=project.handle %}?ref={{ branch }}"
+                        <a href="{% url 'project-overview' username=project.owner_username project_handle=project.handle %}?ref={{ branch }}"
                             class="dropdown-item small d-flex align-items-center gap-2 justify-content-between">
 
                             <div class="d-flex align-items-center gap-2">
@@ -79,7 +79,7 @@
             <!-- Right: Search + Code -->
             <div class="d-flex align-items-center gap-2 flex-grow-1 justify-content-end">
                 <span class="text-muted small d-flex align-items-center">
-                    <a href="{% url 'project-commit-history' username=project.owner.username project_handle=project.handle ref=current_ref %}"
+                    <a href="{% url 'project-commit-history' username=project.owner_username project_handle=project.handle ref=current_ref %}"
                         class="text-decoration-none">
                         <i data-lucide="history" class="me-1"></i>{{ commits_count|default:0 }}
                         commits

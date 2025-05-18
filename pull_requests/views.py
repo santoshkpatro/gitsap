@@ -97,7 +97,7 @@ class PullRequestCreateView(ProjectAccessMixin, View):
             )
             return redirect(
                 "pull-request-list",
-                username=project.owner.username,
+                username=project.owner_username,
                 project_handle=project.handle,
             )
 
@@ -111,7 +111,7 @@ class PullRequestCreateView(ProjectAccessMixin, View):
 
         return redirect(
             "pull-request-list",
-            username=project.owner.username,
+            username=project.owner_username,
             project_handle=project.handle,
         )
 
@@ -166,7 +166,7 @@ class PullRequestDetailView(ProjectAccessMixin, View):
                 messages.error(request, "Invalid tab selected.")
                 return redirect(
                     "pull-request-detail",
-                    username=project.owner.username,
+                    username=project.owner_username,
                     project_handle=project.handle,
                     pull_request_number=pull_request_number,
                 )
@@ -186,7 +186,7 @@ class PullRequestMergeView(ProjectAccessMixin, View):
             )
             return redirect(
                 "pull-request-detail",
-                username=project.owner.username,
+                username=project.owner_username,
                 project_handle=project.handle,
                 pull_request_number=pull_request_number,
             )
@@ -200,7 +200,7 @@ class PullRequestMergeView(ProjectAccessMixin, View):
             messages.error(request, "This pull request has already been merged.")
             return redirect(
                 "pull-request-detail",
-                username=project.owner.username,
+                username=project.owner_username,
                 project_handle=project.handle,
                 pull_request_number=pull_request_number,
             )
@@ -230,7 +230,7 @@ class PullRequestMergeView(ProjectAccessMixin, View):
 
             return redirect(
                 "pull-request-detail",
-                username=project.owner.username,
+                username=project.owner_username,
                 project_handle=project.handle,
                 pull_request_number=pull_request_number,
             )
@@ -242,7 +242,7 @@ class PullRequestMergeView(ProjectAccessMixin, View):
         messages.success(request, "Pull request merged successfully.")
         return redirect(
             "pull-request-detail",
-            username=project.owner.username,
+            username=project.owner_username,
             project_handle=project.handle,
             pull_request_number=pull_request_number,
         )
