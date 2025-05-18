@@ -51,11 +51,11 @@ class ProjectOverview(ProjectAccessMixin, View):
         project = request.project
         current_ref = request.GET.get("ref", project.default_branch)
         tree_browsable_path = reverse(
-            "project-tree", args=[project.owner.username, project.handle, current_ref]
+            "project-tree", args=[project.owner_username, project.handle, current_ref]
         )
         blob_browsable_path = reverse(
             "project-blob",
-            args=[project.owner.username, project.handle, current_ref],
+            args=[project.owner_username, project.handle, current_ref],
         )
 
         context = {
@@ -87,11 +87,11 @@ class ProjectTreeView(ProjectAccessMixin, View):
         )
         tree_browsable_path = reverse(
             "project-tree",
-            args=[project.owner.username, project.handle, ref_and_path],
+            args=[project.owner_username, project.handle, ref_and_path],
         )
         blob_browsable_path = reverse(
             "project-blob",
-            args=[project.owner.username, project.handle, ref_and_path],
+            args=[project.owner_username, project.handle, ref_and_path],
         )
 
         context = {
