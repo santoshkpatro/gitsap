@@ -638,9 +638,8 @@ class Project(BaseUUIDModel):
             print("Git commit diff error:", e.stderr)
             return []
 
-    def get_conflict_display(
-        repo, path, ours_oid, theirs_oid, ours_branch, theirs_branch
-    ):
+    def get_conflict_lines(self, ours_oid, theirs_oid, ours_branch, theirs_branch):
+        repo = self.repo
         ours_blob = repo[pygit2.Oid(hex=ours_oid)].data.decode("utf-8").splitlines()
         theirs_blob = repo[pygit2.Oid(hex=theirs_oid)].data.decode("utf-8").splitlines()
 

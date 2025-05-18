@@ -72,7 +72,8 @@
                     {% if conflicts %}
                     <!-- Resolve Conflicts button -->
                     <div class="mb-3">
-                        <a href="#" class="btn btn-light btn-sm">
+                        <a href="{% url 'pull-request-conflicts' username=project.owner.username project_handle=project.handle pull_request_number=pull_request.pull_request_number %}"
+                            class="btn btn-light btn-sm">
                             <i data-lucide="wrench" class="me-1" style="width:16px;"></i> Resolve conflicts
                         </a>
                     </div>

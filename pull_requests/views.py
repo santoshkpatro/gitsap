@@ -246,3 +246,37 @@ class PullRequestMergeView(ProjectAccessMixin, View):
             project_handle=project.handle,
             pull_request_number=pull_request_number,
         )
+
+
+class PullRequestConflictsView(ProjectAccessMixin, View):
+    def get(self, request, *args, **kwargs):
+        project = request.project
+        pull_request_number = kwargs.get("pull_request_number")
+        pull_request = PullRequest.objects.get(
+            project=project, pull_request_number=pull_request_number
+        )
+        conflicts = project.get_merge_conflicts(
+            pull_request.source_branch, pull_request.target_branch
+        )
+
+        conflict_files = []
+        for conflict in conflicts:
+            conflict_files.append(
+                {
+                    "file_path": conflict["path"],
+                    "conflict_lines": project.get_conflict_lines(
+                        conflict["ours"],
+                        conflict["theirs"],
+                        pull_request.source_branch,
+                        pull_request.target_branch,
+                    ),
+                }
+            )
+
+        context = {
+            "project": project,
+            "pull_request": pull_request,
+            "conflict_files": conflict_files,
+            "active_tab": "pull_requests",
+        }
+        return render(request, "pull_requests/conflicts.html", context)
