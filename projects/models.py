@@ -54,6 +54,10 @@ class Project(BaseUUIDModel):
     owner = models.ForeignKey(
         "accounts.User", on_delete=models.CASCADE, related_name="projects"
     )
+
+    # For easy access to the owner username
+    owner_username = models.CharField(max_length=128, blank=True, db_index=True)
+
     name = models.CharField(max_length=128)
     handle = models.SlugField(max_length=128, blank=True)
     description = models.TextField(blank=True, null=True)
@@ -89,6 +93,9 @@ class Project(BaseUUIDModel):
         if self._state.adding:
             self.handle = slugify(self.name)
             self.resource_id = uuid.uuid4().hex
+
+            if not self.owner_username:
+                self.owner_username = self.owner.username
         return super().save(*args, **kwargs)
 
     @property
