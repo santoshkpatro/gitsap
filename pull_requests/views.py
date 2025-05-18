@@ -42,12 +42,14 @@ class PullRequestCompareView(ProjectAccessMixin, View):
         commits = project.get_commit_diff_between_refs(source_branch, target_branch)
         total_additions = sum(f["added_lines"] for f in diffs)
         total_deletions = sum(f["deleted_lines"] for f in diffs)
+        conflicts = project.get_merge_conflicts(source_branch, target_branch)
 
         context = {
             "project": project,
             "source_branch": source_branch,
             "target_branch": target_branch,
             "diffs": diffs,
+            "conflicts": conflicts,
             "commits": commits,
             "total_additions": total_additions,
             "total_deletions": total_deletions,
@@ -140,7 +142,11 @@ class PullRequestDetailView(ProjectAccessMixin, View):
                     .order_by("-created_at")
                     .select_related("author")
                 )
+                conflicts = project.get_merge_conflicts(
+                    pull_request.source_branch, pull_request.target_branch
+                )
                 context["activities"] = activities
+                context["conflicts"] = conflicts
             case "commits":
                 commits = project.get_commit_diff_between_refs(
                     pull_request.source_branch, pull_request.target_branch

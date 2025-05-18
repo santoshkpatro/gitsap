@@ -51,29 +51,62 @@
 
     {% if pull_request.status == 'open' %}
     <div class="timeline-entry">
-        <div
-            class="timeline-icon {% if pull_request.status == 'closed' %}text-secondary{% else %}text-primary{% endif %}">
+        <div class="timeline-icon {% if conflicts %}text-secondary{% else %}text-primary{% endif %}">
             <i data-lucide="git-merge" class="lucide"></i>
         </div>
         <div class="timeline-body w-100">
-            <!-- Merge Card: initial state -->
+            <!-- Merge Card -->
             <div class="card p-3" id="merge-card">
                 <div>
                     <div class="mb-4">
+                        {% if conflicts %}
+                        <div class="fw-semibold text-danger mb-1">Merge conflicts must be resolved</div>
+                        <div class="text-muted small">This pull request has conflicts with the base branch and cannot be
+                            merged automatically.</div>
+                        {% else %}
                         <div class="fw-semibold mb-1">Merge can be performed automatically</div>
                         <div class="text-muted small">This pull request has no conflicts with the base branch.</div>
+                        {% endif %}
                     </div>
-                    <button class="btn btn-primary btn-sm" id="show-merge-confirm">
+
+                    {% if conflicts %}
+                    <!-- Resolve Conflicts button -->
+                    <div class="mb-3">
+                        <a href="#" class="btn btn-light btn-sm">
+                            <i data-lucide="wrench" class="me-1" style="width:16px;"></i> Resolve conflicts
+                        </a>
+                    </div>
+
+                    <!-- Conflict file list -->
+                    <div class="mb-3">
+                        <span class="fw-semibold small">Conflicting files:</span>
+                        <ul class="list-group list-group-flush small mt-1">
+                            {% for conflict in conflicts %}
+                            <li class="list-group-item px-0">
+                                <i data-lucide="file" class="me-1" style="width: 14px;"></i> {{ conflict.path }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <!-- Merge Button (disabled) -->
+                    <button class="btn btn-secondary btn-sm" id="show-merge-confirm" disabled>
                         <i data-lucide="git-merge" class="me-1" style="width:16px;"></i> Merge pull request
                     </button>
+                    {% else %}
+                    <!-- Merge Button (enabled) -->
+                    <button class="btn btn-primary btn-light" id="show-merge-confirm">
+                        <i data-lucide="git-merge" class="me-1" style="width:16px;"></i> Merge pull request
+                    </button>
+                    {% endif %}
                 </div>
             </div>
 
-            <!-- Merge Confirm Card: hidden initially -->
+            <!-- Merge Confirm Card -->
             <div class="card p-3 d-none" id="merge-confirm-card">
                 <div class="mb-3">
-                    <div class="fw-semibold mb-1">Merge can be performed automatically</div>
-                    <div class="text-muted small">This pull request has no conflicts with the base branch.</div>
+                    <div class="fw-semibold mb-1">Confirm merge</div>
+                    <div class="text-muted small">Write a commit message to finalize the merge.</div>
                 </div>
                 <form method="post"
                     action="{% url 'pull-request-merge' username=request.user.username project_handle=project.handle pull_request_number=pull_request.pull_request_number %}">
@@ -92,10 +125,11 @@
                     </div>
                 </form>
             </div>
-
         </div>
     </div>
     {% endif %}
+
+
 
     <div class="timeline-entry">
         <div

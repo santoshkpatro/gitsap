@@ -1,4 +1,4 @@
-import os, uuid, tarfile, pygit2, tempfile, subprocess, shutil
+import os, uuid, tarfile, pygit2, tempfile, subprocess, shutil, difflib
 from pathlib import Path
 from django.db import models
 from django.conf import settings
@@ -638,33 +638,74 @@ class Project(BaseUUIDModel):
             print("Git commit diff error:", e.stderr)
             return []
 
+    def get_conflict_display(
+        repo, path, ours_oid, theirs_oid, ours_branch, theirs_branch
+    ):
+        ours_blob = repo[pygit2.Oid(hex=ours_oid)].data.decode("utf-8").splitlines()
+        theirs_blob = repo[pygit2.Oid(hex=theirs_oid)].data.decode("utf-8").splitlines()
+
+        # Use difflib for line-by-line comparison
+        merged_lines = []
+        sm = difflib.SequenceMatcher(None, ours_blob, theirs_blob)
+
+        for tag, i1, i2, j1, j2 in sm.get_opcodes():
+            if tag == "equal":
+                merged_lines.extend(ours_blob[i1:i2])
+            elif tag in ("replace", "delete", "insert"):
+                merged_lines.append(f"<<<<<<< {ours_branch}")
+                merged_lines.extend(ours_blob[i1:i2])
+                merged_lines.append("=======")
+                merged_lines.extend(theirs_blob[j1:j2])
+                merged_lines.append(f">>>>>>> {theirs_branch}")
+
+        return "\n".join(merged_lines)
+
     def get_merge_conflicts(self, source_branch: str, target_branch: str):
-        repo = self.repo
-
-        try:
-            source_commit = repo.revparse_single(f"refs/heads/{source_branch}")
-            target_commit = repo.revparse_single(f"refs/heads/{target_branch}")
-        except KeyError:
-            return []
-
-        repo.checkout_tree(target_commit.tree, strategy=pygit2.GIT_CHECKOUT_SAFE)
-        repo.set_head(f"refs/heads/{target_branch}")
-        repo.merge(source_commit.id)
-
+        bare_repo_path = self._local_git_path
         conflicts = []
-        if repo.index.conflicts:
-            for conflict in repo.index.conflicts:
-                ours = conflict[1]
-                theirs = conflict[2]
-                conflicts.append(
-                    {
-                        "path": ours.path if ours else theirs.path,
-                        "ours": ours.id.hex if ours else None,
-                        "theirs": theirs.id.hex if theirs else None,
-                    }
-                )
 
-        repo.state_cleanup()
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Clone without checkout
+            repo = pygit2.clone_repository(
+                url=bare_repo_path, path=temp_dir, bare=False
+            )
+
+            try:
+                source_ref = f"refs/remotes/origin/{source_branch}"
+                target_ref = f"refs/remotes/origin/{target_branch}"
+                source_commit = repo.revparse_single(source_ref)
+                target_commit = repo.revparse_single(target_ref)
+            except Exception as e:
+                print("Error:", e)
+                return []
+
+            # Create local branches pointing to remote ones
+            repo.create_branch(source_branch, source_commit)
+            repo.create_branch(target_branch, target_commit)
+
+            # Set HEAD and checkout target branch
+            repo.set_head(f"refs/heads/{target_branch}")
+            repo.checkout_tree(target_commit.tree, strategy=pygit2.GIT_CHECKOUT_FORCE)
+
+            # Merge source into target
+            repo.merge(source_commit.id)
+
+            if repo.index.conflicts:
+                for conflict in repo.index.conflicts:
+                    ours = conflict[1]
+                    theirs = conflict[2]
+                    conflicts.append(
+                        {
+                            "path": (
+                                ours.path if ours else (theirs.path if theirs else None)
+                            ),
+                            "ours": ours.hex if ours else None,
+                            "theirs": theirs.hex if theirs else None,
+                        }
+                    )
+
+            repo.state_cleanup()
+
         return conflicts
 
     def merge_branches(
