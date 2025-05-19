@@ -670,6 +670,10 @@ class Project(BaseUUIDModel):
         bare_repo_path = self._local_git_path
         conflicts = []
 
+        # Step 1: Check if branches are the same
+        if source_branch == target_branch:
+            return conflicts
+
         with tempfile.TemporaryDirectory() as temp_dir:
             # Clone without checkout
             repo = pygit2.clone_repository(
