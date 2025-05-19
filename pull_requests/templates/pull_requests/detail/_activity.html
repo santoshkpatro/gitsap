@@ -1,166 +1,186 @@
 {% load humanize %}
 
-<div class="timeline">
-    <div class="timeline-entry">
-        <div
-            class="timeline-icon {% if pull_request.status == 'closed' %}text-secondary{% else %}text-primary{% endif %}">
-            <i data-lucide="file-text"></i>
-        </div>
-        <div class="timeline-body w-100">
-            <div class="timeline-line">
-                <span><strong>{{ pull_request.author.username }}</strong> opened this pull request.</span>
-                <span class="timeline-time">{{ pull_request.created_at|naturaltime }}</span>
-            </div>
-            {% if pull_request.description_html %}
-            <div class="timeline-note">
-                {{ pull_request.description_html|safe }}
-            </div>
-            {% endif %}
-        </div>
-    </div>
-
-    {% for activity in activities %}
-    <div class="timeline-entry">
-        <div
-            class="timeline-icon {% if pull_request.status == 'closed' %}text-secondary{% else %}text-primary{% endif %}">
-            {% if activity.activity_type == 'comment' %}
-            <i data-lucide="message-square" class="lucide"></i>
-            {% else %}
-            <i data-lucide="activity" class="lucide"></i>
-            {% endif %}
-        </div>
-        <div class="timeline-body w-100">
-            <div class="timeline-line">
-                {% if activity.activity_type == 'comment' %}
-                <span><strong>{{ activity.author.username }}</strong> commented.</span>
-                {% else %}
-                <span>
-                    <strong>{{ activity.author.username }}</strong> {{ activity.content_html|safe }}
-                </span>
-                {% endif %}
-                <span class="timeline-time">{{ activity.created_at|naturaltime }}</span>
-            </div>
-            {% if activity.activity_type == 'comment' %}
-            <div class="timeline-note">
-                {{ activity.content_html|safe }}
-            </div>
-            {% endif %}
-        </div>
-    </div>
-    {% endfor %}
-
-    {% if pull_request.status == 'open' %}
-    <div class="timeline-entry">
-        <div class="timeline-icon {% if conflicts %}text-secondary{% else %}text-primary{% endif %}">
-            <i data-lucide="git-merge" class="lucide"></i>
-        </div>
-        <div class="timeline-body w-100">
-            <!-- Merge Card -->
-            <div class="card p-3" id="merge-card">
-                <div>
-                    <div class="mb-4">
-                        {% if conflicts %}
-                        <div class="fw-semibold text-danger mb-1">Merge conflicts must be resolved</div>
-                        <div class="text-muted small">This pull request has conflicts with the base branch and cannot be
-                            merged automatically.</div>
-                        {% else %}
-                        <div class="fw-semibold mb-1">Merge can be performed automatically</div>
-                        <div class="text-muted small">This pull request has no conflicts with the base branch.</div>
-                        {% endif %}
+<div class="row">
+    <div class="col-9">
+        <div class="timeline">
+            <div class="timeline-entry">
+                <div
+                    class="timeline-icon {% if pull_request.status == 'closed' %}text-secondary{% else %}text-primary{% endif %}">
+                    <i data-lucide="file-text"></i>
+                </div>
+                <div class="timeline-body w-100">
+                    <div class="timeline-line">
+                        <span><strong>{{ pull_request.author.username }}</strong> opened this pull request.</span>
+                        <span class="timeline-time">{{ pull_request.created_at|naturaltime }}</span>
                     </div>
-
-                    {% if conflicts %}
-                    <!-- Resolve Conflicts button -->
-                    <div class="mb-3">
-                        <a href="{% url 'pull-request-conflicts' username=project.owner_username project_handle=project.handle pull_request_number=pull_request.pull_request_number %}"
-                            class="btn btn-light btn-sm">
-                            <i data-lucide="wrench" class="me-1" style="width:16px;"></i> Resolve conflicts
-                        </a>
+                    {% if pull_request.description_html %}
+                    <div class="timeline-note">
+                        {{ pull_request.description_html|safe }}
                     </div>
+                    {% endif %}
+                </div>
+            </div>
 
-                    <!-- Conflict file list -->
-                    <div class="mb-3">
-                        <span class="fw-semibold small">Conflicting files:</span>
-                        <ul class="list-group list-group-flush small mt-1">
-                            {% for conflict in conflicts %}
-                            <li class="list-group-item px-0">
-                                <i data-lucide="file" class="me-1" style="width: 14px;"></i> {{ conflict.path }}
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-
-                    <!-- Merge Button (disabled) -->
-                    <button class="btn btn-secondary btn-sm" id="show-merge-confirm" disabled>
-                        <i data-lucide="git-merge" class="me-1" style="width:16px;"></i> Merge pull request
-                    </button>
+            {% for activity in activities %}
+            <div class="timeline-entry">
+                <div
+                    class="timeline-icon {% if pull_request.status == 'closed' %}text-secondary{% else %}text-primary{% endif %}">
+                    {% if activity.activity_type == 'comment' %}
+                    <i data-lucide="message-square" class="lucide"></i>
                     {% else %}
-                    <!-- Merge Button (enabled) -->
-                    <button class="btn btn-primary btn-light" id="show-merge-confirm">
-                        <i data-lucide="git-merge" class="me-1" style="width:16px;"></i> Merge pull request
-                    </button>
+                    <i data-lucide="activity" class="lucide"></i>
+                    {% endif %}
+                </div>
+                <div class="timeline-body w-100">
+                    <div class="timeline-line">
+                        {% if activity.activity_type == 'comment' %}
+                        <span><strong>{{ activity.author.username }}</strong> commented.</span>
+                        {% else %}
+                        <span>
+                            <strong>{{ activity.author.username }}</strong> {{ activity.content_html|safe }}
+                        </span>
+                        {% endif %}
+                        <span class="timeline-time">{{ activity.created_at|naturaltime }}</span>
+                    </div>
+                    {% if activity.activity_type == 'comment' %}
+                    <div class="timeline-note">
+                        {{ activity.content_html|safe }}
+                    </div>
                     {% endif %}
                 </div>
             </div>
+            {% endfor %}
 
-            <!-- Merge Confirm Card -->
-            <div class="card p-3 d-none" id="merge-confirm-card">
-                <div class="mb-3">
-                    <div class="fw-semibold mb-1">Confirm merge</div>
-                    <div class="text-muted small">Write a commit message to finalize the merge.</div>
+            {% if pull_request.status == 'open' %}
+            <div class="timeline-entry">
+                <div class="timeline-icon {% if conflicts %}text-secondary{% else %}text-primary{% endif %}">
+                    <i data-lucide="git-merge" class="lucide"></i>
                 </div>
-                <form method="post"
-                    action="{% url 'pull-request-merge' username=project.owner_username project_handle=project.handle pull_request_number=pull_request.pull_request_number %}">
-                    {% csrf_token %}
-                    <div class="mb-2">
-                        <label for="commit-message" class="form-label small fw-semibold">Commit message</label>
-                        {{ pr_merge_form.commit_message }}
+                <div class="timeline-body w-100">
+                    <!-- Merge Card -->
+                    <div class="card p-3" id="merge-card">
+                        <div>
+                            <div class="mb-4">
+                                {% if conflicts %}
+                                <div class="fw-semibold text-danger mb-1">Merge conflicts must be resolved</div>
+                                <div class="text-muted small">This pull request has conflicts with the base branch and
+                                    cannot be
+                                    merged automatically.</div>
+                                {% else %}
+                                <div class="fw-semibold mb-1">Merge can be performed automatically</div>
+                                <div class="text-muted small">This pull request has no conflicts with the base branch.
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            {% if conflicts %}
+                            <!-- Resolve Conflicts button -->
+                            <div class="mb-3">
+                                <a href="{% url 'pull-request-conflicts' username=project.owner_username project_handle=project.handle pull_request_number=pull_request.pull_request_number %}"
+                                    class="btn btn-light btn-sm">
+                                    <i data-lucide="wrench" class="me-1" style="width:16px;"></i> Resolve conflicts
+                                </a>
+                            </div>
+
+                            <!-- Conflict file list -->
+                            <div class="mb-3">
+                                <span class="fw-semibold small">Conflicting files:</span>
+                                <ul class="list-group list-group-flush small mt-1">
+                                    {% for conflict in conflicts %}
+                                    <li class="list-group-item px-0">
+                                        <i data-lucide="file" class="me-1" style="width: 14px;"></i> {{ conflict.path }}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+
+                            <!-- Merge Button (disabled) -->
+                            <button class="btn btn-secondary btn-sm" id="show-merge-confirm" disabled>
+                                <i data-lucide="git-merge" class="me-1" style="width:16px;"></i> Merge pull request
+                            </button>
+                            {% else %}
+                            <!-- Merge Button (enabled) -->
+                            <button class="btn btn-primary btn-light" id="show-merge-confirm">
+                                <i data-lucide="git-merge" class="me-1" style="width:16px;"></i> Merge pull request
+                            </button>
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary btn-sm">
-                            <i data-lucide="check" class="me-1" style="width:16px;"></i> Confirm merge
-                        </button>
-                        <button type="button" class="btn btn-light btn-sm" id="cancel-merge">
-                            <i data-lucide="x" class="me-1" style="width:16px;"></i> Cancel
-                        </button>
+
+                    <!-- Merge Confirm Card -->
+                    <div class="card p-3 d-none" id="merge-confirm-card">
+                        <div class="mb-3">
+                            <div class="fw-semibold mb-1">Confirm merge</div>
+                            <div class="text-muted small">Write a commit message to finalize the merge.</div>
+                        </div>
+                        <form method="post"
+                            action="{% url 'pull-request-merge' username=project.owner_username project_handle=project.handle pull_request_number=pull_request.pull_request_number %}">
+                            {% csrf_token %}
+                            <div class="mb-2">
+                                <label for="commit-message" class="form-label small fw-semibold">Commit message</label>
+                                {{ pr_merge_form.commit_message }}
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    <i data-lucide="check" class="me-1" style="width:16px;"></i> Confirm merge
+                                </button>
+                                <button type="button" class="btn btn-light btn-sm" id="cancel-merge">
+                                    <i data-lucide="x" class="me-1" style="width:16px;"></i> Cancel
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-
-
-    <div class="timeline-entry">
-        <div
-            class="timeline-icon {% if pull_request.status == 'closed' %}text-secondary{% else %}text-primary{% endif %}">
-            <i data-lucide="message-circle-more" class="lucide"></i>
-        </div>
-        <div class="timeline-body w-100">
-            {% if request.user.is_authenticated %}
-            <form action="#" method="post">
-                {% csrf_token %}
-                <div id="editor"></div>
-                <textarea name="content_html" hidden></textarea>
-                <div class="mt-2 gap-2">
-                    <button class="btn btn-secondary btn-sm" type="submit">
-                        <i data-lucide="send" class="me-1" style="width:16px;"></i> Comment
-                    </button>
-                    {% if pull_request.status == 'open' %}
-                    <a class="btn btn-light btn-sm" href="#">
-                        <i data-lucide="rotate-ccw" class="me-1" style="width:16px;"></i> Close
-                    </a>
-                    {% endif %}
                 </div>
-            </form>
-            {% else %}
-            <div class="alert alert-light d-flex align-items-center gap-2 small mt-2" role="alert">
-                <i data-lucide="log-in" style="width: 16px;"></i>
-                Please <a href="{% url 'accounts-login' %}" class="ms-1">login</a> to add a comment.
             </div>
             {% endif %}
+
+
+
+            <div class="timeline-entry">
+                <div
+                    class="timeline-icon {% if pull_request.status == 'closed' %}text-secondary{% else %}text-primary{% endif %}">
+                    <i data-lucide="message-circle-more" class="lucide"></i>
+                </div>
+                <div class="timeline-body w-100">
+                    {% if request.user.is_authenticated %}
+                    <form action="#" method="post">
+                        {% csrf_token %}
+                        <div id="editor"></div>
+                        <textarea name="content_html" hidden></textarea>
+                        <div class="mt-2 gap-2">
+                            <button class="btn btn-secondary btn-sm" type="submit">
+                                <i data-lucide="send" class="me-1" style="width:16px;"></i> Comment
+                            </button>
+                            {% if pull_request.status == 'open' %}
+                            <a class="btn btn-light btn-sm" href="#">
+                                <i data-lucide="rotate-ccw" class="me-1" style="width:16px;"></i> Close
+                            </a>
+                            {% endif %}
+                        </div>
+                    </form>
+                    {% else %}
+                    <div class="alert alert-light d-flex align-items-center gap-2 small mt-2" role="alert">
+                        <i data-lucide="log-in" style="width: 16px;"></i>
+                        Please <a href="{% url 'accounts-login' %}" class="ms-1">login</a> to add a comment.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
+    <div class="col-3">
+        <div class="p-2 mb-3">
+            <h6 class="text-muted mb-2 d-flex align-items-center gap-1">
+                <i data-lucide="user" style="width: 16px;"></i> Assignees
+            </h6>
+            <div class="small text-muted">Unassigned</div>
+        </div>
 
+        <div class="p-2">
+            <h6 class="text-muted mb-2 d-flex align-items-center gap-1">
+                <i data-lucide="tag" style="width: 16px;"></i> Labels
+            </h6>
+            <div class="small text-muted">No labels</div>
+        </div>
+    </div>
 </div>
