@@ -2,8 +2,14 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 
 from home.views import IndexView
-from accounts.views import LoginView, RegisterView, LogoutView
 from git.views import GitInfoRefsView, GitUploadPackView, GitReceivePackView
+from accounts.views import (
+    LoginView,
+    RegisterView,
+    LogoutView,
+    EmailVerificationConfirmView,
+    EmailVerificationResendConfirmView,
+)
 from projects.views import (
     ProjectOverview,
     ProjectCreateView,
@@ -60,6 +66,8 @@ urlpatterns = [
     path("accounts/login/", LoginView.as_view(), name="accounts-login"),
     path("accounts/register/", RegisterView.as_view(), name="accounts-register"),
     path("accounts/logout/", LogoutView.as_view(), name="accounts-logout"),
+    path("accounts/email-verification/re-send/", EmailVerificationResendConfirmView.as_view(), name="accounts-email-verification-resend"),
+    path("accounts/email-verification/<str:uidb64>/<str:token>/", EmailVerificationConfirmView.as_view(), name="accounts-email-verification"),
     path("create/", ProjectCreateView.as_view(), name="project-create"),
 
     # Project endpoints
