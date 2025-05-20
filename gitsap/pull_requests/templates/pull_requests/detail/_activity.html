@@ -76,7 +76,7 @@
                             {% if conflicts %}
                             <!-- Resolve Conflicts button -->
                             <div class="mb-3">
-                                <a href="{% url 'pull-request-conflicts' username=project.owner_handle project_handle=project.handle pull_request_number=pull_request.pull_request_number %}"
+                                <a href="{% url 'pull-request-conflicts' username=project.owner_handle project_handle=project.project_handle pull_request_number=pull_request.pull_request_number %}"
                                     class="btn btn-light btn-sm">
                                     <i data-lucide="wrench" class="me-1" style="width:16px;"></i> Resolve conflicts
                                 </a>
@@ -114,7 +114,7 @@
                             <div class="text-muted small">Write a commit message to finalize the merge.</div>
                         </div>
                         <form method="post"
-                            action="{% url 'pull-request-merge' username=project.owner_handle project_handle=project.handle pull_request_number=pull_request.pull_request_number %}">
+                            action="{% url 'pull-request-merge' username=project.owner_handle project_handle=project.project_handle pull_request_number=pull_request.pull_request_number %}">
                             {% csrf_token %}
                             <div class="mb-2">
                                 <label for="commit-message" class="form-label small fw-semibold">Commit message</label>

@@ -64,7 +64,7 @@ class IssueCreateView(ProjectAccessMixin, View):
         return redirect(
             "issue-detail",
             username=project.owner_handle,
-            project_handle=project.handle,
+            project_handle=project.project_handle,
             issue_number=issue.issue_number,
         )
 
@@ -109,7 +109,7 @@ class IssueCloseView(ProjectAccessMixin, View):
         return redirect(
             "issue-detail",
             username=request.project.owner_handle,
-            project_handle=request.project.handle,
+            project_handle=request.project.project_handle,
             issue_number=issue_number,
         )
 
@@ -130,7 +130,7 @@ class IssueReOpenView(ProjectAccessMixin, View):
         return redirect(
             "issue-detail",
             username=request.project.owner_handle,
-            project_handle=request.project.handle,
+            project_handle=request.project.project_handle,
             issue_number=issue_number,
         )
 
@@ -149,7 +149,7 @@ class IssueCommentCreateView(ProjectAccessMixin, View):
             return redirect(
                 "issue-detail",
                 username=request.project.owner_handle,
-                project_handle=request.project.handle,
+                project_handle=request.project.project_handle,
                 issue_number=kwargs.get("issue_number"),
             )
 
@@ -164,6 +164,6 @@ class IssueCommentCreateView(ProjectAccessMixin, View):
         return redirect(
             "issue-detail",
             username=request.project.owner_handle,
-            project_handle=request.project.handle,
+            project_handle=request.project.project_handle,
             issue_number=issue_number,
         )

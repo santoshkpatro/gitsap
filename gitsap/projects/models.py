@@ -22,7 +22,7 @@ class Project(BaseUUIDModel):
 
     # For easy access to the owner username
     owner_handle = models.CharField(max_length=128, blank=True, db_index=True)
-    handle = models.SlugField(max_length=128, blank=True)
+    project_handle = models.SlugField(max_length=128, blank=True)
 
     name = models.CharField(max_length=128)
     description = models.TextField(blank=True, null=True)
@@ -47,7 +47,8 @@ class Project(BaseUUIDModel):
         db_table = "projects"
         constraints = [
             models.UniqueConstraint(
-                fields=["owner", "handle"], name="unique_project_handle"
+                fields=["owner_handle", "project_handle"],
+                name="unique_project_handle_per_owner",
             )
         ]
 
@@ -65,11 +66,11 @@ class Project(BaseUUIDModel):
 
     @property
     def ssh_clone_url(self):
-        return f"{settings.SSH_GIT_HOST_URL}/{self.owner.username}/{self.handle}.git"
+        return f"{settings.SSH_GIT_HOST_URL}/{self.owner.username}/{self.project_handle}.git"
 
     @property
     def https_clone_url(self):
-        return f"{settings.HTTPS_GIT_HOST_URL}/{self.owner.username}/{self.handle}.git"
+        return f"{settings.HTTPS_GIT_HOST_URL}/{self.owner.username}/{self.project_handle}.git"
 
     @property
     def closed_issues_count(self):
