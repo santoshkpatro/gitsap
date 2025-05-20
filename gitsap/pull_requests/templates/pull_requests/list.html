@@ -37,7 +37,7 @@
             <input type="text" name="q" class="form-control form-control-sm" placeholder="Search pull requests..."
                 value="{{ request.GET.q }}">
         </form>
-        <a href="{% url 'pull-request-compare' username=project.owner_handle project_handle=project.handle %}"
+        <a href="{% url 'pull-request-compare' username=project.owner_handle project_handle=project.project_handle %}"
             class="btn btn-sm btn-primary d-flex align-items-center gap-1">
             <i data-lucide="git-branch-plus"></i> New Pull Request
         </a>
@@ -92,7 +92,7 @@
                     <i data-lucide="git-merge" class="text-muted" style="width: 16px; height: 16px;"></i>
                     {% endif %}
 
-                    <a href="{% url 'pull-request-detail' username=project.owner_handle project_handle=project.handle pull_request_number=pr.pull_request_number %}"
+                    <a href="{% url 'pull-request-detail' username=project.owner_handle project_handle=project.project_handle pull_request_number=pr.pull_request_number %}"
                         class="fw-semibold pr-title-link {% if status == 'all' and pr.status == 'closed' %}text-muted{% else %}text-dark{% endif %}">
                         {{ pr.title }}
                     </a>
