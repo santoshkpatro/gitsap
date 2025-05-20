@@ -21,7 +21,7 @@ class Project(BaseUUIDModel):
     )
 
     # For easy access to the owner username
-    owner_handle = models.CharField(max_length=128, blank=True, db_index=True)
+    owner_handle = models.SlugField(max_length=128, blank=True, db_index=True)
     project_handle = models.SlugField(max_length=128, blank=True)
 
     name = models.CharField(max_length=128)
