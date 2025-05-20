@@ -12,7 +12,7 @@
         <!-- Message + Author Info -->
         <div class="overflow-hidden">
             <div class="fw-semibold text-dark text-truncate small" title="{{ last_commit.message }}">
-                {{ last_commit.message }}
+                {{ last_commit.message|truncatewords:18 }}
             </div>
             <small class="text-muted d-block text-truncate">
                 {{ last_commit.author_name }} authored {{ last_commit.timestamp|naturaltime }}
