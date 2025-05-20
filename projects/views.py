@@ -1,3 +1,4 @@
+import markdown
 from collections import defaultdict
 from django.shortcuts import render, redirect
 from django.views import View
@@ -58,18 +59,43 @@ class ProjectOverview(ProjectAccessMixin, View):
             args=[project.owner_username, project.handle, current_ref],
         )
 
+        repo_objects = project.get_tree_objects_at_path(
+            ref_name=current_ref,
+            relative_path="",
+        )
+
+        # Detect readme-like blob (case-insensitive)
+        readme_blob = next(
+            (
+                obj
+                for obj in repo_objects
+                if obj["type"] == "blob" and obj["name"].lower().startswith("readme")
+            ),
+            None,
+        )
+
+        # Get README content if found
+        readme_content = None
+        if readme_blob:
+            try:
+                readme = project.get_blob_at_path(
+                    ref_name=current_ref, relative_path=readme_blob["name"]
+                )
+                readme_content = markdown.markdown(readme["content"].decode("utf-8"))
+            except Exception:
+                # Optionally log or handle error if blob retrieval fails
+                pass
+
         context = {
             "project": project,
-            "repo_objects": project.get_tree_objects_at_path(
-                ref_name=current_ref,
-                relative_path="",
-            ),
+            "repo_objects": repo_objects,
             "current_ref": current_ref,
             "tree_browsable_path": tree_browsable_path,
             "blob_browsable_path": blob_browsable_path,
             "last_commit": project.get_last_commit_info_for_ref(project.default_branch),
             "active_tab": "code",
             "commits_count": project.get_commits_count(current_ref),
+            "readme_content": readme_content,
         }
         return render(request, "projects/overview.html", context)
 
