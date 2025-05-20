@@ -35,14 +35,15 @@ class PullRequestListView(ProjectAccessMixin, View):
 class PullRequestCompareView(ProjectAccessMixin, View):
     def get(self, request, *args, **kwargs):
         project = request.project
+        git_service = project.git_service
         source_branch = request.GET.get("source", project.default_branch)
         target_branch = request.GET.get("target", project.default_branch)
 
-        diffs = project.get_diff_between_branches(source_branch, target_branch)
-        commits = project.get_commit_diff_between_refs(source_branch, target_branch)
+        diffs = git_service.get_diff_between_branches(source_branch, target_branch)
+        commits = git_service.get_commit_diff_between_refs(source_branch, target_branch)
         total_additions = sum(f["added_lines"] for f in diffs)
         total_deletions = sum(f["deleted_lines"] for f in diffs)
-        conflicts = project.get_merge_conflicts(source_branch, target_branch)
+        conflicts = git_service.get_merge_conflicts(source_branch, target_branch)
 
         context = {
             "project": project,
@@ -61,6 +62,7 @@ class PullRequestCompareView(ProjectAccessMixin, View):
 class PullRequestCreateView(ProjectAccessMixin, View):
     def get(self, request, *args, **kwargs):
         project = request.project
+        git_service = project.git_service
         form = PullRequestCreateForm()
 
         source_branch = request.GET.get("source", project.default_branch)
@@ -69,8 +71,8 @@ class PullRequestCreateView(ProjectAccessMixin, View):
         form.fields["source_branch"].initial = source_branch
         form.fields["target_branch"].initial = target_branch
 
-        diffs = project.get_diff_between_branches(source_branch, target_branch)
-        commits = project.get_commit_diff_between_refs(source_branch, target_branch)
+        diffs = git_service.get_diff_between_branches(source_branch, target_branch)
+        commits = git_service.get_commit_diff_between_refs(source_branch, target_branch)
         total_additions = sum(f["added_lines"] for f in diffs)
         total_deletions = sum(f["deleted_lines"] for f in diffs)
 
@@ -119,6 +121,8 @@ class PullRequestCreateView(ProjectAccessMixin, View):
 class PullRequestDetailView(ProjectAccessMixin, View):
     def get(self, request, *args, **kwargs):
         project = request.project
+        git_service = project.git_service
+
         pull_request_number = kwargs.get("pull_request_number")
         pull_request = PullRequest.objects.get(
             project=project, pull_request_number=pull_request_number
@@ -142,13 +146,13 @@ class PullRequestDetailView(ProjectAccessMixin, View):
                     .order_by("-created_at")
                     .select_related("author")
                 )
-                conflicts = project.get_merge_conflicts(
+                conflicts = git_service.get_merge_conflicts(
                     pull_request.source_branch, pull_request.target_branch
                 )
                 context["activities"] = activities
                 context["conflicts"] = conflicts
             case "commits":
-                commits = project.get_commit_diff_between_refs(
+                commits = git_service.get_commit_diff_between_refs(
                     pull_request.source_branch, pull_request.target_branch
                 )
                 grouped_commits = defaultdict(list)
@@ -158,7 +162,7 @@ class PullRequestDetailView(ProjectAccessMixin, View):
 
                 context["grouped_commits"] = dict(grouped_commits)
             case "changes":
-                diffs = project.get_diff_between_branches(
+                diffs = git_service.get_diff_between_branches(
                     pull_request.source_branch, pull_request.target_branch
                 )
                 context["diffs"] = diffs
@@ -176,6 +180,7 @@ class PullRequestDetailView(ProjectAccessMixin, View):
 class PullRequestMergeView(ProjectAccessMixin, View):
     def post(self, request, *args, **kwargs):
         project = request.project
+        git_service = project.git_service
         pull_request_number = kwargs.get("pull_request_number")
 
         form = PullRequestMergeConfirmForm(request.POST)
@@ -212,7 +217,7 @@ class PullRequestMergeView(ProjectAccessMixin, View):
         )
 
         # Attempt merge
-        response = project.merge_branches(
+        response = git_service.merge_branches(
             source_branch=pull_request.source_branch,
             target_branch=pull_request.target_branch,
             user_name=request.user.name,
