@@ -21,10 +21,10 @@ class Project(BaseUUIDModel):
     )
 
     # For easy access to the owner username
-    owner_username = models.CharField(max_length=128, blank=True, db_index=True)
+    owner_handle = models.CharField(max_length=128, blank=True, db_index=True)
+    handle = models.SlugField(max_length=128, blank=True)
 
     name = models.CharField(max_length=128)
-    handle = models.SlugField(max_length=128, blank=True)
     description = models.TextField(blank=True, null=True)
     visibility = models.CharField(choices=Visibility.choices, max_length=16)
     default_branch = models.CharField(max_length=128, default="main")

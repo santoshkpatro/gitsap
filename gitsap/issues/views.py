@@ -63,7 +63,7 @@ class IssueCreateView(ProjectAccessMixin, View):
 
         return redirect(
             "issue-detail",
-            username=project.owner_username,
+            username=project.owner_handle,
             project_handle=project.handle,
             issue_number=issue.issue_number,
         )
@@ -108,7 +108,7 @@ class IssueCloseView(ProjectAccessMixin, View):
             messages.success(request, "Issue closed successfully.")
         return redirect(
             "issue-detail",
-            username=request.project.owner_username,
+            username=request.project.owner_handle,
             project_handle=request.project.handle,
             issue_number=issue_number,
         )
@@ -129,7 +129,7 @@ class IssueReOpenView(ProjectAccessMixin, View):
             messages.success(request, "Issue reopened successfully.")
         return redirect(
             "issue-detail",
-            username=request.project.owner_username,
+            username=request.project.owner_handle,
             project_handle=request.project.handle,
             issue_number=issue_number,
         )
@@ -148,7 +148,7 @@ class IssueCommentCreateView(ProjectAccessMixin, View):
             messages.error(request, "Please correct the errors below.")
             return redirect(
                 "issue-detail",
-                username=request.project.owner_username,
+                username=request.project.owner_handle,
                 project_handle=request.project.handle,
                 issue_number=kwargs.get("issue_number"),
             )
@@ -163,7 +163,7 @@ class IssueCommentCreateView(ProjectAccessMixin, View):
         messages.success(request, "Comment added successfully.")
         return redirect(
             "issue-detail",
-            username=request.project.owner_username,
+            username=request.project.owner_handle,
             project_handle=request.project.handle,
             issue_number=issue_number,
         )

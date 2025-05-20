@@ -28,20 +28,20 @@
             <!-- Navigation -->
             <ul class="nav flex-column gap-1 mt-2">
                 <li>
-                    <a href="{% url 'project-overview' username=project.owner_username project_handle=project.handle %}"
+                    <a href="{% url 'project-overview' username=project.owner_handle project_handle=project.handle %}"
                         class="nav-link {% if active_tab == 'code' %}active{% endif %}">
                         <i data-lucide="code" class="icon"></i><span>Code</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'issue-list' username=project.owner_username project_handle=project.handle %}"
+                    <a href="{% url 'issue-list' username=project.owner_handle project_handle=project.handle %}"
                         class="nav-link {% if active_tab == 'issues' %}active{% endif %}">
                         <i data-lucide="alert-circle" class="icon"></i>
                         <span>Issues</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'pull-request-list' username=project.owner_username project_handle=project.handle  %}"
+                    <a href="{% url 'pull-request-list' username=project.owner_handle project_handle=project.handle  %}"
                         class="nav-link {% if active_tab == 'pull_requests' %}active{% endif %}">
                         <i data-lucide="git-pull-request" class="icon"></i>
                         <span>Pull requests</span>
@@ -87,7 +87,7 @@
                     <img src="{% static 'shared/images/logo.png' %}" alt="Gitsap Logo"
                         style="height: 32px; width: 32px; object-fit: contain;">
 
-                    <span class="small">{{ project.owner_username }} / {{ project.handle }}</span>
+                    <span class="small">{{ project.owner_handle }} / {{ project.handle }}</span>
                 </div>
 
                 <!-- Right -->
