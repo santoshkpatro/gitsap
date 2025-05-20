@@ -59,7 +59,8 @@ class ProjectOverview(ProjectAccessMixin, View):
             args=[project.owner_username, project.handle, current_ref],
         )
 
-        repo_objects = project.get_tree_objects_at_path(
+        git_service = project.git_service
+        repo_objects = git_service.get_tree_objects_at_path(
             ref_name=current_ref,
             relative_path="",
         )
@@ -78,7 +79,7 @@ class ProjectOverview(ProjectAccessMixin, View):
         readme_content = None
         if readme_blob:
             try:
-                readme = project.get_blob_at_path(
+                readme = git_service.get_blob_at_path(
                     ref_name=current_ref, relative_path=readme_blob["name"]
                 )
                 readme_content = markdown.markdown(readme["content"].decode("utf-8"))
@@ -92,9 +93,11 @@ class ProjectOverview(ProjectAccessMixin, View):
             "current_ref": current_ref,
             "tree_browsable_path": tree_browsable_path,
             "blob_browsable_path": blob_browsable_path,
-            "last_commit": project.get_last_commit_info_for_ref(project.default_branch),
+            "last_commit": git_service.get_last_commit_info_for_ref(
+                project.default_branch
+            ),
             "active_tab": "code",
-            "commits_count": project.get_commits_count(current_ref),
+            "commits_count": git_service.get_commits_count(current_ref),
             "readme_content": readme_content,
         }
         return render(request, "projects/overview.html", context)
@@ -103,11 +106,12 @@ class ProjectOverview(ProjectAccessMixin, View):
 class ProjectTreeView(ProjectAccessMixin, View):
     def get(self, request, *args, **kwargs):
         project = request.project
+        git_service = project.git_service
 
         ref_and_path = kwargs.get("ref_and_path", "")
         ref, relative_path = project.resolve_ref_and_path(ref_and_path)
 
-        repo_objects = project.get_tree_objects_at_path(
+        repo_objects = git_service.get_tree_objects_at_path(
             ref_name=ref,
             relative_path=relative_path.strip("/"),
         )
@@ -125,7 +129,9 @@ class ProjectTreeView(ProjectAccessMixin, View):
             "repo_objects": repo_objects,
             "tree_browsable_path": tree_browsable_path,
             "blob_browsable_path": blob_browsable_path,
-            "last_commit": project.get_last_commit_info(relative_path.strip("/"), ref),
+            "last_commit": git_service.get_last_commit_info(
+                relative_path.strip("/"), ref
+            ),
             "active_tab": "code",
         }
         return render(request, "projects/tree.html", context)
@@ -134,10 +140,12 @@ class ProjectTreeView(ProjectAccessMixin, View):
 class ProjectBlobView(ProjectAccessMixin, View):
     def get(self, request, *args, **kwargs):
         project = request.project
-        ref_and_path = kwargs.get("ref_and_path", "")
-        ref, relative_path = project.resolve_ref_and_path(ref_and_path)
+        git_service = project.git_service
 
-        repo_object = project.get_blob_at_path(
+        ref_and_path = kwargs.get("ref_and_path", "")
+        ref, relative_path = git_service.resolve_ref_and_path(ref_and_path)
+
+        repo_object = git_service.get_blob_at_path(
             ref_name=ref,
             relative_path=relative_path.strip("/"),
         )
@@ -146,7 +154,7 @@ class ProjectBlobView(ProjectAccessMixin, View):
             "project": project,
             "repo_object": repo_object,
             "current_ref": ref,
-            "last_commit": project.get_last_commit_info(relative_path, ref),
+            "last_commit": git_service.get_last_commit_info(relative_path, ref),
             "active_tab": "code",
         }
         return render(request, "projects/blob.html", context)
@@ -155,9 +163,11 @@ class ProjectBlobView(ProjectAccessMixin, View):
 class ProjectCommitHistoryView(ProjectAccessMixin, View):
     def get(self, request, *args, **kwargs):
         project = request.project
+        git_service = project.git_service
+
         ref = kwargs.get("ref")
         skip = int(request.GET.get("skip", 0))
-        commit_history = project.get_commit_history(ref, max_count=21, skip=skip)
+        commit_history = git_service.get_commit_history(ref, max_count=21, skip=skip)
 
         visible_commits = commit_history[:20]
         has_more = len(commit_history) > 20
