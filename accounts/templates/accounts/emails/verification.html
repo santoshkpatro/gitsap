@@ -1,0 +1,19 @@
+{% extends 'shared/email_base.html' %}
+
+{% block subject %}Verify your Gitsap account{% endblock %}
+
+{% block content %}
+<h2 style="font-size:18px;font-weight:500;margin-bottom:16px;color:#111827;">Welcome to Gitsap 👋</h2>
+<p style="margin:0 0 24px;font-size:15px;color:#4b5563;">
+    Thank you for signing up. To get started, please confirm your email address by clicking the button below:
+</p>
+<div style="text-align:center;margin:32px 0;">
+    <a href="{{ user.verification_link }}"
+        style="display:inline-block;padding:12px 24px;background-color:#14b8a6;color:white;border-radius:6px;text-decoration:none;font-weight:500;font-size:15px;">
+        Verify your account
+    </a>
+</div>
+<p style="font-size:13px;color:#6b7280;margin-bottom:0;">
+    If you didn’t create this account, feel free to ignore this email.
+</p>
+{% endblock %}

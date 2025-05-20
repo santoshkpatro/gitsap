@@ -1,6 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.utils.text import slugify
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.urls import reverse
+from django.conf import settings
 
 from shared.models import BaseUUIDModel
 
@@ -69,6 +74,10 @@ class User(BaseUUIDModel, AbstractBaseUser):
         return self.activated_at is not None
 
     @property
+    def is_verified(self):
+        return self.verified_at is not None
+
+    @property
     def name(self):
         if self.first_name and self.last_name:
             return f"{self.first_name} {self.last_name}"
@@ -77,3 +86,10 @@ class User(BaseUUIDModel, AbstractBaseUser):
         elif self.last_name:
             return self.last_name
         return self.email.split("@")[0]
+
+    @property
+    def verification_link(self):
+        uid = urlsafe_base64_encode(force_bytes(self.id))
+        token = default_token_generator.make_token(self)
+
+        return f"{settings.BASE_URL}/{reverse("accounts-email-verification", args=[uid, token])}"
