@@ -10,6 +10,7 @@ from gitsap.pull_requests.forms import (
     PullRequestMergeConfirmForm,
 )
 from gitsap.pull_requests.models import PullRequest, PullRequestActivity
+from gitsap.pull_requests.forms import PullRequestCommentForm
 
 
 class PullRequestListView(ProjectAccessMixin, View):
@@ -288,3 +289,43 @@ class PullRequestConflictsView(ProjectAccessMixin, View):
             "active_tab": "pull_requests",
         }
         return render(request, "pull_requests/conflicts.html", context)
+
+
+class PullRequestCommentCreateView(ProjectAccessMixin, View):
+    def post(self, request, *args, **kwargs):
+        project = request.project
+        pull_request_number = kwargs.get("pull_request_number")
+        pull_request = PullRequest.objects.get(
+            project=project, pull_request_number=pull_request_number
+        )
+        form = PullRequestCommentForm(request.POST)
+        if not form.is_valid():
+            messages.error(
+                request,
+                "There was an error creating the comment. Please check the form and try again.",
+            )
+            return redirect(
+                "pull-request-detail",
+                owner_handle=project.owner_handle,
+                project_handle=project.project_handle,
+                pull_request_number=pull_request_number,
+            )
+
+        cleaned_data = form.cleaned_data
+
+        # Create comment
+        PullRequestActivity.objects.create(
+            pull_request=pull_request,
+            author=request.user,
+            content=cleaned_data["content"],
+            content_html=cleaned_data["content_html"],
+            activity_type=PullRequestActivity.ActivityType.COMMENT,
+        )
+
+        messages.success(request, "Comment added successfully.")
+        return redirect(
+            "pull-request-detail",
+            owner_handle=project.owner_handle,
+            project_handle=project.project_handle,
+            pull_request_number=pull_request_number,
+        )

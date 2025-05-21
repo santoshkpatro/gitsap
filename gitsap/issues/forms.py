@@ -48,7 +48,7 @@ class IssueCommentCreateForm(forms.Form):
         required=True,
     )
 
-    def clean_comment_html(self):
+    def clean_content_html(self):
         html = self.cleaned_data.get("content_html", "").strip()
         if not strip_tags(html).strip():
             return None

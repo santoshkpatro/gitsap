@@ -54,3 +54,30 @@ class PullRequestMergeConfirmForm(forms.Form):
         ),
         required=True,
     )
+
+
+class PullRequestCommentForm(forms.Form):
+    content_html = forms.CharField(
+        widget=forms.Textarea(
+            attrs={
+                "class": "form-control d-none",
+                "placeholder": "Write a comment",
+            }
+        ),
+        required=True,
+    )
+
+    def clean_content_html(self):
+        html = self.cleaned_data.get("content_html", "").strip()
+        if not strip_tags(html).strip():
+            return None
+        return html
+
+    def clean(self):
+        cleaned_data = super().clean()
+        content_html = cleaned_data.get("content_html")
+        if content_html:
+            cleaned_data["content"] = strip_tags(content_html).strip() or None
+        else:
+            cleaned_data["content"] = None
+        return cleaned_data
