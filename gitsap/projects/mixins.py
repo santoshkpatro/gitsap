@@ -6,11 +6,9 @@ from gitsap.projects.models import Project, ProjectCollaborator
 class ProjectAccessMixin:
     def dispatch(self, request, *args, **kwargs):
         namespace = kwargs.get("namespace")
-        project_handle = kwargs.get("project_handle")
+        handle = kwargs.get("handle")
 
-        project = get_object_or_404(
-            Project, namespace=namespace, project_handle=project_handle
-        )
+        project = get_object_or_404(Project, namespace=namespace, handle=handle)
         request.project = project
         request.project_collaborator_role = None
 

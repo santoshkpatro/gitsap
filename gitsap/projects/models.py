@@ -22,7 +22,7 @@ class Project(BaseUUIDModel):
 
     # For easy access to the owner namespace
     namespace = models.SlugField(max_length=128, blank=True, db_index=True)
-    project_handle = models.SlugField(max_length=128, blank=True)
+    handle = models.SlugField(max_length=128, blank=True)
 
     name = models.CharField(max_length=128)
     description = models.TextField(blank=True, null=True)
@@ -47,7 +47,7 @@ class Project(BaseUUIDModel):
         db_table = "projects"
         constraints = [
             models.UniqueConstraint(
-                fields=["namespace", "project_handle"],
+                fields=["namespace", "handle"],
                 name="unique_project_handle_per_owner",
             )
         ]
@@ -57,7 +57,7 @@ class Project(BaseUUIDModel):
 
     def save(self, *args, **kwargs):
         if self._state.adding:
-            self.project_handle = slugify(self.name)
+            self.handle = slugify(self.name)
             self.resource_id = uuid.uuid4().hex
 
             if not self.namespace:
@@ -66,13 +66,11 @@ class Project(BaseUUIDModel):
 
     @property
     def ssh_clone_url(self):
-        return f"{settings.SSH_GIT_HOST_URL}/{self.namespace}/{self.project_handle}.git"
+        return f"{settings.SSH_GIT_HOST_URL}/{self.namespace}/{self.handle}.git"
 
     @property
     def https_clone_url(self):
-        return (
-            f"{settings.HTTPS_GIT_HOST_URL}/{self.namespace}/{self.project_handle}.git"
-        )
+        return f"{settings.HTTPS_GIT_HOST_URL}/{self.namespace}/{self.handle}.git"
 
     @property
     def closed_issues_count(self):

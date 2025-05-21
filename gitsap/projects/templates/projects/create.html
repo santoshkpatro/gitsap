@@ -18,7 +18,7 @@
             <label class="form-label">{{ form.name.label }}</label>
             {{ form.name }}
             <div class="form-text ms-1">
-                gitsap.com/{{ request.user.username }}/<strong id="project_handle">hello</strong>
+                gitsap.com/{{ request.user.username }}/<strong id="handle">hello</strong>
             </div>
             {% if form.name.errors %}
             <div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>
@@ -86,7 +86,7 @@
 
     document.addEventListener("DOMContentLoaded", function () {
         const nameInput = document.getElementById("{{ form.name.id_for_label }}");
-        const handlePreview = document.getElementById("project_handle");
+        const handlePreview = document.getElementById("handle");
 
         if (nameInput && handlePreview) {
             nameInput.addEventListener("input", function () {

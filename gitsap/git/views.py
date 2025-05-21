@@ -95,7 +95,7 @@ class GitInfoRefsView(GitOpsAuthenticationMixin, View):
 
         project = get_object_or_404(
             Project,
-            project_handle=kwargs["project_handle"],
+            handle=kwargs["handle"],
             namespace=kwargs["namespace"],
         )
 
@@ -128,7 +128,7 @@ class GitUploadPackView(View):
     def post(self, request, *args, **kwargs):
         project = get_object_or_404(
             Project,
-            project_handle=kwargs["project_handle"],
+            handle=kwargs["handle"],
             namespace=kwargs["namespace"],
         )
 
@@ -159,7 +159,7 @@ class GitReceivePackView(View):
     def post(self, request, *args, **kwargs):
         project = get_object_or_404(
             Project,
-            project_handle=kwargs["project_handle"],
+            handle=kwargs["handle"],
             namespace=kwargs["namespace"],
         )
 
