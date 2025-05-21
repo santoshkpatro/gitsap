@@ -147,8 +147,8 @@ class PullRequestDetailView(ProjectAccessMixin, View):
             case "activity":
                 activities = (
                     PullRequestActivity.objects.filter(pull_request=pull_request)
-                    .order_by("-created_at")
                     .select_related("author")
+                    .order_by("created_at")
                 )
                 conflicts = git_service.get_merge_conflicts(
                     pull_request.source_branch, pull_request.target_branch
@@ -247,6 +247,23 @@ class PullRequestMergeView(ProjectAccessMixin, View):
         # If merge is successful
         pull_request.merge()  # mark PR as merged
         project.update_cloud_resource_artifact()  # upload updated git tar
+
+        # Create merge activity telling author merged this PR from this branch to this branch. if required do higlighting using inline styles
+        PullRequestActivity.objects.create(
+            pull_request=pull_request,
+            author=request.user,
+            content=(
+                f"Merged pull request from {pull_request.source_branch} to {pull_request.target_branch}"
+            ),
+            content_html=(
+                f"<span style='color:#8B5CF6;font-weight:500;'>merged</span> pull request from "
+                f"<code style='background:#f3f4f6;padding:2px 6px;border-radius:4px;font-weight:500;font-family:monospace;'>"
+                f"{pull_request.source_branch}</code> to "
+                f"<code style='background:#f3f4f6;padding:2px 6px;border-radius:4px;font-weight:500;font-family:monospace;'>"
+                f"{pull_request.target_branch}</code>"
+            ),
+            activity_type=PullRequestActivity.ActivityType.ACTION,
+        )
 
         messages.success(request, "Pull request merged successfully.")
         return redirect(
