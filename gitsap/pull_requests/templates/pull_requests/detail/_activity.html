@@ -143,7 +143,9 @@
                 </div>
                 <div class="timeline-body w-100">
                     {% if request.user.is_authenticated %}
-                    <form action="#" method="post">
+                    <form
+                        action="{% url 'pull-request-comment-create' owner_handle=project.owner_handle project_handle=project.project_handle pull_request_number=pull_request.pull_request_number %}"
+                        method="post">
                         {% csrf_token %}
                         <div id="editor"></div>
                         <textarea name="content_html" hidden></textarea>
