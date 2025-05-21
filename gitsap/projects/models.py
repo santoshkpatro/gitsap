@@ -20,7 +20,7 @@ class Project(BaseUUIDModel):
         "accounts.User", on_delete=models.CASCADE, related_name="projects"
     )
 
-    # For easy access to the owner username
+    # For easy access to the owner owner_handle
     owner_handle = models.SlugField(max_length=128, blank=True, db_index=True)
     project_handle = models.SlugField(max_length=128, blank=True)
 
@@ -57,20 +57,22 @@ class Project(BaseUUIDModel):
 
     def save(self, *args, **kwargs):
         if self._state.adding:
-            self.handle = slugify(self.name)
+            self.project_handle = slugify(self.name)
             self.resource_id = uuid.uuid4().hex
 
-            if not self.owner_username:
-                self.owner_username = self.owner.username
+            if not self.owner_handle:
+                self.owner_handle = self.owner.username
         return super().save(*args, **kwargs)
 
     @property
     def ssh_clone_url(self):
-        return f"{settings.SSH_GIT_HOST_URL}/{self.owner.username}/{self.project_handle}.git"
+        return (
+            f"{settings.SSH_GIT_HOST_URL}/{self.owner_handle}/{self.project_handle}.git"
+        )
 
     @property
     def https_clone_url(self):
-        return f"{settings.HTTPS_GIT_HOST_URL}/{self.owner.username}/{self.project_handle}.git"
+        return f"{settings.HTTPS_GIT_HOST_URL}/{self.owner_handle}/{self.project_handle}.git"
 
     @property
     def closed_issues_count(self):

@@ -5,11 +5,11 @@ from gitsap.projects.models import Project, ProjectCollaborator
 
 class ProjectAccessMixin:
     def dispatch(self, request, *args, **kwargs):
-        username = kwargs.get("username")
+        owner_handle = kwargs.get("owner_handle")
         project_handle = kwargs.get("project_handle")
 
         project = get_object_or_404(
-            Project, owner__username=username, project_handle=project_handle
+            Project, owner_handle=owner_handle, project_handle=project_handle
         )
         request.project = project
         request.project_collaborator_role = None

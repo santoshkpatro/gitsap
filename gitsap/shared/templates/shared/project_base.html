@@ -28,20 +28,20 @@
             <!-- Navigation -->
             <ul class="nav flex-column gap-1 mt-2">
                 <li>
-                    <a href="{% url 'project-overview' username=project.owner_handle project_handle=project.project_handle %}"
+                    <a href="{% url 'project-overview' owner_handle=project.owner_handle project_handle=project.project_handle %}"
                         class="nav-link {% if active_tab == 'code' %}active{% endif %}">
                         <i data-lucide="code" class="icon"></i><span>Code</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'issue-list' username=project.owner_handle project_handle=project.project_handle %}"
+                    <a href="{% url 'issue-list' owner_handle=project.owner_handle project_handle=project.project_handle %}"
                         class="nav-link {% if active_tab == 'issues' %}active{% endif %}">
                         <i data-lucide="alert-circle" class="icon"></i>
                         <span>Issues</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'pull-request-list' username=project.owner_handle project_handle=project.project_handle  %}"
+                    <a href="{% url 'pull-request-list' owner_handle=project.owner_handle project_handle=project.project_handle  %}"
                         class="nav-link {% if active_tab == 'pull_requests' %}active{% endif %}">
                         <i data-lucide="git-pull-request" class="icon"></i>
                         <span>Pull requests</span>

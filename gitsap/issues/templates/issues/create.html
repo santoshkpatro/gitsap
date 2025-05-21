@@ -37,7 +37,7 @@
             </h4>
 
             <form method="post"
-                action="{% url 'issue-create' username=project.owner_handle project_handle=project.project_handle %}">
+                action="{% url 'issue-create' owner_handle=project.owner_handle project_handle=project.project_handle %}">
                 {% csrf_token %}
                 <div class="row g-4">
                     <!-- Left Column: Title + Editor -->
