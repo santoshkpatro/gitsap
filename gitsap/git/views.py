@@ -94,7 +94,9 @@ class GitInfoRefsView(GitOpsAuthenticationMixin, View):
         is_write = service == "git-receive-pack"
 
         project = get_object_or_404(
-            Project, handle=kwargs["project_handle"], owner__username=kwargs["username"]
+            Project,
+            project_handle=kwargs["project_handle"],
+            owner_handle=kwargs["owner_handle"],
         )
 
         # Check if the user has permission to perform the requested action
@@ -126,8 +128,8 @@ class GitUploadPackView(View):
     def post(self, request, *args, **kwargs):
         project = get_object_or_404(
             Project,
-            handle=kwargs["project_handle"],
-            owner__username=kwargs["username"],
+            project_handle=kwargs["project_handle"],
+            owner_handle=kwargs["owner_handle"],
         )
 
         cmd = ["git-upload-pack", "--stateless-rpc", project._local_git_path]
@@ -157,8 +159,8 @@ class GitReceivePackView(View):
     def post(self, request, *args, **kwargs):
         project = get_object_or_404(
             Project,
-            handle=kwargs["project_handle"],
-            owner__username=kwargs["username"],
+            project_handle=kwargs["project_handle"],
+            owner_handle=kwargs["owner_handle"],
         )
 
         cmd = ["git-receive-pack", "--stateless-rpc", project._local_git_path]

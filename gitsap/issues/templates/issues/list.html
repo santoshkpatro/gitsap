@@ -37,7 +37,7 @@
             <input type="text" name="q" class="form-control form-control-sm" placeholder="Search issues..."
                 value="{{ request.GET.q }}">
         </form>
-        <a href="{% url 'issue-create' username=project.owner_handle project_handle=project.project_handle %}"
+        <a href="{% url 'issue-create' owner_handle=project.owner_handle project_handle=project.project_handle %}"
             class="btn btn-sm btn-primary d-flex align-items-center gap-1">
             <i data-lucide="file-plus"></i> New Issue
         </a>
@@ -85,7 +85,7 @@
                     <i data-lucide="check-circle-2" class="text-muted" style="width: 16px; height: 16px;"></i>
                     {% endif %}
 
-                    <a href="{% url 'issue-detail' username=project.owner_handle project_handle=project.project_handle issue_number=issue.issue_number %}"
+                    <a href="{% url 'issue-detail' owner_handle=project.owner_handle project_handle=project.project_handle issue_number=issue.issue_number %}"
                         class="fw-semibold issue-title-link {% if status == 'all' and issue.status == 'closed' %}text-muted{% else %}text-dark{% endif %}">
                         {{ issue.title }}
                     </a>

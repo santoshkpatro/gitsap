@@ -71,11 +71,11 @@ urlpatterns = [
     path("create/", ProjectCreateView.as_view(), name="project-create"),
 
     # Project endpoints
-    path("<str:username>/<str:project_handle>/", include(project_urlpatterns)),
+    path("<str:owner_handle>/<str:project_handle>/", include(project_urlpatterns)),
 
     # Git endpoints for handling git operations
-    path("<str:username>/<str:project_handle>.git/info/refs", GitInfoRefsView.as_view(), name="project-git-info-refs"),
-    path("<str:username>/<str:project_handle>.git/git-upload-pack", GitUploadPackView.as_view(), name="project-git-upload-pack"),
-    path("<str:username>/<str:project_handle>.git/git-receive-pack", GitReceivePackView.as_view(), name="project-git-receive-pack"),
+    path("<str:owner_handle>/<str:project_handle>.git/info/refs", GitInfoRefsView.as_view(), name="project-git-info-refs"),
+    path("<str:owner_handle>/<str:project_handle>.git/git-upload-pack", GitUploadPackView.as_view(), name="project-git-upload-pack"),
+    path("<str:owner_handle>/<str:project_handle>.git/git-receive-pack", GitReceivePackView.as_view(), name="project-git-receive-pack"),
     path("", IndexView.as_view(), name="home-index"),
 ]

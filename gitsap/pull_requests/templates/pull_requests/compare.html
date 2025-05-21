@@ -134,7 +134,7 @@
             <h6 class="fw-semibold mb-0 d-flex align-items-center gap-2">
                 <i data-lucide="git-commit"></i> Commits
             </h6>
-            <a href="{% url 'pull-request-create' username=project.owner_handle project_handle=project.project_handle %}?source={{ source_branch }}&target={{ target_branch }}"
+            <a href="{% url 'pull-request-create' owner_handle=project.owner_handle project_handle=project.project_handle %}?source={{ source_branch }}&target={{ target_branch }}"
                 class="btn btn-primary btn-sm d-flex align-items-center gap-1">
                 <i data-lucide="git-pull-request"></i> Create pull request
             </a>

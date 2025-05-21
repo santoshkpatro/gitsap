@@ -206,12 +206,12 @@
                                 </button>
                                 {% if issue.status == 'open' %}
                                 <a class="btn btn-light btn-sm"
-                                    href="{% url 'issue-close' username=project.owner_handle project_handle=project.project_handle issue_number=issue.issue_number %}">
+                                    href="{% url 'issue-close' owner_handle=project.owner_handle project_handle=project.project_handle issue_number=issue.issue_number %}">
                                     <i data-lucide="x-octagon" class="me-1" style="width:16px;"></i> Close Issue
                                 </a>
                                 {% else %}
                                 <a class="btn btn-light btn-sm"
-                                    href="{% url 'issue-reopen' username=project.owner_handle project_handle=project.project_handle issue_number=issue.issue_number %}">
+                                    href="{% url 'issue-reopen' owner_handle=project.owner_handle project_handle=project.project_handle issue_number=issue.issue_number %}">
                                     <i data-lucide="rotate-ccw" class="me-1" style="width:16px;"></i> Re-Open Issue
                                 </a>
                                 {% endif %}
