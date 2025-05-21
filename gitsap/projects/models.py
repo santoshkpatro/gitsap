@@ -16,8 +16,19 @@ class Project(BaseUUIDModel):
         PRIVATE = ("private", "Private")
         INTERNAL = ("internal", "Internal")
 
-    owner = models.ForeignKey(
-        "accounts.User", on_delete=models.CASCADE, related_name="projects"
+    user = models.ForeignKey(
+        "accounts.User",
+        on_delete=models.CASCADE,
+        related_name="projects",
+        blank=True,
+        null=True,
+    )
+    organization = models.ForeignKey(
+        "organizations.Organization",
+        on_delete=models.CASCADE,
+        related_name="projects",
+        blank=True,
+        null=True,
     )
 
     # For easy access to the owner namespace
@@ -38,6 +49,13 @@ class Project(BaseUUIDModel):
     total_pull_requests_count = models.IntegerField(default=0)
     open_pull_requests_count = models.IntegerField(default=0)
     merged_pull_requests_count = models.IntegerField(default=0)
+
+    created_by = models.ForeignKey(
+        "accounts.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="created_projects",
+    )
 
     collaborators = models.ManyToManyField(
         "accounts.User", through="ProjectCollaborator"
@@ -61,8 +79,31 @@ class Project(BaseUUIDModel):
             self.resource_id = uuid.uuid4().hex
 
             if not self.namespace:
-                self.namespace = self.owner.username
+                if self.user:
+                    self.namespace = self.user.username
+                elif self.organization:
+                    self.namespace = self.organization.slug
+                else:
+                    raise ValueError("Either user or organization must be set.")
         return super().save(*args, **kwargs)
+
+    @property
+    def owner(self):
+        if self.user:
+            return self.user
+        elif self.organization:
+            return self.organization
+        else:
+            raise ValueError("Either user or organization must be set.")
+
+    @property
+    def owner_type(self):
+        if self.user:
+            return "user"
+        elif self.organization:
+            return "organization"
+        else:
+            raise ValueError("Either user or organization must be set.")
 
     @property
     def ssh_clone_url(self):
