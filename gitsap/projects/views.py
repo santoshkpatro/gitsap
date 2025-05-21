@@ -42,7 +42,7 @@ class ProjectCreateView(LoginRequiredMixin, View):
 
         return redirect(
             "project-overview",
-            owner_handle=project.owner_handle,
+            namespace=project.namespace,
             project_handle=project.project_handle,
         )
 
@@ -53,11 +53,11 @@ class ProjectOverview(ProjectAccessMixin, View):
         current_ref = request.GET.get("ref", project.default_branch)
         tree_browsable_path = reverse(
             "project-tree",
-            args=[project.owner_handle, project.project_handle, current_ref],
+            args=[project.namespace, project.project_handle, current_ref],
         )
         blob_browsable_path = reverse(
             "project-blob",
-            args=[project.owner_handle, project.project_handle, current_ref],
+            args=[project.namespace, project.project_handle, current_ref],
         )
 
         git_service = project.git_service
@@ -118,11 +118,11 @@ class ProjectTreeView(ProjectAccessMixin, View):
         )
         tree_browsable_path = reverse(
             "project-tree",
-            args=[project.owner_handle, project.project_handle, ref_and_path],
+            args=[project.namespace, project.project_handle, ref_and_path],
         )
         blob_browsable_path = reverse(
             "project-blob",
-            args=[project.owner_handle, project.project_handle, ref_and_path],
+            args=[project.namespace, project.project_handle, ref_and_path],
         )
 
         context = {

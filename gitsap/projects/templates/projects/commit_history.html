@@ -18,7 +18,7 @@
                     <!-- Branches -->
                     <h6 class="dropdown-header d-flex align-items-center gap-1">Branches</h6>
                     {% for branch in project.repo_branches %}
-                    <a href="{% url 'project-commit-history' owner_handle=project.owner_handle project_handle=project.project_handle ref=branch %}"
+                    <a href="{% url 'project-commit-history' namespace=project.namespace project_handle=project.project_handle ref=branch %}"
                         class="dropdown-item small d-flex align-items-center gap-2 justify-content-between">
                         <div class="d-flex align-items-center gap-2">
                             {% if branch == current_ref %}
