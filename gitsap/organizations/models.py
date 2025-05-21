@@ -9,6 +9,12 @@ class Organization(BaseUUIDModel):
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     description = models.TextField(blank=True, null=True)
 
+    members = models.ManyToManyField(
+        "accounts.User",
+        through="organizations.OrganizationUser",
+        related_name="organizations",
+    )
+
     class Meta:
         db_table = "organizations"
         verbose_name = "Organization"
