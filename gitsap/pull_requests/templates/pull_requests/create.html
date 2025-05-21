@@ -220,8 +220,7 @@
 
     <!-- Commit List -->
     {% if commits %}
-    <form method="post"
-        action="{% url 'pull-request-create' namespace=project.namespace project_handle=project.project_handle %}">
+    <form method="post" action="{% url 'pull-request-create' namespace=project.namespace handle=project.handle %}">
         {% csrf_token %}
         <div class="row g-4">
             <!-- Left Column: Title + Editor -->

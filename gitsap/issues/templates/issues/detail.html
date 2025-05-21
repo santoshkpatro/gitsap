@@ -195,7 +195,7 @@
                     <div class="timeline-body w-100">
                         {% if request.user.is_authenticated %}
                         <form
-                            action="{% url 'issue-comment-create' namespace=project.namespace project_handle=project.project_handle issue_number=issue.issue_number %}"
+                            action="{% url 'issue-comment-create' namespace=project.namespace handle=project.handle issue_number=issue.issue_number %}"
                             method="post">
                             {% csrf_token %}
                             <div id="editor"></div>
@@ -206,12 +206,12 @@
                                 </button>
                                 {% if issue.status == 'open' %}
                                 <a class="btn btn-light btn-sm"
-                                    href="{% url 'issue-close' namespace=project.namespace project_handle=project.project_handle issue_number=issue.issue_number %}">
+                                    href="{% url 'issue-close' namespace=project.namespace handle=project.handle issue_number=issue.issue_number %}">
                                     <i data-lucide="x-octagon" class="me-1" style="width:16px;"></i> Close Issue
                                 </a>
                                 {% else %}
                                 <a class="btn btn-light btn-sm"
-                                    href="{% url 'issue-reopen' namespace=project.namespace project_handle=project.project_handle issue_number=issue.issue_number %}">
+                                    href="{% url 'issue-reopen' namespace=project.namespace handle=project.handle issue_number=issue.issue_number %}">
                                     <i data-lucide="rotate-ccw" class="me-1" style="width:16px;"></i> Re-Open Issue
                                 </a>
                                 {% endif %}

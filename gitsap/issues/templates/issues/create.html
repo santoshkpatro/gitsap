@@ -36,8 +36,7 @@
                 <i data-lucide="plus-circle"></i> New Issue
             </h4>
 
-            <form method="post"
-                action="{% url 'issue-create' namespace=project.namespace project_handle=project.project_handle %}">
+            <form method="post" action="{% url 'issue-create' namespace=project.namespace handle=project.handle %}">
                 {% csrf_token %}
                 <div class="row g-4">
                     <!-- Left Column: Title + Editor -->

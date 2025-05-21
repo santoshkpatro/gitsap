@@ -104,7 +104,7 @@ class PullRequestCreateView(ProjectAccessMixin, View):
             return redirect(
                 "pull-request-list",
                 namespace=project.namespace,
-                project_handle=project.project_handle,
+                handle=project.handle,
             )
 
         cleaned_data = form.cleaned_data
@@ -118,7 +118,7 @@ class PullRequestCreateView(ProjectAccessMixin, View):
         return redirect(
             "pull-request-list",
             namespace=project.namespace,
-            project_handle=project.project_handle,
+            handle=project.handle,
         )
 
 
@@ -175,7 +175,7 @@ class PullRequestDetailView(ProjectAccessMixin, View):
                 return redirect(
                     "pull-request-detail",
                     namespace=project.namespace,
-                    project_handle=project.project_handle,
+                    handle=project.handle,
                     pull_request_number=pull_request_number,
                 )
         return render(request, "pull_requests/detail.html", context)
@@ -196,7 +196,7 @@ class PullRequestMergeView(ProjectAccessMixin, View):
             return redirect(
                 "pull-request-detail",
                 namespace=project.namespace,
-                project_handle=project.project_handle,
+                handle=project.handle,
                 pull_request_number=pull_request_number,
             )
 
@@ -210,7 +210,7 @@ class PullRequestMergeView(ProjectAccessMixin, View):
             return redirect(
                 "pull-request-detail",
                 namespace=project.namespace,
-                project_handle=project.project_handle,
+                handle=project.handle,
                 pull_request_number=pull_request_number,
             )
 
@@ -240,7 +240,7 @@ class PullRequestMergeView(ProjectAccessMixin, View):
             return redirect(
                 "pull-request-detail",
                 namespace=project.namespace,
-                project_handle=project.project_handle,
+                handle=project.handle,
                 pull_request_number=pull_request_number,
             )
 
@@ -269,7 +269,7 @@ class PullRequestMergeView(ProjectAccessMixin, View):
         return redirect(
             "pull-request-detail",
             namespace=project.namespace,
-            project_handle=project.project_handle,
+            handle=project.handle,
             pull_request_number=pull_request_number,
         )
 
@@ -324,7 +324,7 @@ class PullRequestCommentCreateView(ProjectAccessMixin, View):
             return redirect(
                 "pull-request-detail",
                 namespace=project.namespace,
-                project_handle=project.project_handle,
+                handle=project.handle,
                 pull_request_number=pull_request_number,
             )
 
@@ -343,6 +343,6 @@ class PullRequestCommentCreateView(ProjectAccessMixin, View):
         return redirect(
             "pull-request-detail",
             namespace=project.namespace,
-            project_handle=project.project_handle,
+            handle=project.handle,
             pull_request_number=pull_request_number,
         )
