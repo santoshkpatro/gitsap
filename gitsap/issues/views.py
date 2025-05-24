@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.db.models import Q
 
 from gitsap.projects.mixins import ProjectAccessMixin
-from gitsap.issues.models import Issue, IssueActivity
+from gitsap.issues.models import Issue, IssueActivity, IssueAssignee
 from gitsap.issues.forms import IssueCreateForm, IssueCommentCreateForm
 
 
@@ -34,6 +34,7 @@ class IssueCreateView(ProjectAccessMixin, View):
     def get(self, request, *args, **kwargs):
         project = request.project
         form = IssueCreateForm()
+        form.fields["assignees"].queryset = project.collaborators.all()
         context = {
             "project": project,
             "active_tab": "issues",
@@ -44,6 +45,8 @@ class IssueCreateView(ProjectAccessMixin, View):
     def post(self, request, *args, **kwargs):
         project = request.project
         form = IssueCreateForm(request.POST)
+        form.fields["assignees"].queryset = project.collaborators.all()
+
         if not form.is_valid():
             messages.error(request, "Please correct the errors below.")
             context = {
@@ -54,12 +57,18 @@ class IssueCreateView(ProjectAccessMixin, View):
             return render(request, "issues/create.html", context)
 
         cleaned_data = form.cleaned_data
+        assignees = cleaned_data.pop("assignees", [])
         issue = Issue(
             **cleaned_data,
             project=project,
             author=request.user,
         )
         issue.save()
+        for assignee in assignees:
+            IssueAssignee.objects.create(
+                issue=issue,
+                user=assignee,
+            )
 
         return redirect(
             "issue-detail",

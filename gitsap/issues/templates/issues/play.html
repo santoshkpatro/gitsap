@@ -1,0 +1,21 @@
+<div class="bootstrap-multiselect" data-dropdown="#team-dropdown" data-pills="#team-pills"
+    data-input="#team-hidden-input">
+
+    <!-- Pills container -->
+    <div id="team-pills" class="d-flex flex-wrap gap-2"></div>
+
+    <!-- Bootstrap dropdown -->
+    <div class="dropdown">
+        <button class="btn btn-link p-0 text-decoration-none" type="button" data-bs-toggle="dropdown">
+            Select assignees ...
+        </button>
+        <ul class="dropdown-menu" id="team-dropdown">
+            {% for user in form.fields.assignees.queryset %}
+            <li><a class="dropdown-item" href="#" data-id="{{ user.id }}" data-name="{{ user.name }}">{{ user.name
+                    }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    {{ form.assignees }}
+</div>

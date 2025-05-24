@@ -26,6 +26,7 @@
         left: 1rem;
     }
 </style>
+
 {% endblock styles %}
 
 {% block content %}
@@ -69,12 +70,40 @@
                     <!-- Right Column: Metadata (Assignees, Tags, etc.) -->
                     <div class="col-md-3">
                         <div class="p-3">
+
+                            <!-- Assignees Select Dropdown -->
                             <div class="mb-3">
                                 <label class="form-label fw-semibold small d-flex align-items-center gap-1">
                                     <i data-lucide="user-plus"></i> Assignees
                                 </label>
-                                <div class="text-muted small">No assignees</div>
+
+                                <div class="smart-multiselect" data-dropdown="#assignee-dropdown"
+                                    data-pills="#assignee-pills" data-select="#assignee-hidden-select">
+
+                                    <div id="assignee-pills" class="d-flex flex-wrap gap-2 mb-2"></div>
+
+                                    <div class="dropdown">
+                                        <button class="btn btn-link p-0 text-decoration-none" type="button"
+                                            data-bs-toggle="dropdown">
+                                            Select assignees...
+                                        </button>
+                                        <ul class="dropdown-menu" id="assignee-dropdown">
+                                            {% for user in form.fields.assignees.queryset %}
+                                            <li>
+                                                <a class="dropdown-item" href="#" data-id="{{ user.id }}"
+                                                    data-name="{{ user.name }}">
+                                                    {{ user.name }}
+                                                </a>
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+
+                                    <select id="assignee-hidden-select" name="assignees" multiple hidden></select>
+                                </div>
+
                             </div>
+
                             <div class="mb-3">
                                 <label class="form-label fw-semibold small d-flex align-items-center gap-1">
                                     <i data-lucide="tag"></i> Labels
@@ -126,4 +155,5 @@
         hidden.value = quill.root.innerHTML;
     });
 </script>
+
 {% endblock scripts %}
