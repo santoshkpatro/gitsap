@@ -64,10 +64,10 @@ class Project(BaseUUIDModel):
     class Meta:
         db_table = "projects"
         constraints = [
-            models.UniqueConstraint(
-                fields=["namespace", "handle"],
-                name="unique_project_handle_per_owner",
-            )
+            # models.UniqueConstraint(
+            #     fields=["namespace", "handle"],
+            #     name="unique_project_handle_per_owner",
+            # )
         ]
 
     def __str__(self):
