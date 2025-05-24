@@ -28,7 +28,7 @@ class ProjectCreateView(LoginRequiredMixin, View):
 
         cleaned_data = form.cleaned_data
         existing_project = Project.objects.filter(
-            owner=request.user, handle=slugify(cleaned_data["name"])
+            user=request.user, handle=slugify(cleaned_data["name"])
         )
         if existing_project.exists():
             form.add_error("name", "You already have a project with this name.")
@@ -37,7 +37,8 @@ class ProjectCreateView(LoginRequiredMixin, View):
         project = Project(
             **cleaned_data,
         )
-        project.owner = request.user
+        project.user = request.user
+        project.created_by = request.user
         project.save()
 
         return redirect(
