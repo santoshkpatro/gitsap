@@ -92,12 +92,14 @@ class IssueDetailView(ProjectAccessMixin, View):
             .order_by("-created_at")
             .select_related("author")
         )
+        assignees = issue.assignees.all()
 
         context = {
             "issue": issue,
             "project": project,
             "active_tab": "issues",
             "activities": activities,
+            "assignees": assignees,
         }
         return render(request, "issues/detail.html", context)
 
