@@ -32,7 +32,7 @@ class Project(BaseUUIDModel):
     )
 
     # For easy access to the owner namespace
-    namespace = models.SlugField(max_length=128, blank=True, db_index=True)
+    namespace = models.SlugField(max_length=128, blank=True, unique=True)
     handle = models.SlugField(max_length=128, blank=True)
 
     name = models.CharField(max_length=128)
@@ -64,10 +64,10 @@ class Project(BaseUUIDModel):
     class Meta:
         db_table = "projects"
         constraints = [
-            # models.UniqueConstraint(
-            #     fields=["namespace", "handle"],
-            #     name="unique_project_handle_per_owner",
-            # )
+            models.UniqueConstraint(
+                fields=["namespace", "handle"],
+                name="unique_project_handle_per_owner",
+            )
         ]
 
     def __str__(self):
