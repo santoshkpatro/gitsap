@@ -1,6 +1,8 @@
 from django import forms
 from django.utils.html import strip_tags
 
+from gitsap.accounts.models import User
+
 
 class IssueCreateForm(forms.Form):
     title = forms.CharField(
@@ -19,6 +21,18 @@ class IssueCreateForm(forms.Form):
                 "placeholder": "Write a summary of the issue",
             }
         )
+    )
+
+    assignees = forms.ModelMultipleChoiceField(
+        queryset=User.objects.none(),  # We'll set this in the view
+        required=False,
+        widget=forms.SelectMultiple(
+            attrs={
+                "hidden": True,
+                "id": "user-hidden-select",  # consistent with data-select
+            }
+        ),
+        label="Assignees",
     )
 
     def clean_summary_html(self):
