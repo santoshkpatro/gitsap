@@ -14,5 +14,5 @@ def initialize_git_repo_and_store(sender, instance, created, **kwargs):
 def add_owner_as_collaborator(sender, instance, created, **kwargs):
     if created:
         ProjectCollaborator.objects.create(
-            project=instance, user=instance.owner, role="owner"
+            project=instance, user=instance.created_by, role="owner"
         )
