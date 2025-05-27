@@ -1,3 +1,4 @@
+import markdown
 from django.db import models, transaction
 
 from gitsap.shared.models import BaseUUIDModel
@@ -14,7 +15,7 @@ class Issue(BaseUUIDModel):
     title = models.CharField(max_length=255)
     issue_number = models.IntegerField(blank=True)
     summary = models.TextField(blank=True, null=True)
-    summary_html = models.TextField(blank=True, null=True)
+    # summary_html = models.TextField(blank=True, null=True)
     author = models.ForeignKey(
         "accounts.User",
         on_delete=models.SET_NULL,
@@ -53,6 +54,10 @@ class Issue(BaseUUIDModel):
             )
             self.issue_number = (last_issue.issue_number + 1) if last_issue else 1
         return super().save(*args, **kwargs)
+
+    @property
+    def summary_html(self):
+        return markdown.markdown(self.summary or "", extensions=["nl2br"])
 
     @transaction.atomic
     def close(self):

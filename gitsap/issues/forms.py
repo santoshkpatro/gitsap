@@ -14,14 +14,6 @@ class IssueCreateForm(forms.Form):
             }
         )
     )
-    summary_html = forms.CharField(
-        widget=forms.Textarea(
-            attrs={
-                "class": "form-control d-none",
-                "placeholder": "Write a summary of the issue",
-            }
-        )
-    )
 
     assignees = forms.ModelMultipleChoiceField(
         queryset=User.objects.none(),  # We'll set this in the view
@@ -35,20 +27,20 @@ class IssueCreateForm(forms.Form):
         label="Assignees",
     )
 
-    def clean_summary_html(self):
-        html = self.cleaned_data.get("summary_html", "").strip()
-        if not strip_tags(html).strip():
-            return None
-        return html
+    summary = forms.CharField(
+        widget=forms.Textarea(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Write a summary of the issue",
+                "rows": 3,
+            }
+        ),
+        required=False,
+    )
 
-    def clean(self):
-        cleaned_data = super().clean()
-        summary_html = cleaned_data.get("summary_html")
-        if summary_html:
-            cleaned_data["summary"] = strip_tags(summary_html).strip() or None
-        else:
-            cleaned_data["summary"] = None
-        return cleaned_data
+    def clean_summary(self):
+        summary = self.cleaned_data.get("summary", "").strip()
+        return summary if summary else None
 
 
 class IssueCommentCreateForm(forms.Form):
