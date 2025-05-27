@@ -120,4 +120,8 @@ class IssueActivity(BaseUUIDModel):
 
     @property
     def content_html(self):
-        return markdown.markdown(self.content or "", extensions=["nl2br"])
+        raw_html = markdown.markdown(self.content or "", extensions=["nl2br"])
+        if self.activity_type == self.ActivityType.ACTION:
+            # Remove <p> tags for inline rendering
+            return raw_html.removeprefix("<p>").removesuffix("</p>").strip()
+        return raw_html
