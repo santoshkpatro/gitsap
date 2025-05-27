@@ -116,6 +116,12 @@ class IssueCloseView(ProjectAccessMixin, View):
             messages.error(request, "Issue is already closed.")
         else:
             issue.close()
+            IssueActivity.objects.create(
+                issue=issue,
+                author=request.user,
+                activity_type=IssueActivity.ActivityType.ACTION,
+                content="*closed* the issue.",
+            )
             messages.success(request, "Issue closed successfully.")
         return redirect(
             "issue-detail",
@@ -137,6 +143,12 @@ class IssueReOpenView(ProjectAccessMixin, View):
             messages.error(request, "Issue is already open.")
         else:
             issue.re_open()
+            IssueActivity.objects.create(
+                issue=issue,
+                author=request.user,
+                activity_type=IssueActivity.ActivityType.ACTION,
+                content="*reopened* the issue.",
+            )
             messages.success(request, "Issue reopened successfully.")
         return redirect(
             "issue-detail",
