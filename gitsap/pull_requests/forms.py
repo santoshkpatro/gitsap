@@ -12,13 +12,15 @@ class PullRequestCreateForm(forms.Form):
             }
         )
     )
-    description_html = forms.CharField(
+    description = forms.CharField(
         widget=forms.Textarea(
             attrs={
-                "class": "form-control d-none",
-                "placeholder": "Write a description about the pull request",
+                "class": "form-control",
+                "placeholder": "Write a description for the pull request",
+                "rows": 3,
             }
-        )
+        ),
+        required=False,
     )
     source_branch = forms.CharField(
         widget=forms.HiddenInput(attrs={"class": "form-control"}), required=True
@@ -27,20 +29,9 @@ class PullRequestCreateForm(forms.Form):
         widget=forms.HiddenInput(attrs={"class": "form-control"}), required=True
     )
 
-    def clean_description_html(self):
-        html = self.cleaned_data.get("description_html", "").strip()
-        if not strip_tags(html).strip():
-            return None
-        return html
-
-    def clean(self):
-        cleaned_data = super().clean()
-        description_html = cleaned_data.get("description_html")
-        if description_html:
-            cleaned_data["description"] = strip_tags(description_html).strip() or None
-        else:
-            cleaned_data["description"] = None
-        return cleaned_data
+    def clean_description(self):
+        description = self.cleaned_data.get("description", "").strip()
+        return description if description else None
 
 
 class PullRequestMergeConfirmForm(forms.Form):

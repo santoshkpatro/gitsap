@@ -15,7 +15,6 @@ class PullRequest(BaseUUIDModel):
     title = models.CharField(max_length=255)
     pull_request_number = models.IntegerField(blank=True)
     description = models.TextField(blank=True, null=True)
-    description_html = models.TextField(blank=True, null=True)
     author = models.ForeignKey(
         "accounts.User",
         on_delete=models.SET_NULL,
@@ -116,7 +115,6 @@ class PullRequestActivity(BaseUUIDModel):
     )
     activity_type = models.CharField(max_length=10, choices=ActivityType.choices)
     content = models.TextField(blank=True, null=True)
-    content_html = models.TextField(blank=True, null=True)
 
     class Meta:
         db_table = "pull_request_activities"
