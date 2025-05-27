@@ -15,7 +15,6 @@ class Issue(BaseUUIDModel):
     title = models.CharField(max_length=255)
     issue_number = models.IntegerField(blank=True)
     summary = models.TextField(blank=True, null=True)
-    # summary_html = models.TextField(blank=True, null=True)
     author = models.ForeignKey(
         "accounts.User",
         on_delete=models.SET_NULL,
@@ -110,9 +109,7 @@ class IssueActivity(BaseUUIDModel):
         "accounts.User", on_delete=models.CASCADE, related_name="issue_activities"
     )
     activity_type = models.CharField(max_length=10, choices=ActivityType.choices)
-
     content = models.TextField(blank=True, null=True)
-    content_html = models.TextField(blank=True, null=True)
 
     class Meta:
         db_table = "issue_activities"
@@ -120,3 +117,7 @@ class IssueActivity(BaseUUIDModel):
 
     def __str__(self):
         return str(self.id)
+
+    @property
+    def content_html(self):
+        return markdown.markdown(self.content or "", extensions=["nl2br"])
