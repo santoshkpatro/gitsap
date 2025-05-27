@@ -32,7 +32,7 @@ class Project(BaseUUIDModel):
     )
 
     # For easy access to the owner namespace
-    namespace = models.SlugField(max_length=128, blank=True, unique=True)
+    namespace = models.SlugField(max_length=128, blank=True)
     handle = models.SlugField(max_length=128, blank=True)
 
     name = models.CharField(max_length=128)
