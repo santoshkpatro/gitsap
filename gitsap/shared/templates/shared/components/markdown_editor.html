@@ -8,12 +8,13 @@
             <button type="button" class="btn btn-sm btn-light" data-md="> " tabindex="-1"><i data-lucide="quote"></i></button>
             <button type="button" class="btn btn-sm btn-light" data-md="- " tabindex="-1"><i data-lucide="list"></i></button>
         </div>
-        <button type="button" class="btn btn-sm btn-outline-primary preview-toggle" tabindex="-1">
-            <i data-lucide="eye" class="me-1"></i> Preview
+        <button type="button" class="preview-toggle d-flex align-items-center gap-1" tabindex="-1">
+            <i data-lucide="eye" class="me-1" style="height: 1rem;"></i>
+            <span class="small">Preview</span>
         </button>
     </div>
 
-    <textarea name="{{ field_name|default:"content" }}" rows="10"
+    <textarea name="{{ field_name|default:"content" }}" rows="{{ rows|default:10 }}"
         placeholder="{{ placeholder|default:'Write your message in Markdown...' }}"
         class="markdown-input form-control border-0 rounded-0 shadow-none">
     </textarea>
