@@ -26,6 +26,7 @@
     "vitepress": "^1.6.3"
   },
   "dependencies": {
-    "bootstrap": "^5.3.6"
+    "bootstrap": "^5.3.6",
+    "lucide": "^0.511.0"
   }
 }
