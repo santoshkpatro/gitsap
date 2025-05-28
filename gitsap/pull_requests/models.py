@@ -1,3 +1,4 @@
+import markdown
 from django.db import models, transaction
 
 from gitsap.shared.models import BaseUUIDModel
@@ -122,3 +123,11 @@ class PullRequestActivity(BaseUUIDModel):
 
     def __str__(self):
         return str(self.id)
+
+    @property
+    def content_html(self):
+        raw_html = markdown.markdown(self.content or "", extensions=["nl2br"])
+        if self.activity_type == self.ActivityType.ACTION:
+            # Remove <p> tags for inline rendering
+            return raw_html.removeprefix("<p>").removesuffix("</p>").strip()
+        return raw_html

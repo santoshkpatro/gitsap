@@ -253,14 +253,7 @@ class PullRequestMergeView(ProjectAccessMixin, View):
             pull_request=pull_request,
             author=request.user,
             content=(
-                f"Merged pull request from {pull_request.source_branch} to {pull_request.target_branch}"
-            ),
-            content_html=(
-                f"<span style='color:#8B5CF6;font-weight:500;'>merged</span> pull request from "
-                f"<code style='background:#f3f4f6;padding:2px 6px;border-radius:4px;font-weight:500;font-family:monospace;'>"
-                f"{pull_request.source_branch}</code> to "
-                f"<code style='background:#f3f4f6;padding:2px 6px;border-radius:4px;font-weight:500;font-family:monospace;'>"
-                f"{pull_request.target_branch}</code>"
+                f"merged pull request from *{pull_request.source_branch}* to *{pull_request.target_branch}*"
             ),
             activity_type=PullRequestActivity.ActivityType.ACTION,
         )
