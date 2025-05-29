@@ -15,7 +15,7 @@ from gitsap.accounts.tasks import send_account_verification_email, send_welcome_
 
 class LoginView(View):
     def get(self, request):
-        form = LoginForm()
+        form = LoginForm(initial={"username": "try@gitsap.com", "password": "trygitsap"})
         context = {"form": form}
         return render(request, "accounts/login.html", context)
 
@@ -30,6 +30,15 @@ class LoginView(View):
 
         cleaned_data = form.cleaned_data
         username = cleaned_data.get("username")
+
+        # For demo purposes, we will allow login with a demo user
+        demo_user = User.objects.filter(email=username).first()
+        if not demo_user:
+            messages.error(request, "No account found with this username or email.")
+
+        login(request, demo_user)
+        return redirect("home-index")
+
         # Check for @ in username
         if "@" in username:
             query = {"email": username}

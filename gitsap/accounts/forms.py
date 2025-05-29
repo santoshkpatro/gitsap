@@ -12,15 +12,18 @@ class LoginForm(forms.Form):
                 "class": "form-control",
                 "placeholder": "Enter your username or email",
                 "required": "required",
+                "disabled": "disabled",  # For demo purposes, disable the field
             }
         )
     )
     password = forms.CharField(
-        widget=forms.PasswordInput(
+        widget=forms.TextInput(
             attrs={
                 "class": "form-control",
                 "placeholder": "*********",
                 "required": "required",
+                "type": "password",
+                "disabled": "disabled",  # For demo purposes, disable the field
             }
         )
     )
