@@ -3,9 +3,9 @@ from django.views import View
 from django.http import Http404
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from accounts.models import User
-from organizations.models import Organization
-from projects.models import Project
+from gitsap.accounts.models import User
+from gitsap.organizations.models import Organization
+from gitsap.projects.models import Project
 
 
 class IndexView(LoginRequiredMixin, View):
