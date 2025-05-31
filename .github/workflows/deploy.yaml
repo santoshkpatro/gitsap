@@ -1,0 +1,37 @@
+name: Deploy to Gitsap Try Server
+
+on:
+  push:
+    branches:
+      - try
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Setup SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Deploy via SSH and restart Gunicorn
+      env:
+        SERVER_IP: ${{ secrets.SERVER_IP }}
+      run: |
+        ssh root@$SERVER_IP << 'EOF'
+          set -e
+          cd /srv/gitsap
+          git pull origin main
+          source .venv/bin/activate
+          pip install -r requirements.txt
+          python manage.py collectstatic --noinput
+          python manage.py migrate --noinput
+          systemctl restart gitsap-server
+        EOF
+
