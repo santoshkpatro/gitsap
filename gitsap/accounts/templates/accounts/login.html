@@ -1,12 +1,25 @@
 {% extends 'accounts/base.html' %}
 
 {% block icon %}
-<i data-lucide="shield" class="mb-1" style="width: 36px; height: 36px;"></i>
+<div class="position-relative d-inline-block">
+    <i data-lucide="shield" class="mb-1" style="width: 36px; height: 36px;"></i>
+    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark small">
+        Demo
+    </span>
+</div>
 {% endblock icon %}
 
 {% block form %}
-<h5 class="fw-bold mb-1">Plan it. Ship it.</h5>
-<h5 class="text-muted mb-3">Log in to your Gitsap account</h5>
+<h5 class="fw-bold mb-1">Try it. Explore it.</h5>
+<h5 class="text-muted mb-3">Demo login to preview Gitsap</h5>
+
+<!-- Read-only disclaimer -->
+<div class="alert alert-info mt-3 small d-flex align-items-center" role="alert">
+    <i data-lucide="info" class="me-2" style="width: 16px; height: 16px;"></i>
+    <div>
+        <strong>NOTE:</strong> This is a preview-only environment. Data resets periodically. Some features may be disabled.
+    </div>
+</div>
 
 {% include 'shared/_alerts.html' %}
 
@@ -15,7 +28,9 @@
 
     <!-- Username/Email Field -->
     <div class="mb-3">
-        <label for="{{ form.username.id_for_label }}" class="form-label">Username or Email address</label>
+        <label for="{{ form.username.id_for_label }}" class="form-label">
+            <i data-lucide="user" class="me-1" style="width: 16px; height: 16px;"></i> Username or Email address
+        </label>
         {{ form.username }}
         {% if form.username.errors %}
         <div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>
@@ -24,7 +39,9 @@
 
     <!-- Password Field -->
     <div class="mb-1">
-        <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
+        <label for="{{ form.password.id_for_label }}" class="form-label">
+            <i data-lucide="lock" class="me-1" style="width: 16px; height: 16px;"></i> Password
+        </label>
         {{ form.password }}
         {% if form.password.errors %}
         <div class="text-danger small mt-1">{{ form.password.errors.0 }}</div>
@@ -33,26 +50,28 @@
 
     <!-- Forgot Password -->
     <div class="mb-3 text-end">
-        <a href="/" class="small text-decoration-none">Forgot password?</a>
+        <span class="small text-muted">Forgot password?</span>
     </div>
 
     <!-- Submit Button -->
     <div class="d-grid">
         <button type="submit" class="btn btn-primary">
-            <i data-lucide="log-in" class="me-2" style="width: 16px; height: 16px;"></i> Try
+            <i data-lucide="log-in" class="me-2" style="width: 16px; height: 16px;"></i> Login as Demo
         </button>
     </div>
 
-    <!-- Create Account -->
-    <div class="text-center mt-3">
-        <span class="small">Don't have an account?</span>
-        <a href="{% url 'accounts-register' %}" class="small text-decoration-none">Create one</a>
+    <!-- Create Account (disabled in demo) -->
+    <div class="text-center mt-3 text-muted small">
+        <i data-lucide="ban" class="me-1" style="width: 14px; height: 14px;"></i>
+        Creating new accounts is disabled in demo mode.
     </div>
 
     <!-- Terms & Privacy Disclaimer -->
     <div class="text-center text-muted small mt-4 px-2">
         By continuing, you acknowledge that you understand and agree to our
+        <i data-lucide="file-text" class="mx-1" style="width: 14px; height: 14px;"></i>
         <a href="/terms" class="text-decoration-none">Terms & Conditions</a> and
+        <i data-lucide="file-text" class="mx-1" style="width: 14px; height: 14px;"></i>
         <a href="/privacy" class="text-decoration-none">Privacy Policy</a>.
     </div>
 </form>
