@@ -35,5 +35,6 @@ jobs:
           python manage.py collectstatic --noinput
           python manage.py migrate --noinput
           systemctl restart gitsap-server
+          systemctl reload nginx
         EOF
 
