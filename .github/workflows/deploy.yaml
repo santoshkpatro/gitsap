@@ -19,6 +19,8 @@ jobs:
 
     - name: Checkout code
       uses: actions/checkout@v3
+      with:
+        ref: try
 
     - name: Deploy via SSH and restart Gunicorn
       env:
