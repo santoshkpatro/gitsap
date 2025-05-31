@@ -22,14 +22,15 @@ jobs:
       with:
         ref: try
 
-    - name: Deploy via SSH and restart Gunicorn
+    - name: Deploy via SSH and restart Gunicorn and Nginx
       env:
         SERVER_IP: ${{ secrets.SERVER_IP }}
       run: |
         ssh root@$SERVER_IP << 'EOF'
           set -e
           cd /srv/gitsap
-          git pull origin main
+          git checkout try
+          git pull origin try
           source .venv/bin/activate
           pip install -r requirements.txt
           python manage.py collectstatic --noinput
