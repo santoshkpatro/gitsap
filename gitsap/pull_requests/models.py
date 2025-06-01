@@ -31,6 +31,12 @@ class PullRequest(BaseUUIDModel):
     source_branch = models.CharField(max_length=255)
     target_branch = models.CharField(max_length=255)
 
+    assignees = models.ManyToManyField(
+        "accounts.User",
+        through="PullRequestAssignee",
+        related_name="pull_requests_assigned",
+    )
+
     class Meta:
         db_table = "pull_requests"
         ordering = ["-created_at"]

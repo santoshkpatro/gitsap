@@ -173,9 +173,18 @@
     <div class="col-3">
         <div class="p-2 mb-3">
             <h6 class="text-muted mb-2 d-flex align-items-center gap-1">
-                <i data-lucide="user" style="width: 16px;"></i> Assignees
+                <i data-lucide="user" style="width: 16px"></i> Assignees
             </h6>
+            {% if assignees %}
+            {% for user in assignees %}
+            <div class="small d-flex align-items-center gap-1 mb-1">
+                <i data-lucide="circle-user-round" style="width: 14px"></i>
+                <span>{{ user.name }}</span>
+            </div>
+            {% endfor %}
+            {% else %}
             <div class="small text-muted">Unassigned</div>
+            {% endif %}
         </div>
 
         <div class="p-2">
