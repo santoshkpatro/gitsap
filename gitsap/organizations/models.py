@@ -8,6 +8,12 @@ class Organization(BaseUUIDModel):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     description = models.TextField(blank=True, null=True)
+    created_by = models.ForeignKey(
+        "accounts.User",
+        on_delete=models.SET_NULL,
+        related_name="created_organizations",
+        null=True,
+    )
 
     members = models.ManyToManyField(
         "accounts.User",
