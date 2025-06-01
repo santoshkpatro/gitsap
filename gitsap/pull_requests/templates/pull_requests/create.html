@@ -2,10 +2,7 @@
 {% load static %}
 
 {% block styles %}
-<link
-        rel="stylesheet"
-        href="{% static 'shared/css/components/markdown_editor.css' %}"
-/>
+<link rel="stylesheet" href="{% static 'shared/css/components/markdown_editor.css' %}" />
 <style>
     .diff-block {
         font-family: Menlo, Monaco, Consolas, monospace;
@@ -102,9 +99,7 @@
 {% block content %}
 <div class="container mt-2">
     <!-- Header -->
-    <div
-            class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2"
-    >
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
         <h5 class="fw-semibold d-flex align-items-center gap-2 mb-0">
             Open a pull request
         </h5>
@@ -118,34 +113,21 @@
 
                 <!-- Target Branch -->
                 <div class="dropdown">
-                    <button
-                            class="btn btn-sm btn-light dropdown-toggle d-flex align-items-center gap-1"
-                            type="button"
-                            data-bs-toggle="dropdown"
-                    >
+                    <button class="btn btn-sm btn-light dropdown-toggle d-flex align-items-center gap-1" type="button"
+                        data-bs-toggle="dropdown">
                         <span class="text-secondary">target:</span> {{ target_branch }}
                     </button>
                     <ul class="dropdown-menu">
                         <h6 class="dropdown-header">Branches</h6>
                         {% for branch in project.repo_branches %}
                         <li>
-                            <a
-                                    class="dropdown-item d-flex justify-content-between align-items-center"
-                                    href="?source={{ source_branch }}&target={{ branch }}"
-                            >
+                            <a class="dropdown-item d-flex justify-content-between align-items-center"
+                                href="?source={{ source_branch }}&target={{ branch }}">
                                 <div class="d-flex align-items-center gap-2">
                                     {% if branch == target_branch %}
-                                    <i
-                                            data-lucide="check"
-                                            class="text-success"
-                                            style="width: 16px"
-                                    ></i>
+                                    <i data-lucide="check" class="text-success" style="width: 16px"></i>
                                     {% else %}
-                                    <i
-                                            data-lucide="git-branch"
-                                            class="text-muted"
-                                            style="width: 16px"
-                                    ></i>
+                                    <i data-lucide="git-branch" class="text-muted" style="width: 16px"></i>
                                     {% endif %}
                                     <span>{{ branch }}</span>
                                 </div>
@@ -163,34 +145,21 @@
 
                 <!-- Source Branch -->
                 <div class="dropdown">
-                    <button
-                            class="btn btn-sm btn-light dropdown-toggle d-flex align-items-center gap-1"
-                            type="button"
-                            data-bs-toggle="dropdown"
-                    >
+                    <button class="btn btn-sm btn-light dropdown-toggle d-flex align-items-center gap-1" type="button"
+                        data-bs-toggle="dropdown">
                         <span class="text-secondary">source:</span> {{ source_branch }}
                     </button>
                     <ul class="dropdown-menu">
                         <h6 class="dropdown-header">Branches</h6>
                         {% for branch in project.repo_branches %}
                         <li>
-                            <a
-                                    class="dropdown-item d-flex justify-content-between align-items-center"
-                                    href="?source={{ branch }}&target={{ target_branch }}"
-                            >
+                            <a class="dropdown-item d-flex justify-content-between align-items-center"
+                                href="?source={{ branch }}&target={{ target_branch }}">
                                 <div class="d-flex align-items-center gap-2">
                                     {% if branch == source_branch %}
-                                    <i
-                                            data-lucide="check"
-                                            class="text-success"
-                                            style="width: 16px"
-                                    ></i>
+                                    <i data-lucide="check" class="text-success" style="width: 16px"></i>
                                     {% else %}
-                                    <i
-                                            data-lucide="git-branch"
-                                            class="text-muted"
-                                            style="width: 16px"
-                                    ></i>
+                                    <i data-lucide="git-branch" class="text-muted" style="width: 16px"></i>
                                     {% endif %}
                                     <span>{{ branch }}</span>
                                 </div>
@@ -208,12 +177,8 @@
             <!-- Additions / Deletions -->
             {% if total_additions or total_deletions %}
             <div class="d-flex align-items-center gap-2 text-muted small">
-        <span class="text-success"
-        ><i data-lucide="plus"></i> {{ total_additions }} additions</span
-        >
-                <span class="text-danger"
-                ><i data-lucide="minus"></i> {{ total_deletions }} deletions</span
-                >
+                <span class="text-success"><i data-lucide="plus"></i> {{ total_additions }} additions</span>
+                <span class="text-danger"><i data-lucide="minus"></i> {{ total_deletions }} deletions</span>
             </div>
             {% endif %}
         </div>
@@ -221,12 +186,10 @@
 
     {% if not diffs %}
     <div class="d-flex justify-content-center mt-5">
-        <div
-                class="text-center text-muted d-flex flex-column align-items-center gap-2"
-        >
+        <div class="text-center text-muted d-flex flex-column align-items-center gap-2">
             <i data-lucide="git-pull-request" style="width: 28px; height: 28px"></i>
             <div>
-                <strong>There isn’t anything to compare.</strong><br/>
+                <strong>There isn’t anything to compare.</strong><br />
                 Choose two different branches to see what’s changed or to start a new
                 pull request.
             </div>
@@ -236,18 +199,13 @@
 
     <!-- Commit List -->
     {% if commits %}
-    <form
-            method="post"
-            action="{% url 'pull-request-create' namespace=project.namespace handle=project.handle %}"
-    >
+    <form method="post" action="{% url 'pull-request-create' namespace=project.namespace handle=project.handle %}">
         {% csrf_token %}
         <div class="row g-4">
             <!-- Left Column: Title + Editor -->
             <div class="col-md-9">
                 <div class="mb-3">
-                    <label
-                            class="form-label d-flex align-items-center gap-1 fw-semibold small"
-                    >
+                    <label class="form-label d-flex align-items-center gap-1 fw-semibold small">
                         <i data-lucide="type"></i> Title
                     </label>
                     {{ form.title }}
@@ -262,24 +220,16 @@
                 {{ form.target_branch }}
 
                 <div class="mb-3">
-                    <label
-                            class="form-label d-flex align-items-center gap-1 fw-semibold small"
-                    >
+                    <label class="form-label d-flex align-items-center gap-1 fw-semibold small">
                         <i data-lucide="file-text"></i> Description
                     </label>
 
-                    <!-- @formatter:off -->
                     {% include "shared/components/markdown_editor.html" with field_name="description" placeholder="Write issue description" %}
-                    <!-- @formatter:on -->
-
                 </div>
 
                 <!-- Submit Button -->
                 <div class="d-flex justify-content-end mt-4">
-                    <button
-                            type="submit"
-                            class="btn btn-primary btn-sm d-flex align-items-center gap-2"
-                    >
+                    <button type="submit" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
                         <i data-lucide="git-pull-request"></i> Open pull request
                     </button>
                 </div>
@@ -289,25 +239,43 @@
             <div class="col-md-3">
                 <div class="p-3">
                     <div class="mb-3">
-                        <label
-                                class="form-label fw-semibold small d-flex align-items-center gap-1"
-                        >
+                        <label class="form-label fw-semibold small d-flex align-items-center gap-1">
                             <i data-lucide="user-plus"></i> Assignees
                         </label>
-                        <div class="text-muted small">No assignees</div>
+
+                        <div class="smart-multiselect" data-dropdown="#assignee-dropdown" data-pills="#assignee-pills"
+                            data-select="#assignee-hidden-select">
+                            <div id="assignee-pills" class="d-flex flex-wrap gap-2"></div>
+
+                            <div class="dropdown">
+                                <button class="btn btn-link p-0 text-decoration-none" type="button"
+                                    data-bs-toggle="dropdown">
+                                    Select assignees...
+                                </button>
+                                <ul class="dropdown-menu" id="assignee-dropdown">
+                                    {% for user in form.fields.assignees.queryset %}
+                                    <li>
+                                        <a class="dropdown-item" href="#" data-id="{{ user.id }}"
+                                            data-name="{{ user.name }}">
+                                            {{ user.name }}
+                                        </a>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+
+                            <select id="assignee-hidden-select" name="assignees" multiple hidden></select>
+                        </div>
                     </div>
+
                     <div class="mb-3">
-                        <label
-                                class="form-label fw-semibold small d-flex align-items-center gap-1"
-                        >
+                        <label class="form-label fw-semibold small d-flex align-items-center gap-1">
                             <i data-lucide="tag"></i> Labels
                         </label>
                         <div class="text-muted small">None yet</div>
                     </div>
                     <div class="mb-3">
-                        <label
-                                class="form-label fw-semibold small d-flex align-items-center gap-1"
-                        >
+                        <label class="form-label fw-semibold small d-flex align-items-center gap-1">
                             <i data-lucide="flag"></i> Milestone
                         </label>
                         <div class="text-muted small">No milestone</div>
@@ -332,20 +300,12 @@
                     {{ commit.message }}
                 </div>
                 <div class="commit-meta">
-                    <i
-                            data-lucide="user"
-                            class="me-1"
-                            style="width: 14px; height: 14px"
-                    ></i>
+                    <i data-lucide="user" class="me-1" style="width: 14px; height: 14px"></i>
                     {{ commit.author_name }} &lt;{{ commit.author_email }}&gt;
                     <span class="ms-2">
-            <i
-                    data-lucide="clock"
-                    class="me-1"
-                    style="width: 14px; height: 14px"
-            ></i>
-            {{ commit.timestamp|date:"M d, Y H:i" }}
-          </span>
+                        <i data-lucide="clock" class="me-1" style="width: 14px; height: 14px"></i>
+                        {{ commit.timestamp|date:"M d, Y H:i" }}
+                    </span>
                 </div>
             </li>
             {% endfor %}
@@ -369,8 +329,7 @@
         <div class="diff-lines">
             {% for line in file.lines %}
             <div
-                    class="diff-line {% if line.type == 'added' %}diff-added {% elif line.type == 'deleted' %}diff-deleted {% else %}diff-context {% endif %}"
-            >
+                class="diff-line {% if line.type == 'added' %}diff-added {% elif line.type == 'deleted' %}diff-deleted {% else %}diff-context {% endif %}">
                 <div class="ln">{{ line.lineno_new|default:"" }}</div>
                 <div class="marker">
                     {% if line.type == 'added' %}
@@ -391,9 +350,6 @@
 {% endblock content %}
 
 {% block scripts %}
-<script
-        src="{% static 'shared/js/components/markdown_editor.js' %}"
-        type="module"
-></script>
+<script src="{% static 'shared/js/components/markdown_editor.js' %}" type="module"></script>
 
 {% endblock scripts %}

@@ -1,6 +1,7 @@
 from django import forms
 from django.utils.html import strip_tags
 
+from gitsap.accounts.models import User
 
 class PullRequestCreateForm(forms.Form):
     title = forms.CharField(
@@ -27,6 +28,17 @@ class PullRequestCreateForm(forms.Form):
     )
     target_branch = forms.CharField(
         widget=forms.HiddenInput(attrs={"class": "form-control"}), required=True
+    )
+    assignees = forms.ModelMultipleChoiceField(
+        queryset=User.objects.none(),  # We'll set this in the view
+        required=False,
+        widget=forms.SelectMultiple(
+            attrs={
+                "hidden": True,
+                "id": "user-hidden-select",  # consistent with data-select
+            }
+        ),
+        label="Assignees",
     )
 
     def clean_description(self):
