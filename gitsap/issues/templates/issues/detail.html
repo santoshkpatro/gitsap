@@ -80,8 +80,7 @@
 </style>
 <link
   rel="stylesheet"
-  href="{% static 'shared/css/components/markdown_editor.css' %}"
-/>
+  href="{% static 'shared/css/components/markdown_editor.css' %}" />
 {% endblock styles %}
 
 <!-- prettier-ignore -->
@@ -102,16 +101,14 @@
       <div class="d-flex align-items-center gap-3 flex-wrap small text-muted">
         <span
           class="badge d-inline-flex align-items-center gap-1 py-1 px-2 {% if issue.status == 'open' %}bg-primary text-white{% else %}bg-secondary text-white{% endif %}"
-          style="font-size: 0.85rem"
-        >
+          style="font-size: 0.85rem">
           {% if issue.status == 'open' %}
           <i data-lucide="circle-dot" style="width: 14px; height: 14px"></i>
           {% else %}
           <i data-lucide="check-circle-2" style="width: 14px; height: 14px"></i>
           {% endif %} {{ issue.get_status_display }}
         </span>
-        <span
-          >created {{ issue.created_at|naturaltime }} by
+        <span>created {{ issue.created_at|naturaltime }} by
           <strong>{{ issue.author.username }}</strong>
         </span>
       </div>
@@ -123,19 +120,14 @@
       <div class="timeline">
         <div class="timeline-entry">
           <div
-            class="timeline-icon {% if issue.status == 'closed' %}text-secondary{% else %}text-primary{% endif %}"
-          >
+            class="timeline-icon {% if issue.status == 'closed' %}text-secondary{% else %}text-primary{% endif %}">
             <i data-lucide="file-volume-2" class="lucide"></i>
           </div>
           <div class="timeline-body w-100">
             <div class="timeline-line">
-              <span
-                ><strong>{{ issue.author.username }}</strong> added a summary to
-                the issue.</span
-              >
-              <span class="timeline-time"
-                >{{ issue.created_at|naturaltime }}</span
-              >
+              <span><strong>{{ issue.author.username }}</strong> added a summary to
+                the issue.</span>
+              <span class="timeline-time">{{ issue.created_at|naturaltime }}</span>
             </div>
             <div class="timeline-note">{{ issue.summary_html|safe }}</div>
           </div>
@@ -144,8 +136,7 @@
         {% for activity in activities %}
         <div class="timeline-entry">
           <div
-            class="timeline-icon {% if issue.status == 'closed' %}text-secondary{% else %}text-primary{% endif %}"
-          >
+            class="timeline-icon {% if issue.status == 'closed' %}text-secondary{% else %}text-primary{% endif %}">
             {% if activity.activity_type == 'comment' %}
             <i data-lucide="message-square" class="lucide"></i>
             {% else %}
@@ -155,19 +146,15 @@
           <div class="timeline-body w-100">
             <div class="timeline-line">
               {% if activity.activity_type == 'comment' %}
-              <span
-                ><strong>{{ activity.author.username }}</strong>
-                commented.</span
-              >
+              <span><strong>{{ activity.author.username }}</strong>
+                commented.</span>
               {% else %}
               <span>
                 <strong> {{ activity.author.username }} </strong>
                 {{ activity.content_html|safe }}
               </span>
               {% endif %}
-              <span class="timeline-time"
-                >{{ activity.created_at|naturaltime }}</span
-              >
+              <span class="timeline-time">{{ activity.created_at|naturaltime }}</span>
             </div>
             {% if activity.activity_type == 'comment' %}
             <div class="timeline-note">{{ activity.content_html|safe }}</div>
@@ -178,16 +165,14 @@
 
         <div class="timeline-entry">
           <div
-            class="timeline-icon {% if issue.status == 'closed' %}text-secondary{% else %}text-primary{% endif %}"
-          >
+            class="timeline-icon {% if issue.status == 'closed' %}text-secondary{% else %}text-primary{% endif %}">
             <i data-lucide="message-circle-more" class="lucide"></i>
           </div>
           <div class="timeline-body w-100">
             {% if request.user.is_authenticated %}
             <form
               action="{% url 'issue-comment-create' namespace=project.namespace handle=project.handle issue_number=issue.issue_number %}"
-              method="post"
-            >
+              method="post">
               {% csrf_token %}
               <!-- prettier-ignore -->
               {% include "shared/components/markdown_editor.html" with field_name="content" placeholder="Add issue comment" rows=4 %}
@@ -199,25 +184,21 @@
                 {% if issue.status == 'open' %}
                 <a
                   class="btn btn-light btn-sm"
-                  href="{% url 'issue-close' namespace=project.namespace handle=project.handle issue_number=issue.issue_number %}"
-                >
+                  href="{% url 'issue-close' namespace=project.namespace handle=project.handle issue_number=issue.issue_number %}">
                   <i
                     data-lucide="x-octagon"
                     class="me-1"
-                    style="width: 16px"
-                  ></i>
+                    style="width: 16px"></i>
                   Close Issue
                 </a>
                 {% else %}
                 <a
                   class="btn btn-light btn-sm"
-                  href="{% url 'issue-reopen' namespace=project.namespace handle=project.handle issue_number=issue.issue_number %}"
-                >
+                  href="{% url 'issue-reopen' namespace=project.namespace handle=project.handle issue_number=issue.issue_number %}">
                   <i
                     data-lucide="rotate-ccw"
                     class="me-1"
-                    style="width: 16px"
-                  ></i>
+                    style="width: 16px"></i>
                   Re-Open Issue
                 </a>
                 {% endif %}
@@ -226,8 +207,7 @@
             {% else %}
             <div
               class="alert alert-light d-flex align-items-center gap-2 small mt-2"
-              role="alert"
-            >
+              role="alert">
               <i data-lucide="log-in" style="width: 16px"></i>
               Please
               <a href="{% url 'accounts-login' %}" class="ms-1">login</a> to add
@@ -269,6 +249,5 @@
 {% block scripts %}
 <script
   src="{% static 'shared/js/components/markdown_editor.js' %}"
-  type="module"
-></script>
+  type="module"></script>
 {% endblock scripts %}

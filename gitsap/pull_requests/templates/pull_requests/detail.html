@@ -73,31 +73,9 @@
         gap: 0.4rem;
         flex-wrap: wrap;
     }
-
-    .ql-toolbar.ql-snow {
-        border-radius: 0.375rem 0.375rem 0 0;
-        border-color: #ced4da;
-        background-color: #f8f9fa;
-    }
-
-    .ql-container.ql-snow {
-        border-radius: 0 0 0.375rem 0.375rem;
-        border-color: #ced4da;
-        font-size: 0.95rem;
-    }
-
-    #editor {
-        min-height: 100px;
-    }
-
-    .ql-editor.ql-blank::before {
-        font-style: normal;
-        color: #6c757d;
-        font-size: 0.9rem;
-        left: 1rem;
-    }
 </style>
 
+<link rel="stylesheet" href="{% static 'shared/css/components/markdown_editor.css' %}" />
 <link rel="stylesheet" href="{% static 'pull_requests/css/diff.css' %}">
 {% endblock styles %}
 
@@ -181,33 +159,7 @@
 {% endblock content %}
 
 {% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
-<script>
-    const quill = new Quill('#editor', {
-        theme: 'snow',
-        placeholder: 'Describe your comment...',
-        modules: {
-            toolbar: [
-                [{ header: [1, 2, false] }],
-                ['bold', 'italic', 'underline', 'code'],
-                [{ list: 'ordered' }, { list: 'bullet' }],
-                ['link', 'blockquote', 'code-block'],
-                ['clean']
-            ]
-        }
-    });
-
-    const hidden = document.querySelector('textarea[name="content_html"]');
-    window.addEventListener('DOMContentLoaded', () => {
-        if (hidden.value.trim()) {
-            quill.root.innerHTML = hidden.value;
-        }
-    });
-
-    quill.on('text-change', function () {
-        hidden.value = quill.root.innerHTML;
-    });
-</script>
+<script src="{% static 'shared/js/components/markdown_editor.js' %}" type="module"></script>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
