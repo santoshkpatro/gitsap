@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     "gitsap.pull_requests",
     "gitsap.shared",
     "gitsap.organizations",
+    "gitsap.attachments",
 ]
 
 MIDDLEWARE = [
