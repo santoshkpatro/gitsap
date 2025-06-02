@@ -33,3 +33,9 @@ class ProjectCreateForm(forms.Form):
             }
         ),
     )
+
+    owner = forms.ChoiceField(
+        label="Owner",
+        choices=[],  # We'll populate this from the view
+        widget=forms.Select(attrs={"class": "form-select"}),
+    )

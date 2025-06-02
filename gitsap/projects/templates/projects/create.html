@@ -13,17 +13,29 @@
         <!-- Form-wide non-field errors -->
         {% include 'shared/_alerts.html' %}
 
-        <!-- Project Name -->
+        <!-- Owner and Project Name -->
         <div class="mb-3">
-            <label class="form-label">{{ form.name.label }}</label>
-            {{ form.name }}
-            <div class="form-text ms-1">
-                gitsap.com/{{ request.user.username }}/<strong id="handle">hello</strong>
+            <div class="d-flex gap-2">
+                <!-- Owner -->
+                <div style="min-width: 180px;">
+                    <label class="form-label">{{ form.owner.label }}</label>
+                    {{ form.owner }}
+                </div>
+
+                <!-- Project Name -->
+                <div class="flex-grow-1">
+                    <label class="form-label">{{ form.name.label }}</label>
+                    {{ form.name }}
+                    <div class="form-text ms-1">
+                        gitsap.com/<strong id="owner-preview">{{ form.owner.value|default:request.user.username }}</strong>/<strong id="handle">hello</strong>
+                    </div>
+                    {% if form.name.errors %}
+                    <div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>
+                    {% endif %}
+                </div>
             </div>
-            {% if form.name.errors %}
-            <div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>
-            {% endif %}
         </div>
+
 
         <!-- Visibility -->
         <div class="mb-3">
@@ -79,23 +91,29 @@
         return text
             .toLowerCase()
             .trim()
-            .replace(/[^a-z0-9\s-]/g, '') // Remove invalid chars
-            .replace(/\s+/g, '-')         // Replace spaces with -
-            .replace(/-+/g, '-');         // Collapse multiple dashes
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-');
     }
 
     document.addEventListener("DOMContentLoaded", function () {
         const nameInput = document.getElementById("{{ form.name.id_for_label }}");
         const handlePreview = document.getElementById("handle");
+        const ownerSelect = document.querySelector("select[name='owner']");
+        const ownerPreview = document.getElementById("owner-preview");
 
-        if (nameInput && handlePreview) {
-            nameInput.addEventListener("input", function () {
-                const slug = slugify(nameInput.value);
-                handlePreview.textContent = slug || '';
-            });
+        function updatePreview() {
+            if (nameInput && handlePreview)
+                handlePreview.textContent = slugify(nameInput.value || '');
 
-            nameInput.dispatchEvent(new Event('input'));
+            if (ownerSelect && ownerPreview)
+                ownerPreview.textContent = ownerSelect.value;
         }
+
+        nameInput?.addEventListener("input", updatePreview);
+        ownerSelect?.addEventListener("change", updatePreview);
+
+        updatePreview();  // Initial run
     });
 </script>
 {% endblock scripts %}
