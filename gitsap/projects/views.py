@@ -76,6 +76,8 @@ class ProjectCreateView(LoginRequiredMixin, View):
 
 class ProjectOverview(ProjectAccessMixin, View):
     def get(self, request, *args, **kwargs):
+        self.require_permission(request, "can_read")
+
         project = request.project
         current_ref = request.GET.get("ref", project.default_branch)
         tree_browsable_path = reverse(
@@ -133,6 +135,8 @@ class ProjectOverview(ProjectAccessMixin, View):
 
 class ProjectTreeView(ProjectAccessMixin, View):
     def get(self, request, *args, **kwargs):
+        self.require_permission(request, "can_read")
+
         project = request.project
         git_service = project.git_service
 
@@ -167,6 +171,8 @@ class ProjectTreeView(ProjectAccessMixin, View):
 
 class ProjectBlobView(ProjectAccessMixin, View):
     def get(self, request, *args, **kwargs):
+        self.require_permission(request, "can_read")
+
         project = request.project
         git_service = project.git_service
 
@@ -190,6 +196,8 @@ class ProjectBlobView(ProjectAccessMixin, View):
 
 class ProjectCommitHistoryView(ProjectAccessMixin, View):
     def get(self, request, *args, **kwargs):
+        self.require_permission(request, "can_read")
+
         project = request.project
         git_service = project.git_service
 
