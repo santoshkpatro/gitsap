@@ -56,7 +56,9 @@
         <!-- Right Area -->
         <div class="flex-grow-1 d-flex flex-column">
             <!-- Topbar -->
-            <div class="topbar d-flex align-items-center px-4 py-2 border-bottom bg-light">
+            <!-- Topbar -->
+            <div class="topbar d-flex justify-content-between align-items-center px-4 py-2 border-bottom bg-light">
+                <!-- Left Links -->
                 <div class="d-flex align-items-center gap-3 text-dark small fw-medium">
                     <a href="#" class="d-flex align-items-center gap-1 text-dark text-decoration-none">
                         <i data-lucide="home" style="width: 16px; height: 16px;"></i><span>Home</span>
@@ -67,6 +69,14 @@
                     <a href="#" class="d-flex align-items-center gap-1 text-dark text-decoration-none">
                         <i data-lucide="compass" style="width: 16px; height: 16px;"></i><span>Explore</span>
                     </a>
+                </div>
+
+                <!-- Right Profile Dropdown -->
+                <div class="d-flex align-items-center gap-3">
+                    <!-- <a href="#" class="text-muted position-relative">
+                        <i data-lucide="bell" style="width: 20px; height: 20px;"></i>
+                    </a> -->
+                    {% include 'shared/partials/_user_menu.html' %}
                 </div>
             </div>
 
