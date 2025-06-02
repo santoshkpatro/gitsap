@@ -7,9 +7,10 @@ from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
 from django.http import HttpResponse
 from django.urls import reverse
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from gitsap.accounts.models import User
-from gitsap.accounts.forms import LoginForm, RegisterForm
+from gitsap.accounts.forms import LoginForm, RegisterForm, ProfileForm
 from gitsap.accounts.tasks import send_account_verification_email, send_welcome_email
 
 
@@ -175,3 +176,20 @@ class EmailVerificationResendConfirmView(View):
             "A new verification link has been sent to your email. Please check your inbox and spam folder.",
         )
         return redirect("accounts-login")
+
+
+class ProfileView(LoginRequiredMixin, View):
+    def get(self, request):
+        user = request.user
+        form = ProfileForm(
+            data={
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "bio": user.bio,
+                "website": user.website,
+                "company": user.company,
+                "timezone": user.timezone,
+            }
+        )
+        context = {"form": form}
+        return render(request, "accounts/profile.html", context)

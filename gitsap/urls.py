@@ -9,6 +9,7 @@ from gitsap.accounts.views import (
     LogoutView,
     EmailVerificationConfirmView,
     EmailVerificationResendConfirmView,
+    ProfileView,
 )
 from gitsap.projects.views import (
     ProjectOverview,
@@ -70,6 +71,7 @@ urlpatterns = [
     path("accounts/logout/", LogoutView.as_view(), name="accounts-logout"),
     path("accounts/email-verification/re-send/", EmailVerificationResendConfirmView.as_view(), name="accounts-email-verification-resend"),
     path("accounts/email-verification/<str:uidb64>/<str:token>/", EmailVerificationConfirmView.as_view(), name="accounts-email-verification"),
+    path("accounts/profile/", ProfileView.as_view(), name="accounts-profile"),
     path("create/", ProjectCreateView.as_view(), name="project-create"),
 
     # Project endpoints
