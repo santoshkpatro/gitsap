@@ -1,5 +1,186 @@
 {% extends 'shared/account_base.html' %}
 
+{% block styles %}
+<!-- FilePond core styles -->
+<link href="https://unpkg.com/filepond@^4/dist/filepond.css" rel="stylesheet" />
+<link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet" />
+<style>
+    .filepond--root {
+        width: 132px;
+        margin: 0 auto;
+    }
+
+    .filepond-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+    }
+</style>
+
+{% endblock styles %}
+
 {% block content %}
-<div>Hello</div>
-{% endblock content %}
+<div class="container">
+    <h4 class="fw-bold mb-2">
+        Update Your Profile
+    </h4>
+
+    <hr />
+
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        <div class="row">
+            <!-- Left Section: Fields -->
+            <div class="col-md-8">
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.first_name.id_for_label }}" class="form-label d-flex align-items-center gap-2">
+                            <i data-lucide="user-circle"></i> {{ form.first_name.label }}
+                        </label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                        <div class="invalid-feedback d-block">{{ form.first_name.errors.0 }}</div>
+                        {% endif %}
+                        {% if form.first_name.help_text %}
+                        <div class="form-text">{{ form.first_name.help_text }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.last_name.id_for_label }}" class="form-label d-flex align-items-center gap-2">
+                            <i data-lucide="user-check"></i> {{ form.last_name.label }}
+                        </label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                        <div class="invalid-feedback d-block">{{ form.last_name.errors.0 }}</div>
+                        {% endif %}
+                        {% if form.last_name.help_text %}
+                        <div class="form-text">{{ form.last_name.help_text }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.bio.id_for_label }}" class="form-label d-flex align-items-center gap-2">
+                        <i data-lucide="type"></i> {{ form.bio.label }}
+                    </label>
+                    {{ form.bio }}
+                    {% if form.bio.errors %}
+                    <div class="invalid-feedback d-block">{{ form.bio.errors.0 }}</div>
+                    {% endif %}
+                    {% if form.bio.help_text %}
+                    <div class="form-text">{{ form.bio.help_text }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.website.id_for_label }}" class="form-label d-flex align-items-center gap-2">
+                        <i data-lucide="globe"></i> {{ form.website.label }}
+                    </label>
+                    {{ form.website }}
+                    {% if form.website.errors %}
+                    <div class="invalid-feedback d-block">{{ form.website.errors.0 }}</div>
+                    {% endif %}
+                    {% if form.website.help_text %}
+                    <div class="form-text">{{ form.website.help_text }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.company.id_for_label }}" class="form-label d-flex align-items-center gap-2">
+                        <i data-lucide="briefcase"></i> {{ form.company.label }}
+                    </label>
+                    {{ form.company }}
+                    {% if form.company.errors %}
+                    <div class="invalid-feedback d-block">{{ form.company.errors.0 }}</div>
+                    {% endif %}
+                    {% if form.company.help_text %}
+                    <div class="form-text">{{ form.company.help_text }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="{{ form.timezone.id_for_label }}" class="form-label d-flex align-items-center gap-2">
+                        <i data-lucide="clock"></i> {{ form.timezone.label }}
+                    </label>
+                    {{ form.timezone }}
+                    {% if form.timezone.errors %}
+                    <div class="invalid-feedback d-block">{{ form.timezone.errors.0 }}</div>
+                    {% endif %}
+                    {% if form.timezone.help_text %}
+                    <div class="form-text">{{ form.timezone.help_text }}</div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            <!-- Right Section: Avatar -->
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label for="{{ form.avatar.id_for_label }}" class="form-label d-flex align-items-center gap-2">
+                        <i data-lucide="image"></i> {{ form.avatar.label }}
+                    </label>
+
+                    <div class="filepond-wrapper">
+                        {{ form.avatar }}
+                        {% if form.avatar.errors %}
+                        <div class="invalid-feedback d-block text-center">{{ form.avatar.errors.0 }}</div>
+                        {% endif %}
+                        {% if form.avatar.help_text %}
+                        <div class="form-text text-center">{{ form.avatar.help_text }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">
+                <i data-lucide="save" class="me-1"></i>Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- FilePond core script -->
+<script src="https://unpkg.com/filepond@^4/dist/filepond.js"></script>
+<script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+<script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
+
+<script>
+
+    // Register FilePond plugins
+    FilePond.registerPlugin(
+        FilePondPluginImagePreview,
+        FilePondPluginFileValidateType,
+    );
+
+    // Turn all file input elements into ponds
+    const avatarInput = document.querySelector('input[name="{{ form.avatar.name }}"]');
+
+    if (avatarInput) {
+        FilePond.create(avatarInput, {
+            allowImagePreview: true,
+            acceptedFileTypes: ['image/*'],
+            labelIdle: 'Drag & Drop your avatar or <span class="filepond--label-action">Browse</span>',
+            imagePreviewHeight: 96,  // Smaller preview
+            imageCropAspectRatio: '1:1',
+            imageResizeTargetWidth: 96,
+            imageResizeTargetHeight: 96,
+            stylePanelLayout: 'compact circle',
+            styleLoadIndicatorPosition: 'center bottom',
+            styleButtonRemoveItemPosition: 'center bottom',
+            files: [
+                {
+                    source: '{{ user.avatar_url|safe }}',
+                }
+            ]
+        });
+    }
+</script>
+
+{% endblock scripts %}

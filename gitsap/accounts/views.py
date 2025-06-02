@@ -191,5 +191,5 @@ class ProfileView(LoginRequiredMixin, View):
                 "timezone": user.timezone,
             }
         )
-        context = {"form": form}
+        context = {"form": form, "active_tab": "profile", "user": user}
         return render(request, "accounts/profile.html", context)

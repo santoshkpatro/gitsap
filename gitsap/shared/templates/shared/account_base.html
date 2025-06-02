@@ -31,7 +31,7 @@
             </div>
 
             <ul class="nav flex-column gap-1 mt-2">
-                <li><a href="#" class="nav-link {% if active_tab == 'profile' %}active{% endif %}"><i data-lucide="user" class="icon"></i><span>Profile</span></a></li>
+                <li><a href="{% url 'accounts-profile' %}" class="nav-link {% if active_tab == 'profile' %}active{% endif %}"><i data-lucide="user" class="icon"></i><span>Profile</span></a></li>
                 <li><a href="#" class="nav-link {% if active_tab == 'account' %}active{% endif %}"><i data-lucide="settings" class="icon"></i><span>Account</span></a></li>
                 <li><a href="#" class="nav-link {% if active_tab == 'billing' %}active{% endif %}"><i data-lucide="credit-card" class="icon"></i><span>Billing</span></a></li>
                 <li><a href="#" class="nav-link {% if active_tab == 'notifications' %}active{% endif %}"><i data-lucide="bell" class="icon"></i><span>Notifications</span></a></li>
