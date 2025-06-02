@@ -1,24 +1,19 @@
 {% extends 'shared/account_base.html' %}
 
 {% block styles %}
-<!-- FilePond core styles -->
-<link href="https://unpkg.com/filepond@^4/dist/filepond.css" rel="stylesheet" />
-<link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet" />
+<link href="https://releases.transloadit.com/uppy/v4.13.3/uppy.min.css" rel="stylesheet">
 <style>
-    .filepond--root {
-        width: 132px;
-        margin: 0 auto;
+    .uppy-avatar-wrapper img {
+        cursor: pointer;
+        transition: 0.3s;
     }
 
-    .filepond-wrapper {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.25rem;
+    .uppy-avatar-wrapper img:hover {
+        opacity: 0.8;
     }
 </style>
-
 {% endblock styles %}
+
 
 {% block content %}
 <div class="container">
@@ -28,7 +23,7 @@
 
     <hr />
 
-    <form method="post" enctype="multipart/form-data" novalidate>
+    <form method="post" action="{% url 'accounts-profile' %}">
         {% csrf_token %}
         <div class="row">
             <!-- Left Section: Fields -->
@@ -119,21 +114,31 @@
             <!-- Right Section: Avatar -->
             <div class="col-md-4">
                 <div class="mb-3">
-                    <label for="{{ form.avatar.id_for_label }}" class="form-label d-flex align-items-center gap-2">
-                        <i data-lucide="image"></i> {{ form.avatar.label }}
+                    <label for="avatar-filepond" class="form-label d-flex align-items-center gap-2">
+                        <i data-lucide="image"></i> Avatar
                     </label>
 
-                    <div class="filepond-wrapper">
-                        {{ form.avatar }}
-                        {% if form.avatar.errors %}
-                        <div class="invalid-feedback d-block text-center">{{ form.avatar.errors.0 }}</div>
-                        {% endif %}
-                        {% if form.avatar.help_text %}
-                        <div class="form-text text-center">{{ form.avatar.help_text }}</div>
-                        {% endif %}
+                    <div class="uppy-avatar-wrapper position-relative text-center mb-3" style="width: 96px; margin: auto;">
+                        <!-- Avatar Preview -->
+                        <img id="avatar-preview" src="{{ user.avatar_url }}" class="rounded-circle border" width="96" height="96" style="object-fit: cover;" />
+
+                        <!-- Trigger button -->
+                        <button id="edit-avatar-btn" type="button"
+                            class="btn btn-sm btn-light position-absolute bottom-0 end-0 rounded-circle shadow-sm"
+                            style="width: 24px; height: 24px; padding: 0; display: flex; align-items: center; justify-content: center;">
+                            <i data-lucide="pencil" style="width: 14px; height: 14px;"></i>
+                        </button>
+
+                        <!-- FileInput mount point -->
+                        <div id="uppy-avatar" style="display: none;"></div>
+
+                        <!-- Hidden input rendered by Django form -->
+                        {{ form.avatar_id }}
                     </div>
+
                 </div>
             </div>
+
         </div>
 
         <div class="mt-4">
@@ -146,41 +151,63 @@
 {% endblock %}
 
 {% block scripts %}
-<!-- FilePond core script -->
-<script src="https://unpkg.com/filepond@^4/dist/filepond.js"></script>
-<script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
-<script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
+<script type="module">
+    import { Uppy, AwsS3, ThumbnailGenerator, FileInput } from "https://releases.transloadit.com/uppy/v4.13.3/uppy.min.mjs"
+    const uppy = new Uppy({
+        restrictions: {
+            maxNumberOfFiles: 1,
+            allowedFileTypes: ['image/*'],
+        },
+        autoProceed: true
+    })
 
-<script>
+    uppy.use(FileInput, {
+        target: '#uppy-avatar',
+        pretty: true,
+        inputName: 'avatar'
+    });
 
-    // Register FilePond plugins
-    FilePond.registerPlugin(
-        FilePondPluginImagePreview,
-        FilePondPluginFileValidateType,
-    );
+    uppy.use(ThumbnailGenerator);
 
-    // Turn all file input elements into ponds
-    const avatarInput = document.querySelector('input[name="{{ form.avatar.name }}"]');
+    uppy.use(AwsS3, {
+        async getUploadParameters(file) {
+            const formData = new FormData();
+            formData.append('filename', file.name);
+            formData.append('content_type', file.type);
 
-    if (avatarInput) {
-        FilePond.create(avatarInput, {
-            allowImagePreview: true,
-            acceptedFileTypes: ['image/*'],
-            labelIdle: 'Drag & Drop your avatar or <span class="filepond--label-action">Browse</span>',
-            imagePreviewHeight: 96,  // Smaller preview
-            imageCropAspectRatio: '1:1',
-            imageResizeTargetWidth: 96,
-            imageResizeTargetHeight: 96,
-            stylePanelLayout: 'compact circle',
-            styleLoadIndicatorPosition: 'center bottom',
-            styleButtonRemoveItemPosition: 'center bottom',
-            files: [
-                {
-                    source: '{{ user.avatar_url|safe }}',
+            const response = await fetch('{% url "attachment-presign-upload" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            // Set the attachment ID in hidden field
+            const hiddenInput = document.getElementById('{{ form.avatar_id.id_for_label }}');
+            if (hiddenInput) hiddenInput.value = data.id;
+
+            return {
+                method: 'PUT',
+                url: data.upload_url,
+                headers: {
+                    'Content-Type': file.type
                 }
-            ]
-        });
-    }
-</script>
+            };
+        }
+    });
 
+    uppy.on('thumbnail:generated', (file, preview) => {
+        document.getElementById('avatar-preview').src = preview;
+    });
+
+    // Trigger Uppy file input on edit icon click
+    document.getElementById('edit-avatar-btn').addEventListener('click', () => {
+        uppy.cancelAll();
+
+        document.querySelector('#uppy-avatar input[type="file"]').click();
+    });
+</script>
 {% endblock scripts %}
