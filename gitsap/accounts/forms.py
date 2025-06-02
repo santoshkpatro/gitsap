@@ -146,9 +146,4 @@ class ProfileForm(forms.Form):
         initial="UTC",
         widget=forms.Select(attrs={"class": "form-control"}),
     )
-    avatar = forms.ImageField(
-        label="Avatar",
-        help_text="Upload a square image. Max size 2MB.",
-        required=False,
-        widget=forms.ClearableFileInput(attrs={"class": "form-control-file"}),
-    )
+    avatar_id = forms.CharField(required=False, widget=forms.HiddenInput())

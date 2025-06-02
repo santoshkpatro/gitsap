@@ -7,6 +7,7 @@ from gitsap.shared.models import BaseUUIDModel
 class Attachment(BaseUUIDModel):
     file = models.FileField(upload_to="attachments/%Y/%m/%d/")
     deleted_at = models.DateTimeField(blank=True, null=True)
+    attached_at = models.DateTimeField(blank=True, null=True)
 
     # Metadata
     filename = models.CharField(max_length=255, blank=True)
@@ -35,3 +36,10 @@ class Attachment(BaseUUIDModel):
     def key(self):
         """Return the key for the attachment file."""
         return self.file.name if self.file else None
+
+    def confirm(self):
+        """Confirm the attachment by setting the attached_at timestamp."""
+        if not self.attached_at:
+            self.attached_at = timezone.now()
+            self.save(update_fields=["attached_at"])
+        return self.attached_at

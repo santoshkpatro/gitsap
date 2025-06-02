@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 
 from gitsap.home.views import IndexView
+from gitsap.attachments.views import AttachmentPresignUploadAPIView
 from gitsap.git.views import GitInfoRefsView, GitUploadPackView, GitReceivePackView
 from gitsap.accounts.views import (
     LoginView,
@@ -66,6 +67,7 @@ project_urlpatterns = [
 # fmt: off
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("attachments/presign-upload/", AttachmentPresignUploadAPIView.as_view(), name="attachment-presign-upload"),
     path("accounts/login/", LoginView.as_view(), name="accounts-login"),
     path("accounts/register/", RegisterView.as_view(), name="accounts-register"),
     path("accounts/logout/", LogoutView.as_view(), name="accounts-logout"),

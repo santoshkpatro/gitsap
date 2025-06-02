@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.contrib import messages
 from django.contrib.auth import login, logout
@@ -12,6 +12,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from gitsap.accounts.models import User
 from gitsap.accounts.forms import LoginForm, RegisterForm, ProfileForm
 from gitsap.accounts.tasks import send_account_verification_email, send_welcome_email
+from gitsap.attachments.models import Attachment
 
 
 class LoginView(View):
@@ -193,3 +194,31 @@ class ProfileView(LoginRequiredMixin, View):
         )
         context = {"form": form, "active_tab": "profile", "user": user}
         return render(request, "accounts/profile.html", context)
+
+    def post(self, request):
+        user = request.user
+        form = ProfileForm(request.POST)
+
+        if not form.is_valid():
+            messages.error(request, "Please correct the errors below and try again.")
+            context = {"form": form, "active_tab": "profile", "user": user}
+            return render(request, "accounts/profile.html", context)
+
+        print("Cleaned Data:", form.cleaned_data)
+
+        cleaned_data = form.cleaned_data
+        if user.avatar_id != cleaned_data.get("avatar_id"):
+            if user.avatar_id:
+                user.avatar.remove()
+
+        for key, value in cleaned_data.items():
+            setattr(user, key, value)
+
+        if user.avatar_id:
+            avatar = get_object_or_404(Attachment, id=user.avatar_id)
+            avatar.confirm()
+
+        user.save()
+
+        messages.success(request, "Your profile has been updated successfully.")
+        return redirect("accounts-profile")
