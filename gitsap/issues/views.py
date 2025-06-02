@@ -10,6 +10,8 @@ from gitsap.issues.forms import IssueCreateForm, IssueCommentCreateForm
 
 class IssueListView(ProjectAccessMixin, View):
     def get(self, request, *args, **kwargs):
+        self.require_permission(request, "can_read")
+
         project = request.project
         status = request.GET.get("status", "open")
         if status == "all":
@@ -32,6 +34,8 @@ class IssueListView(ProjectAccessMixin, View):
 
 class IssueCreateView(ProjectAccessMixin, View):
     def get(self, request, *args, **kwargs):
+        self.require_permission(request, "can_write")
+
         project = request.project
         form = IssueCreateForm()
         form.fields["assignees"].queryset = project.collaborators.all()
@@ -43,6 +47,8 @@ class IssueCreateView(ProjectAccessMixin, View):
         return render(request, "issues/create.html", context)
 
     def post(self, request, *args, **kwargs):
+        self.require_permission(request, "can_write")
+
         project = request.project
         form = IssueCreateForm(request.POST)
         form.fields["assignees"].queryset = project.collaborators.all()
@@ -80,6 +86,8 @@ class IssueCreateView(ProjectAccessMixin, View):
 
 class IssueDetailView(ProjectAccessMixin, View):
     def get(self, request, *args, **kwargs):
+        self.require_permission(request, "can_read")
+
         project = request.project
         issue_number = kwargs.get("issue_number")
         issue = get_object_or_404(
@@ -106,6 +114,8 @@ class IssueDetailView(ProjectAccessMixin, View):
 
 class IssueCloseView(ProjectAccessMixin, View):
     def get(self, request, *args, **kwargs):
+        self.require_permission(request, "can_write")
+
         issue_number = kwargs.get("issue_number")
         issue = get_object_or_404(
             Issue,
@@ -133,6 +143,8 @@ class IssueCloseView(ProjectAccessMixin, View):
 
 class IssueReOpenView(ProjectAccessMixin, View):
     def get(self, request, *args, **kwargs):
+        self.require_permission(request, "can_write")
+
         issue_number = kwargs.get("issue_number")
         issue = get_object_or_404(
             Issue,
@@ -160,6 +172,8 @@ class IssueReOpenView(ProjectAccessMixin, View):
 
 class IssueCommentCreateView(ProjectAccessMixin, View):
     def post(self, request, *args, **kwargs):
+        self.require_permission(request, "can_write")
+
         issue_number = kwargs.get("issue_number")
         issue = get_object_or_404(
             Issue,
