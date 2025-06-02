@@ -1,3 +1,4 @@
+import hashlib
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.utils.text import slugify
@@ -79,6 +80,12 @@ class User(BaseUUIDModel, AbstractBaseUser):
         "Is the user a member of staff?"
         # Simplest possible answer: All admins are staff
         return self.is_admin
+
+    @property
+    def avatar_url(self):
+        email = self.email.strip().lower().encode("utf-8")
+        email_hash = hashlib.md5(email).hexdigest()
+        return f"https://www.gravatar.com/avatar/{email_hash}?s=64&d=retro"
 
     @property
     def is_active(self):
