@@ -190,6 +190,7 @@ class ProfileView(LoginRequiredMixin, View):
                 "website": user.website,
                 "company": user.company,
                 "timezone": user.timezone,
+                "avatar_id": user.avatar_id,
             }
         )
         context = {"form": form, "active_tab": "profile", "user": user}
@@ -204,21 +205,7 @@ class ProfileView(LoginRequiredMixin, View):
             context = {"form": form, "active_tab": "profile", "user": user}
             return render(request, "accounts/profile.html", context)
 
-        print("Cleaned Data:", form.cleaned_data)
-
-        cleaned_data = form.cleaned_data
-        if user.avatar_id != cleaned_data.get("avatar_id"):
-            if user.avatar_id:
-                user.avatar.remove()
-
-        for key, value in cleaned_data.items():
-            setattr(user, key, value)
-
-        if user.avatar_id:
-            avatar = get_object_or_404(Attachment, id=user.avatar_id)
-            avatar.confirm()
-
-        user.save()
+        user.apply_updates(form.cleaned_data)
 
         messages.success(request, "Your profile has been updated successfully.")
         return redirect("accounts-profile")
