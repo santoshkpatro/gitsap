@@ -6,6 +6,7 @@ from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.urls import reverse
 from django.conf import settings
+from zoneinfo import available_timezones
 
 from gitsap.shared.models import BaseUUIDModel
 
@@ -30,7 +31,17 @@ class User(BaseUUIDModel, AbstractBaseUser):
     email = models.EmailField(max_length=128, unique=True)
     first_name = models.CharField(max_length=128, blank=True, null=True)
     last_name = models.CharField(max_length=128, blank=True, null=True)
-    avatar = models.ImageField(upload_to="user_avatars/", blank=True, null=True)
+    avatar = models.ForeignKey(
+        "attachments.Attachment", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    bio = models.TextField(blank=True, null=True)
+    website = models.URLField(blank=True, null=True)
+    company = models.CharField(max_length=128, blank=True, null=True)
+    timezone = models.CharField(
+        max_length=64,
+        choices=[(tz, tz) for tz in sorted(available_timezones())],
+        default="UTC",
+    )
 
     activated_at = models.DateTimeField(null=True, blank=True)
     verified_at = models.DateTimeField(null=True, blank=True)

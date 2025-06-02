@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
+from zoneinfo import available_timezones
 
 from gitsap.accounts.models import User
 
@@ -105,3 +106,42 @@ class UserChangeForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ["username", "email", "password", "first_name", "is_admin"]
+
+
+class ProfileForm(forms.Form):
+    first_name = forms.CharField(
+        label="First Name",
+        required=True,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+    last_name = forms.CharField(
+        label="Last Name",
+        required=False,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+    bio = forms.CharField(
+        label="Bio",
+        required=False,
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+    )
+    website = forms.URLField(
+        label="Website",
+        required=False,
+        widget=forms.URLInput(attrs={"class": "form-control"}),
+    )
+    company = forms.CharField(
+        label="Company",
+        required=False,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+    timezone = forms.ChoiceField(
+        label="Timezone",
+        choices=[(tz, tz) for tz in sorted(available_timezones())],
+        initial="UTC",
+        widget=forms.Select(attrs={"class": "form-control"}),
+    )
+    avatar = forms.ImageField(
+        label="Avatar",
+        required=False,
+        widget=forms.ClearableFileInput(attrs={"class": "form-control-file"}),
+    )
