@@ -52,6 +52,8 @@ class User(BaseUUIDModel, AbstractBaseUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name"]
 
+    ATTACHMENT_FIELDS = ["avatar_id"]
+
     objects = UserManager()
 
     class Meta:

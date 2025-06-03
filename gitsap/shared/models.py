@@ -1,54 +1,70 @@
 import uuid
-from django.db import models
+from django.db import models, transaction
 from django.apps import apps
-from django.shortcuts import get_object_or_404
 
 
 class BaseUUIDModel(models.Model):
     """
-    Abstract base model that provides a UUID primary key.
+    Abstract base model with UUID primary key and update helper.
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    ATTACHMENT_FIELDS = []  # List of attachment-related field names
+    # Fields that are attachments and require special handling
+    ATTACHMENT_FIELDS = []
 
     class Meta:
         abstract = True
 
     def apply_updates(self, data: dict):
         """
-        Update model fields from dict with attachment handling and minimal DB updates.
+        Update model fields from a dict.
+        Special logic is applied for fields listed in ATTACHMENT_FIELDS.
+        Returns:
+            (changed: bool, errors: list)
         """
-        Attachment = apps.get_model(
-            "attachments", "Attachment"
-        )  # app_label, model_name
+        Attachment = apps.get_model("attachments", "Attachment")
+        updated_fields = []
+        errors = []
 
-        updated = []
+        try:
+            with transaction.atomic():
+                for field, new_value in data.items():
+                    if not hasattr(self, field):
+                        continue  # Ignore unknown fields
 
-        for field, value in data.items():
-            if field in self.ATTACHMENT_FIELDS:
-                old_value = getattr(self, field, None)
-                if old_value and old_value != value:
-                    try:
-                        get_object_or_404(Attachment, id=old_value).remove()
-                    except Exception:
-                        pass
+                    old_value = getattr(self, field)
 
-                if value and value != old_value:
-                    try:
-                        get_object_or_404(Attachment, id=value).confirm()
-                    except Exception:
-                        pass
+                    if field in self.ATTACHMENT_FIELDS and old_value != new_value:
+                        # Handle old attachment removal
+                        if old_value:
+                            try:
+                                Attachment.objects.get(id=old_value).remove()
+                            except Exception as e:
+                                errors.append(
+                                    f"{field}: failed to remove old attachment: {e}"
+                                )
 
-            if getattr(self, field, None) != value:
-                setattr(self, field, value)
-                updated.append(field)
+                        # Handle new attachment confirmation
+                        if new_value:
+                            try:
+                                Attachment.objects.get(id=new_value).confirm()
+                            except Exception as e:
+                                errors.append(
+                                    f"{field}: failed to confirm new attachment: {e}"
+                                )
 
-        if updated:
-            self.save(
-                update_fields=updated + ["updated_at"]
-            )  # always update updated_at
+                    if old_value != new_value:
+                        setattr(self, field, new_value)
+                        updated_fields.append(field)
+
+                if updated_fields:
+                    self.save(update_fields=updated_fields + ["updated_at"])
+
+        except Exception as e:
+            errors.append(str(e))
+            return False, errors
+
+        return bool(updated_fields), errors
