@@ -146,4 +146,4 @@ class ProfileForm(forms.Form):
         initial="UTC",
         widget=forms.Select(attrs={"class": "form-control"}),
     )
-    avatar_id = forms.CharField(required=False, widget=forms.HiddenInput())
+    avatar_id = forms.UUIDField(required=False, widget=forms.HiddenInput())
