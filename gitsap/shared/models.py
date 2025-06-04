@@ -21,11 +21,11 @@ class BaseUUIDModel(models.Model):
     def apply_updates(self, data: dict):
         """
         Update model fields from a dict.
-        Special logic is applied for fields listed in ATTACHMENT_FIELDS.
+        Expects actual Attachment objects for ATTACHMENT_FIELDS.
+
         Returns:
             (changed: bool, errors: list)
         """
-        Attachment = apps.get_model("attachments", "Attachment")
         updated_fields = []
         errors = []
 
@@ -33,32 +33,36 @@ class BaseUUIDModel(models.Model):
             with transaction.atomic():
                 for field, new_value in data.items():
                     if not hasattr(self, field):
-                        continue  # Ignore unknown fields
+                        continue  # Skip unknown fields
 
                     old_value = getattr(self, field)
 
-                    if field in self.ATTACHMENT_FIELDS and old_value != new_value:
-                        # Handle old attachment removal
-                        if old_value:
-                            try:
-                                Attachment.objects.get(id=old_value).remove()
-                            except Exception as e:
-                                errors.append(
-                                    f"{field}: failed to remove old attachment: {e}"
-                                )
+                    if field in self.ATTACHMENT_FIELDS:
+                        if old_value != new_value:
+                            # Remove old attachment if it exists
+                            if old_value:
+                                try:
+                                    old_value.remove()
+                                except Exception as e:
+                                    errors.append(
+                                        f"{field}: failed to remove old attachment: {e}"
+                                    )
 
-                        # Handle new attachment confirmation
-                        if new_value:
-                            try:
-                                Attachment.objects.get(id=new_value).confirm()
-                            except Exception as e:
-                                errors.append(
-                                    f"{field}: failed to confirm new attachment: {e}"
-                                )
+                            # Confirm new attachment if provided
+                            if new_value:
+                                try:
+                                    new_value.confirm()
+                                except Exception as e:
+                                    errors.append(
+                                        f"{field}: failed to confirm new attachment: {e}"
+                                    )
 
-                    if old_value != new_value:
-                        setattr(self, field, new_value)
-                        updated_fields.append(field)
+                            setattr(self, field, new_value)
+                            updated_fields.append(field)
+                    else:
+                        if old_value != new_value:
+                            setattr(self, field, new_value)
+                            updated_fields.append(field)
 
                 if updated_fields:
                     self.save(update_fields=updated_fields + ["updated_at"])

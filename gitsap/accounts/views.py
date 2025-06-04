@@ -181,31 +181,27 @@ class EmailVerificationResendConfirmView(View):
 
 class ProfileView(LoginRequiredMixin, View):
     def get(self, request):
-        user = request.user
         form = ProfileForm(
-            data={
-                "first_name": user.first_name,
-                "last_name": user.last_name,
-                "bio": user.bio,
-                "website": user.website,
-                "company": user.company,
-                "timezone": user.timezone,
-                "avatar_id": user.avatar_id,
-            }
+            instance=request.user,
         )
-        context = {"form": form, "active_tab": "profile", "user": user}
+        context = {"form": form, "active_tab": "profile"}
         return render(request, "accounts/profile.html", context)
 
     def post(self, request):
-        user = request.user
         form = ProfileForm(request.POST)
 
         if not form.is_valid():
             messages.error(request, "Please correct the errors below and try again.")
-            context = {"form": form, "active_tab": "profile", "user": user}
+            context = {"form": form, "active_tab": "profile"}
             return render(request, "accounts/profile.html", context)
 
-        user.apply_updates(form.cleaned_data)
+        print("Form data:", form.cleaned_data)
 
-        messages.success(request, "Your profile has been updated successfully.")
+        changed, errors = request.user.apply_updates(form.cleaned_data)
+        if errors:
+            messages.error(
+                request, "There were errors updating your profile: " + ", ".join(errors)
+            )
+        else:
+            messages.success(request, "Your profile has been updated successfully.")
         return redirect("accounts-profile")

@@ -108,42 +108,47 @@ class UserChangeForm(forms.ModelForm):
         fields = ["username", "email", "password", "first_name", "is_admin"]
 
 
-class ProfileForm(forms.Form):
-    first_name = forms.CharField(
-        label="First Name",
-        help_text="Your given name.",
-        required=True,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
-    )
-    last_name = forms.CharField(
-        label="Last Name",
-        help_text="Optional. Your surname or family name.",
-        required=False,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
-    )
-    bio = forms.CharField(
-        label="Bio",
-        help_text="A short description about yourself.",
-        required=False,
-        widget=forms.Textarea(attrs={"class": "form-control", "rows": 3}),
-    )
-    website = forms.URLField(
-        label="Website",
-        help_text="Personal or company website (optional).",
-        required=False,
-        widget=forms.URLInput(attrs={"class": "form-control"}),
-    )
-    company = forms.CharField(
-        label="Company",
-        help_text="Your current workplace or organization.",
-        required=False,
-        widget=forms.TextInput(attrs={"class": "form-control"}),
-    )
-    timezone = forms.ChoiceField(
-        label="Timezone",
-        help_text="Set your preferred timezone.",
-        choices=[(tz, tz) for tz in sorted(available_timezones())],
-        initial="UTC",
-        widget=forms.Select(attrs={"class": "form-control"}),
-    )
-    avatar_id = forms.UUIDField(required=False, widget=forms.HiddenInput())
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = [
+            "first_name",
+            "last_name",
+            "bio",
+            "website",
+            "company",
+            "timezone",
+            "avatar",
+        ]
+        widgets = {
+            "first_name": forms.TextInput(attrs={"class": "form-control"}),
+            "last_name": forms.TextInput(attrs={"class": "form-control"}),
+            "bio": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+            "website": forms.URLInput(attrs={"class": "form-control"}),
+            "company": forms.TextInput(attrs={"class": "form-control"}),
+            "timezone": forms.Select(attrs={"class": "form-control"}),
+            "avatar": forms.HiddenInput(),
+        }
+        labels = {
+            "first_name": "First Name",
+            "last_name": "Last Name",
+            "bio": "Bio",
+            "website": "Website",
+            "company": "Company",
+            "timezone": "Timezone",
+        }
+        help_texts = {
+            "first_name": "Your given name.",
+            "last_name": "Optional. Your surname or family name.",
+            "bio": "A short description about yourself.",
+            "website": "Personal or company website (optional).",
+            "company": "Your current workplace or organization.",
+            "timezone": "Set your preferred timezone.",
+            "avatar": "Upload a profile picture (optional).",
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["timezone"].choices = [
+            (tz, tz) for tz in sorted(available_timezones())
+        ]
