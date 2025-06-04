@@ -1,200 +1,166 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- For SEO indexing -->
-    <!-- prettier-ignore -->
-    {% block meta_description %} 
-    {% endblock %}
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <link
-      rel="shortcut icon"
-      href="{% static 'shared/images/favicon.ico' %}"
-      type="image/x-icon"
-    />
-    <title>{% block title %}Gitsap{% endblock title %}</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+  <!-- For SEO indexing -->
+  <!-- prettier-ignore -->
+  {% block meta_description %}
+  {% endblock %}
 
-    <!-- Choices JS  -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"
-    />
+  <link
+    rel="shortcut icon"
+    href="{% static 'shared/images/favicon.ico' %}"
+    type="image/x-icon" />
+  <title>{% block title %}Gitsap{% endblock title %}</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
 
-    <link href="{% static 'shared/css/bootstrap.css' %}" rel="stylesheet" />
-    <link href="{% static 'shared/css/base.css' %}" rel="stylesheet" />
+  <!-- Choices JS  -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
 
-    <!-- prettier-ignore -->
-    {% block styles %} 
-    
-    {% endblock styles %}
-  </head>
+  <link href="{% static 'shared/css/bootstrap.css' %}" rel="stylesheet" />
+  <link href="{% static 'shared/css/base.css' %}" rel="stylesheet" />
 
-  <body>
-    <div class="d-flex vh-100">
-      <!-- Sidebar -->
-      <div class="sidebar d-flex flex-column p-3">
-        <!-- Navigation -->
-        <ul class="nav flex-column gap-1 mt-2">
+  <!-- prettier-ignore -->
+  {% block styles %}
+
+  {% endblock styles %}
+</head>
+
+<body>
+  <div class="d-flex vh-100">
+    <!-- Sidebar -->
+    <div class="sidebar d-flex flex-column p-3">
+      <!-- Navigation -->
+      <ul class="nav flex-column gap-1 mt-2">
+        <li>
+          <a
+            href="{% url 'project-overview' namespace=project.namespace handle=project.handle %}"
+            class="nav-link {% if active_tab == 'code' %}active{% endif %}">
+            <i data-lucide="code" class="icon"></i><span>Code</span>
+          </a>
+        </li>
+        <li>
+          <a
+            href="{% url 'issue-list' namespace=project.namespace handle=project.handle %}"
+            class="nav-link {% if active_tab == 'issues' %}active{% endif %}">
+            <i data-lucide="alert-circle" class="icon"></i>
+            <span>Issues</span>
+          </a>
+        </li>
+        <li>
+          <a
+            href="{% url 'pull-request-list' namespace=project.namespace handle=project.handle  %}"
+            class="nav-link {% if active_tab == 'pull_requests' %}active{% endif %}">
+            <i data-lucide="git-pull-request" class="icon"></i>
+            <span>Pull requests</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="nav-link"><i data-lucide="workflow" class="icon"></i><span>Pipelines</span></a>
+        </li>
+        <li>
+          <a href="#" class="nav-link"><i data-lucide="kanban" class="icon"></i><span>Work Items</span></a>
+        </li>
+        <li>
+          <a href="#" class="nav-link"><i data-lucide="library" class="icon"></i><span>Wiki</span></a>
+        </li>
+        <li>
+          <a href="#" class="nav-link"><i data-lucide="bar-chart-3" class="icon"></i><span>Insights</span></a>
+        </li>
+        <li>
+          <a href="#" class="nav-link"><i data-lucide="settings" class="icon"></i><span>Settings</span></a>
+        </li>
+      </ul>
+
+      <!-- Footer -->
+      <div class="mt-auto pt-3 border-top">
+        <ul class="nav flex-column gap-1 mt-3">
           <li>
-            <a
-              href="{% url 'project-overview' namespace=project.namespace handle=project.handle %}"
-              class="nav-link {% if active_tab == 'code' %}active{% endif %}"
-            >
-              <i data-lucide="code" class="icon"></i><span>Code</span>
-            </a>
+            <a href="#" class="nav-link"><i data-lucide="help-circle" class="icon"></i><span>Help</span></a>
           </li>
           <li>
-            <a
-              href="{% url 'issue-list' namespace=project.namespace handle=project.handle %}"
-              class="nav-link {% if active_tab == 'issues' %}active{% endif %}"
-            >
-              <i data-lucide="alert-circle" class="icon"></i>
-              <span>Issues</span>
-            </a>
-          </li>
-          <li>
-            <a
-              href="{% url 'pull-request-list' namespace=project.namespace handle=project.handle  %}"
-              class="nav-link {% if active_tab == 'pull_requests' %}active{% endif %}"
-            >
-              <i data-lucide="git-pull-request" class="icon"></i>
-              <span>Pull requests</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" class="nav-link"
-              ><i data-lucide="workflow" class="icon"></i
-              ><span>Pipelines</span></a
-            >
-          </li>
-          <li>
-            <a href="#" class="nav-link"
-              ><i data-lucide="kanban" class="icon"></i
-              ><span>Work Items</span></a
-            >
-          </li>
-          <li>
-            <a href="#" class="nav-link"
-              ><i data-lucide="library" class="icon"></i><span>Wiki</span></a
-            >
-          </li>
-          <li>
-            <a href="#" class="nav-link"
-              ><i data-lucide="bar-chart-3" class="icon"></i
-              ><span>Insights</span></a
-            >
-          </li>
-          <li>
-            <a href="#" class="nav-link"
-              ><i data-lucide="settings" class="icon"></i
-              ><span>Settings</span></a
-            >
+            <a href="#" class="nav-link"><i data-lucide="life-buoy" class="icon"></i><span>Support</span></a>
           </li>
         </ul>
-
-        <!-- Footer -->
-        <div class="mt-auto pt-3 border-top">
-          <ul class="nav flex-column gap-1 mt-3">
-            <li>
-              <a href="#" class="nav-link"
-                ><i data-lucide="help-circle" class="icon"></i
-                ><span>Help</span></a
-              >
-            </li>
-            <li>
-              <a href="#" class="nav-link"
-                ><i data-lucide="life-buoy" class="icon"></i
-                ><span>Support</span></a
-              >
-            </li>
-          </ul>
-          <div class="why-gitsap text-center mt-3 small text-muted">
-            &copy; 2025 •
-            <a href="#" class="text-muted text-decoration-none">Why Gitsap?</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right Area -->
-      <div class="flex-grow-1 d-flex flex-column">
-        <!-- Topbar -->
-        <div
-          class="topbar d-flex justify-content-between align-items-center px-4 py-2 border-bottom bg-light"
-        >
-          <!-- Left -->
-          <div class="d-flex align-items-center gap-2 text-dark fw-semibold">
-            <img
-              src="{% static 'shared/images/logo.png' %}"
-              alt="Gitsap Logo"
-              style="height: 32px; width: 32px; object-fit: contain"
-            />
-
-            <span class="small"
-              >{{ project.namespace }} / {{ project.handle }}</span
-            >
-          </div>
-
-          <!-- Right -->
-          <div class="d-flex align-items-center gap-3">
-            <form class="d-flex align-items-center">
-              <div class="input-group input-group-sm">
-                <span
-                  class="input-group-text bg-white border"
-                  style="border-right: 0"
-                >
-                  <i data-lucide="search" style="width: 16px; height: 16px"></i>
-                </span>
-                <input
-                  type="search"
-                  class="form-control border-start-0"
-                  placeholder="Search"
-                />
-              </div>
-            </form>
-            <a
-              class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1"
-              href="{% url 'project-create' %}"
-            >
-              <i data-lucide="plus" style="width: 16px; height: 16px"></i>
-              <span class="d-none d-md-inline">New</span>
-            </a>
-            <a href="#" class="text-muted position-relative">
-              <i data-lucide="bell" style="width: 20px; height: 20px"></i>
-            </a>
-            <a href="#" class="text-muted">
-              <i
-                data-lucide="user-circle"
-                style="width: 24px; height: 24px"
-              ></i>
-            </a>
-          </div>
-        </div>
-
-        <!-- Main Content -->
-        <div class="content-area">
-          {% block content %} {% endblock content %}
+        <div class="why-gitsap text-center mt-3 small text-muted">
+          &copy; 2025 •
+          <a href="#" class="text-muted text-decoration-none">Why Gitsap?</a>
         </div>
       </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="{% static 'shared/js/bootstrap.bundle.min.js' %}"></script>
-    <script src="{% static 'shared/js/lucide.min.js' %}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- Right Area -->
+    <div class="flex-grow-1 d-flex flex-column">
+      <!-- Topbar -->
+      <div
+        class="topbar d-flex justify-content-between align-items-center px-4 py-2 border-bottom bg-light">
+        <!-- Left -->
+        <div class="d-flex align-items-center gap-2 text-dark fw-semibold">
+          <img
+            src="{% static 'shared/images/logo.png' %}"
+            alt="Gitsap Logo"
+            style="height: 32px; width: 32px; object-fit: contain" />
 
-    <script>
-      lucide.createIcons();
-    </script>
-    <script src="{% static 'shared/js/base.js' %}"></script>
-    <!-- prettier-ignore -->
-    {% block scripts %}
-    {% endblock scripts %}
-  </body>
+          <span class="small">{{ project.namespace }} / {{ project.handle }}</span>
+        </div>
+
+        <!-- Right -->
+        <div class="d-flex align-items-center gap-3">
+          <form class="d-flex align-items-center">
+            <div class="input-group input-group-sm">
+              <span
+                class="input-group-text bg-white border"
+                style="border-right: 0">
+                <i data-lucide="search" style="width: 16px; height: 16px"></i>
+              </span>
+              <input
+                type="search"
+                class="form-control border-start-0"
+                placeholder="Search" />
+            </div>
+          </form>
+          <a
+            class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1"
+            href="{% url 'project-create' %}">
+            <i data-lucide="plus" style="width: 16px; height: 16px"></i>
+            <span class="d-none d-md-inline">New</span>
+          </a>
+          <a href="#" class="text-muted position-relative">
+            <i data-lucide="bell" style="width: 20px; height: 20px"></i>
+          </a>
+
+          <!-- Profile Dropdown -->
+          {% include 'shared/partials/_user_menu.html' %}
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="content-area">
+        {% block content %} {% endblock content %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="{% static 'shared/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'shared/js/lucide.min.js' %}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+  <script>
+    lucide.createIcons();
+  </script>
+  <script src="{% static 'shared/js/base.js' %}"></script>
+  <!-- prettier-ignore -->
+  {% block scripts %}
+  {% endblock scripts %}
+</body>
+
 </html>

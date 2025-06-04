@@ -26,6 +26,9 @@ class ProjectAccessMixin:
             request.project_permissions["can_read"] = True
             return super().dispatch(request, *args, **kwargs)
 
+        if project.visibility == Project.Visibility.PUBLIC:
+            request.project_permissions["can_read"] = True
+
         # 1. Owned by user
         if project.owner_type == "user" and project.user == request.user:
             request.project_permissions.update(
