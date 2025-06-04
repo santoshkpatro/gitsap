@@ -188,14 +188,11 @@ class ProfileView(LoginRequiredMixin, View):
         return render(request, "accounts/profile.html", context)
 
     def post(self, request):
-        form = ProfileForm(request.POST)
-
+        form = ProfileForm(data=request.POST)
         if not form.is_valid():
             messages.error(request, "Please correct the errors below and try again.")
             context = {"form": form, "active_tab": "profile"}
             return render(request, "accounts/profile.html", context)
-
-        print("Form data:", form.cleaned_data)
 
         changed, errors = request.user.apply_updates(form.cleaned_data)
         if errors:
