@@ -120,7 +120,7 @@
 
                     <div class="uppy-avatar-wrapper position-relative text-center mb-3" style="width: 96px; margin: auto;">
                         <!-- Avatar Preview -->
-                        <img id="avatar-preview" src="{{ user.avatar_url }}" class="rounded-circle border" width="96" height="96" style="object-fit: cover;" />
+                        <img id="avatar-preview" src="{{ request.user.avatar_url }}" class="rounded-circle border" width="96" height="96" style="object-fit: cover;" />
 
                         <!-- Trigger button -->
                         <button id="edit-avatar-btn" type="button"
@@ -133,7 +133,7 @@
                         <div id="uppy-avatar" style="display: none;"></div>
 
                         <!-- Hidden input rendered by Django form -->
-                        {{ form.avatar_id }}
+                        {{ form.avatar }}
                     </div>
 
                 </div>
@@ -186,7 +186,7 @@
             const data = await response.json();
 
             // Set the attachment ID in hidden field
-            const hiddenInput = document.getElementById('{{ form.avatar_id.id_for_label }}');
+            const hiddenInput = document.getElementById('{{ form.avatar.id_for_label }}');
             if (hiddenInput) hiddenInput.value = data.id;
 
             return {
