@@ -203,5 +203,7 @@ class ProfileView(LoginRequiredMixin, View):
                 request, "There were errors updating your profile: " + ", ".join(errors)
             )
         else:
-            messages.success(request, "Your profile has been updated successfully.")
+            messages.success(
+                request, "Profile updated successfully!", extra_tags="toast"
+            )
         return redirect("accounts-profile")

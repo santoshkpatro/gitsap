@@ -1,3 +1,9 @@
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".toast").forEach((el) => {
+    new bootstrap.Toast(el).show();
+  });
+});
+
 class SmartMultiSelect {
   constructor(root) {
     this.root = root;
