@@ -100,8 +100,7 @@ class IssueDetailView(ProjectAccessMixin, View):
             .order_by("created_at")
             .select_related("author")
         )
-        assignees = issue.assignees.all()
-
+        assignees = issue.assignees.all().select_related("avatar")
         context = {
             "issue": issue,
             "project": project,

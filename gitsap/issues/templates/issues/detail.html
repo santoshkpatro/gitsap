@@ -135,22 +135,20 @@
 
         {% for activity in activities %}
         <div class="timeline-entry">
-          <div
-            class="timeline-icon {% if issue.status == 'closed' %}text-secondary{% else %}text-primary{% endif %}">
-            {% if activity.activity_type == 'comment' %}
-            <i data-lucide="message-square" class="lucide"></i>
-            {% else %}
-            <i data-lucide="activity" class="lucide"></i>
-            {% endif %}
+          <div class="timeline-icon p-0 overflow-hidden">
+            <img
+              src="{{ activity.author.avatar_url }}"
+              alt="{{ activity.author.name }}"
+              class="rounded-circle"
+              style="width: 32px; height: 32px; object-fit: cover" />
           </div>
           <div class="timeline-body w-100">
             <div class="timeline-line">
               {% if activity.activity_type == 'comment' %}
-              <span><strong>{{ activity.author.username }}</strong>
-                commented.</span>
+              <span><strong>{{ activity.author.username }}</strong> commented.</span>
               {% else %}
               <span>
-                <strong> {{ activity.author.username }} </strong>
+                <strong>{{ activity.author.username }}</strong>
                 {{ activity.content_html|safe }}
               </span>
               {% endif %}
@@ -222,13 +220,18 @@
     <div class="col-lg-3">
       <div class="p-2 mb-3">
         <h6 class="text-muted mb-2 d-flex align-items-center gap-1">
-          <i data-lucide="user" style="width: 16px"></i> Assignees
+          <i data-lucide="circle-user-round" style="width: 16px"></i> Assignees
         </h6>
         {% if assignees %} {% for user in assignees %}
-        <div class="small d-flex align-items-center gap-1 mb-1">
-          <i data-lucide="circle-user-round" style="width: 14px"></i>
+        <div class="small d-flex align-items-center gap-2 mb-2">
+          <img
+            src="{{ user.avatar_url }}"
+            alt="{{ user.name }}"
+            class="rounded-circle"
+            style="width: 18px; height: 18px; object-fit: cover" />
           <span>{{ user.name }}</span>
         </div>
+
         {% endfor %} {% else %}
         <div class="small text-muted">Unassigned</div>
         {% endif %}
