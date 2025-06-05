@@ -77,6 +77,14 @@
     gap: 0.4rem;
     flex-wrap: wrap;
   }
+
+  .hover-underline {
+    text-decoration: none;
+  }
+
+  .hover-underline:hover {
+    text-decoration: underline;
+  }
 </style>
 <link
   rel="stylesheet"
@@ -108,8 +116,15 @@
           <i data-lucide="check-circle-2" style="width: 14px; height: 14px"></i>
           {% endif %} {{ issue.get_status_display }}
         </span>
-        <span>created {{ issue.created_at|naturaltime }} by
-          <strong>{{ issue.author.username }}</strong>
+
+        <span class="d-flex align-items-center gap-1">
+          created {{ issue.created_at|naturaltime }} by
+
+          <a href="#" class="text-muted d-flex align-items-center gap-1 text-decoration-none">
+            <img src="{{ issue.author.avatar_url }}" alt="{{ issue.author.username }}"
+              class="rounded-circle" style="width: 12px; height: 12px; object-fit: cover;" />
+            <span class="hover-underline">{{ issue.author.name }}</span>
+          </a>
         </span>
       </div>
     </div>
@@ -125,7 +140,7 @@
           </div>
           <div class="timeline-body w-100">
             <div class="timeline-line">
-              <span><strong>{{ issue.author.username }}</strong> added a summary to
+              <span><strong>{{ issue.author.name }}</strong> added a summary to
                 the issue.</span>
               <span class="timeline-time">{{ issue.created_at|naturaltime }}</span>
             </div>
@@ -145,10 +160,10 @@
           <div class="timeline-body w-100">
             <div class="timeline-line">
               {% if activity.activity_type == 'comment' %}
-              <span><strong>{{ activity.author.username }}</strong> commented.</span>
+              <span><strong>{{ activity.author.name }}</strong> commented.</span>
               {% else %}
               <span>
-                <strong>{{ activity.author.username }}</strong>
+                <strong>{{ activity.author.name }}</strong>
                 {{ activity.content_html|safe }}
               </span>
               {% endif %}
