@@ -204,3 +204,21 @@ EMAIL_HOST_PASSWORD = ""
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = False
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "no-reply@gitsap.com")
+
+
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": False,  # Keeps default loggers like Django's error log
+#     "handlers": {
+#         "console": {
+#             "level": "DEBUG",
+#             "class": "logging.StreamHandler",
+#         },
+#     },
+#     "loggers": {
+#         "django.db.backends": {
+#             "handlers": ["console"],
+#             "level": "DEBUG",  # Can be INFO to reduce noise
+#         },
+#     },
+# }

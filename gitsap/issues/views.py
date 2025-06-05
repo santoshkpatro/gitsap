@@ -22,6 +22,7 @@ class IssueListView(ProjectAccessMixin, View):
             Issue.objects.filter(project=project)
             .filter(status_filter)
             .order_by("-issue_number")
+            .select_related("author", "author__avatar")
         )
         context = {
             "issues": issues,
