@@ -18,6 +18,14 @@
     .author-link:hover {
         color: #0d6efd;
     }
+
+    .hover-underline {
+        text-decoration: none;
+    }
+
+    .hover-underline:hover {
+        text-decoration: underline;
+    }
 </style>
 {% endblock styles %}
 
@@ -92,8 +100,14 @@
                 </div>
 
                 <div class="text-muted small d-flex align-items-center gap-2">
-                    <span class="ms-4">#{{ issue.issue_number }} opened {{ issue.created_at|naturaltime }} by
-                        <a href="#" class="text-muted author-link">{{ issue.author.username }}</a>
+                    <span class="ms-4 d-flex align-items-center gap-1">
+                        #{{ issue.issue_number }} opened {{ issue.created_at|naturaltime }} by
+
+                        <a href="#" class="text-muted d-flex align-items-center gap-1 ms-1 text-decoration-none">
+                            <img src="{{ issue.author.avatar_url }}" alt="{{ issue.author.username }}"
+                                class="rounded-circle" style="width: 12px; height: 12px; object-fit: cover;" />
+                            <span class="hover-underline">{{ issue.author.name }}</span>
+                        </a>
                     </span>
 
                     {% if issue.labels.exists %}

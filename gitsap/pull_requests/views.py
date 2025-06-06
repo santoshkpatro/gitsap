@@ -9,12 +9,18 @@ from gitsap.pull_requests.forms import (
     PullRequestCreateForm,
     PullRequestMergeConfirmForm,
 )
-from gitsap.pull_requests.models import PullRequest, PullRequestActivity
+from gitsap.pull_requests.models import (
+    PullRequest,
+    PullRequestActivity,
+    PullRequestAssignee,
+)
 from gitsap.pull_requests.forms import PullRequestCommentForm
 
 
 class PullRequestListView(ProjectAccessMixin, View):
     def get(self, request, *args, **kwargs):
+        self.require_permission(request, "can_read")
+
         project = request.project
         status = request.GET.get("status", "open")
         if status == "all":
@@ -38,6 +44,8 @@ class PullRequestListView(ProjectAccessMixin, View):
 
 class PullRequestCompareView(ProjectAccessMixin, View):
     def get(self, request, *args, **kwargs):
+        self.require_permission(request, "can_write")
+
         project = request.project
         git_service = project.git_service
         source_branch = request.GET.get("source", project.default_branch)
@@ -65,6 +73,8 @@ class PullRequestCompareView(ProjectAccessMixin, View):
 
 class PullRequestCreateView(ProjectAccessMixin, View):
     def get(self, request, *args, **kwargs):
+        self.require_permission(request, "can_write")
+
         project = request.project
         git_service = project.git_service
         form = PullRequestCreateForm()
@@ -74,6 +84,7 @@ class PullRequestCreateView(ProjectAccessMixin, View):
 
         form.fields["source_branch"].initial = source_branch
         form.fields["target_branch"].initial = target_branch
+        form.fields["assignees"].queryset = project.collaborators.all()
 
         diffs = git_service.get_diff_between_branches(source_branch, target_branch)
         commits = git_service.get_commit_diff_between_refs(source_branch, target_branch)
@@ -94,8 +105,12 @@ class PullRequestCreateView(ProjectAccessMixin, View):
         return render(request, "pull_requests/create.html", context)
 
     def post(self, request, *args, **kwargs):
+        self.require_permission(request, "can_write")
+
         project = request.project
         form = PullRequestCreateForm(request.POST)
+        form.fields["assignees"].queryset = project.collaborators.all()
+
         if not form.is_valid():
             messages.error(
                 request,
@@ -108,22 +123,32 @@ class PullRequestCreateView(ProjectAccessMixin, View):
             )
 
         cleaned_data = form.cleaned_data
-        pull_request = PullRequest.objects.create(
+        assginees = cleaned_data.pop("assignees", [])
+        pull_request = PullRequest(
             **cleaned_data,
             project=project,
             author=request.user,
             status=PullRequest.Status.OPEN,
         )
-
+        pull_request.save()
+        for assignee in assginees:
+            PullRequestAssignee.objects.create(
+                pull_request=pull_request,
+                user=assignee,
+            )
+        print("Done saving pull request")
         return redirect(
-            "pull-request-list",
+            "pull-request-detail",
             namespace=project.namespace,
             handle=project.handle,
+            pull_request_number=pull_request.pull_request_number,
         )
 
 
 class PullRequestDetailView(ProjectAccessMixin, View):
     def get(self, request, *args, **kwargs):
+        self.require_permission(request, "can_read")
+
         project = request.project
         git_service = project.git_service
 
@@ -155,6 +180,7 @@ class PullRequestDetailView(ProjectAccessMixin, View):
                 )
                 context["activities"] = activities
                 context["conflicts"] = conflicts
+                context["assignees"] = pull_request.assignees.all()
             case "commits":
                 commits = git_service.get_commit_diff_between_refs(
                     pull_request.source_branch, pull_request.target_branch
@@ -183,6 +209,8 @@ class PullRequestDetailView(ProjectAccessMixin, View):
 
 class PullRequestMergeView(ProjectAccessMixin, View):
     def post(self, request, *args, **kwargs):
+        self.require_permission(request, "can_write")
+
         project = request.project
         git_service = project.git_service
         pull_request_number = kwargs.get("pull_request_number")
@@ -269,6 +297,8 @@ class PullRequestMergeView(ProjectAccessMixin, View):
 
 class PullRequestConflictsView(ProjectAccessMixin, View):
     def get(self, request, *args, **kwargs):
+        self.require_permission(request, "can_read")
+
         project = request.project
         pull_request_number = kwargs.get("pull_request_number")
         pull_request = PullRequest.objects.get(
@@ -303,6 +333,8 @@ class PullRequestConflictsView(ProjectAccessMixin, View):
 
 class PullRequestCommentCreateView(ProjectAccessMixin, View):
     def post(self, request, *args, **kwargs):
+        self.require_permission(request, "can_write")
+
         project = request.project
         pull_request_number = kwargs.get("pull_request_number")
         pull_request = PullRequest.objects.get(
@@ -328,7 +360,6 @@ class PullRequestCommentCreateView(ProjectAccessMixin, View):
             pull_request=pull_request,
             author=request.user,
             content=cleaned_data["content"],
-            content_html=cleaned_data["content_html"],
             activity_type=PullRequestActivity.ActivityType.COMMENT,
         )
 

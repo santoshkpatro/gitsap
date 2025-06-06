@@ -6,39 +6,65 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.utils.text import slugify
 from django.urls import reverse
+from django.shortcuts import get_object_or_404
 
 from gitsap.projects.models import Project
 from gitsap.projects.forms import ProjectCreateForm
 from gitsap.projects.mixins import ProjectAccessMixin
+from gitsap.organizations.models import Organization
 
 
 class ProjectCreateView(LoginRequiredMixin, View):
+    def get_owner_choices(self, user):
+        organizations = Organization.objects.filter(
+            users__user=user, users__role__in=["owner", "admin"]
+        )
+        return [(user.username, f"You ({user.username})")] + [
+            (org.slug, org.name) for org in organizations
+        ]
+
     def get(self, request, *args, **kwargs):
+        form = ProjectCreateForm()
+        form.fields["owner"].choices = self.get_owner_choices(request.user)
         context = {
-            "form": ProjectCreateForm(),
+            "form": form,
         }
         return render(request, "projects/create.html", context)
 
     def post(self, request, *args, **kwargs):
         form = ProjectCreateForm(request.POST)
+        form.fields["owner"].choices = self.get_owner_choices(request.user)
+
         context = {"form": form}
         if not form.is_valid():
             messages.error(request, "Please correct the errors below.")
             return render(request, "projects/create.html", context)
 
         cleaned_data = form.cleaned_data
+        owner_slug = cleaned_data.pop("owner")
+        project_handle = slugify(cleaned_data["name"])
+
+        # Check if the project with this handle already exists under this owner
         existing_project = Project.objects.filter(
-            user=request.user, handle=slugify(cleaned_data["name"])
+            namespace=owner_slug, handle=project_handle
         )
         if existing_project.exists():
             form.add_error("name", "You already have a project with this name.")
             return render(request, "projects/create.html", context)
 
-        project = Project(
-            **cleaned_data,
-        )
-        project.user = request.user
+        project = Project(**cleaned_data)
+        project.handle = project_handle
         project.created_by = request.user
+
+        if owner_slug == request.user.username:
+            project.user = request.user
+            project.namespace = request.user.username
+        else:
+            # Assuming user has access to orgs, otherwise return 404 or permission denied
+            organization = get_object_or_404(Organization, slug=owner_slug)
+            project.organization = organization
+            project.namespace = organization.slug
+
         project.save()
 
         return redirect(
@@ -50,6 +76,8 @@ class ProjectCreateView(LoginRequiredMixin, View):
 
 class ProjectOverview(ProjectAccessMixin, View):
     def get(self, request, *args, **kwargs):
+        self.require_permission(request, "can_read")
+
         project = request.project
         current_ref = request.GET.get("ref", project.default_branch)
         tree_browsable_path = reverse(
@@ -107,6 +135,8 @@ class ProjectOverview(ProjectAccessMixin, View):
 
 class ProjectTreeView(ProjectAccessMixin, View):
     def get(self, request, *args, **kwargs):
+        self.require_permission(request, "can_read")
+
         project = request.project
         git_service = project.git_service
 
@@ -141,6 +171,8 @@ class ProjectTreeView(ProjectAccessMixin, View):
 
 class ProjectBlobView(ProjectAccessMixin, View):
     def get(self, request, *args, **kwargs):
+        self.require_permission(request, "can_read")
+
         project = request.project
         git_service = project.git_service
 
@@ -164,6 +196,8 @@ class ProjectBlobView(ProjectAccessMixin, View):
 
 class ProjectCommitHistoryView(ProjectAccessMixin, View):
     def get(self, request, *args, **kwargs):
+        self.require_permission(request, "can_read")
+
         project = request.project
         git_service = project.git_service
 

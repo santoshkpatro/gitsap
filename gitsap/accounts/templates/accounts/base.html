@@ -3,18 +3,18 @@
 
 {% block styles %}
 <style>
-    .teal-to-white-bg {
+    .black-to-white-bg {
         background:
-            linear-gradient(to bottom, #99e3cd, #ffffff),
-            repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.1) 0px, rgba(255, 255, 255, 0.1) 1px, transparent 1px, transparent 20px),
-            repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0px, rgba(255, 255, 255, 0.1) 1px, transparent 1px, transparent 20px);
+            linear-gradient(to bottom, #111111, #ffffff),
+            repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.05) 0px, rgba(255, 255, 255, 0.05) 1px, transparent 1px, transparent 20px),
+            repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0px, rgba(255, 255, 255, 0.05) 1px, transparent 1px, transparent 20px);
         background-blend-mode: overlay;
     }
 </style>
 {% endblock styles %}
 
 {% block content %}
-<div class="position-relative min-vh-100 teal-to-white-bg">
+<div class="position-relative min-vh-100 black-to-white-bg">
 
     <!-- Logo at top-left -->
     <div class="position-absolute top-0 start-0 p-3" style="opacity: 0.75;">

@@ -147,8 +147,8 @@
                         action="{% url 'pull-request-comment-create' namespace=project.namespace handle=project.handle pull_request_number=pull_request.pull_request_number %}"
                         method="post">
                         {% csrf_token %}
-                        <div id="editor"></div>
-                        <textarea name="content_html" hidden></textarea>
+                        {% include "shared/components/markdown_editor.html" with field_name="content" placeholder="Add pull request comment" rows=4 %}
+
                         <div class="mt-2 gap-2">
                             <button class="btn btn-secondary btn-sm" type="submit">
                                 <i data-lucide="send" class="me-1" style="width:16px;"></i> Comment
@@ -173,9 +173,23 @@
     <div class="col-3">
         <div class="p-2 mb-3">
             <h6 class="text-muted mb-2 d-flex align-items-center gap-1">
-                <i data-lucide="user" style="width: 16px;"></i> Assignees
+                <i data-lucide="circle-user-round" style="width: 16px"></i> Assignees
             </h6>
+            {% if assignees %}
+            {% for user in assignees %}
+            <div class="small d-flex align-items-center gap-2 mb-2">
+                <img
+                    src="{{ user.avatar_url }}"
+                    alt="{{ user.name }}"
+                    class="rounded-circle"
+                    style="width: 18px; height: 18px; object-fit: cover" />
+                <span>{{ user.name }}</span>
+            </div>
+
+            {% endfor %}
+            {% else %}
             <div class="small text-muted">Unassigned</div>
+            {% endif %}
         </div>
 
         <div class="p-2">

@@ -18,11 +18,11 @@ from dotenv import load_dotenv
 load_dotenv()  # take environment variables from .env
 
 MESSAGE_TAGS = {
-    messages.DEBUG: "alert-secondary",
-    messages.INFO: "alert-info",
-    messages.SUCCESS: "alert-success",
-    messages.WARNING: "alert-warning",
-    messages.ERROR: "alert-danger",
+    messages.DEBUG: "secondary",
+    messages.INFO: "info",
+    messages.SUCCESS: "primary",
+    messages.WARNING: "warning",
+    messages.ERROR: "danger",
 }
 
 from pathlib import Path
@@ -51,7 +51,9 @@ DEFAULT_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.humanize",
 ]
-THIRD_PARTY_APPS = []
+THIRD_PARTY_APPS = [
+    "rest_framework",
+]
 LOCAL_APPS = [
     "gitsap.accounts",
     "gitsap.git",
@@ -61,6 +63,7 @@ LOCAL_APPS = [
     "gitsap.pull_requests",
     "gitsap.shared",
     "gitsap.organizations",
+    "gitsap.attachments",
 ]
 INSTALLED_APPS = DEFAULT_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -145,6 +148,13 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.User"
 
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ]
+}
+
 # AWS/S3 settings
 AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
@@ -195,3 +205,21 @@ EMAIL_HOST_PASSWORD = ""
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = False
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "no-reply@gitsap.com")
+
+
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": False,  # Keeps default loggers like Django's error log
+#     "handlers": {
+#         "console": {
+#             "level": "DEBUG",
+#             "class": "logging.StreamHandler",
+#         },
+#     },
+#     "loggers": {
+#         "django.db.backends": {
+#             "handlers": ["console"],
+#             "level": "DEBUG",  # Can be INFO to reduce noise
+#         },
+#     },
+# }

@@ -1,66 +1,8 @@
-class BootstrapMultiSelect {
-  constructor(rootEl) {
-    this.root = rootEl;
-    this.dropdown = document.querySelector(this.root.dataset.dropdown);
-    this.pills = document.querySelector(this.root.dataset.pills);
-    this.select = document.querySelector(this.root.dataset.select);
-    this.selected = new Map();
-
-    this.init();
-  }
-
-  init() {
-    // Handle dropdown selection
-    this.dropdown.addEventListener("click", (e) => {
-      const link = e.target.closest("a");
-      if (!link) return;
-      e.preventDefault();
-
-      const id = link.dataset.id;
-      const name = link.dataset.name;
-
-      if (!this.selected.has(id)) {
-        this.selected.set(id, name);
-        this.renderPills();
-        this.updateSelect();
-      }
-    });
-
-    // Handle pill remove
-    this.pills.addEventListener("click", (e) => {
-      if (e.target.classList.contains("btn-close")) {
-        const id = e.target.dataset.id;
-        this.selected.delete(id);
-        this.renderPills();
-        this.updateSelect();
-      }
-    });
-  }
-
-  renderPills() {
-    this.pills.innerHTML = "";
-    this.selected.forEach((name, id) => {
-      const pill = document.createElement("span");
-      pill.className =
-        "badge bg-light text-dark border rounded-pill d-flex align-items-center";
-      pill.innerHTML = `
-        <span class="me-1">${name}</span>
-        <button type="button" class="btn-close btn-close-sm ms-1" aria-label="Remove" data-id="${id}"></button>
-      `;
-      this.pills.appendChild(pill);
-    });
-  }
-
-  updateSelect() {
-    this.select.innerHTML = "";
-    this.selected.forEach((_, id) => {
-      const option = document.createElement("option");
-      option.value = id;
-      option.selected = true;
-      this.select.appendChild(option);
-    });
-  }
-}
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".toast").forEach((el) => {
+    new bootstrap.Toast(el).show();
+  });
+});
 
 class SmartMultiSelect {
   constructor(root) {
@@ -132,3 +74,19 @@ class SmartMultiSelect {
 document.querySelectorAll(".smart-multiselect").forEach((el) => {
   new SmartMultiSelect(el);
 });
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      // Does this cookie string begin with the name we want?
+      if (cookie.substring(0, name.length + 1) === name + "=") {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}

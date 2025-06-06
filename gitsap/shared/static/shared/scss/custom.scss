@@ -1,5 +1,5 @@
 // Custom.scss
-$primary: teal;
+$primary: #111827;
 
 $font-size-base: 0.9rem; // Decrease overall base font size
 
@@ -24,4 +24,4 @@ $btn-close-height: 0.75rem;
 $btn-close-padding-x: 0.25rem;
 $btn-close-padding-y: 0.25rem;
 
-@import "../../../../node_modules/bootstrap/scss/bootstrap";
+@import "../../../../../node_modules/bootstrap/scss/bootstrap";

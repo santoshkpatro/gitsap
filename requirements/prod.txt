@@ -11,3 +11,4 @@ gunicorn==23.0.0
 python-dotenv==1.1.0
 uvicorn==0.34.2
 Markdown==3.8
+djangorestframework==3.16.0

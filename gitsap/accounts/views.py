@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.contrib import messages
 from django.contrib.auth import login, logout
@@ -7,10 +7,12 @@ from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
 from django.http import HttpResponse
 from django.urls import reverse
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from gitsap.accounts.models import User
-from gitsap.accounts.forms import LoginForm, RegisterForm
+from gitsap.accounts.forms import LoginForm, RegisterForm, ProfileForm
 from gitsap.accounts.tasks import send_account_verification_email, send_welcome_email
+from gitsap.attachments.models import Attachment
 
 
 class LoginView(View):
@@ -184,3 +186,30 @@ class EmailVerificationResendConfirmView(View):
             "A new verification link has been sent to your email. Please check your inbox and spam folder.",
         )
         return redirect("accounts-login")
+
+
+class ProfileView(LoginRequiredMixin, View):
+    def get(self, request):
+        form = ProfileForm(
+            instance=request.user,
+        )
+        context = {"form": form, "active_tab": "profile"}
+        return render(request, "accounts/profile.html", context)
+
+    def post(self, request):
+        form = ProfileForm(data=request.POST)
+        if not form.is_valid():
+            messages.error(request, "Please correct the errors below and try again.")
+            context = {"form": form, "active_tab": "profile"}
+            return render(request, "accounts/profile.html", context)
+
+        changed, errors = request.user.apply_updates(form.cleaned_data)
+        if errors:
+            messages.error(
+                request, "There were errors updating your profile: " + ", ".join(errors)
+            )
+        else:
+            messages.success(
+                request, "Profile updated successfully!", extra_tags="toast"
+            )
+        return redirect("accounts-profile")
