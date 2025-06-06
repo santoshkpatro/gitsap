@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "sass:build": "sass shared/static/shared/scss/custom.scss shared/static/shared/css/bootstrap.css",
+    "sass:build": "sass gitsap/shared/static/shared/scss/custom.scss gitsap/shared/static/shared/css/bootstrap.css",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs"
