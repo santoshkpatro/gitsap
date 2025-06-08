@@ -1,5 +1,0 @@
--r prod.txt
-
-# Development dependencies
-black==25.1.0
-pre-commit==4.2.0
