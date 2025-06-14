@@ -540,3 +540,26 @@ class GitService:
         except subprocess.CalledProcessError as e:
             print("Git commit diff error:", e.stderr)
             return []
+
+    def get_workflow_content(self, commit_sha):
+        """
+        Returns the content of `.gitsap-workflow.yaml` from the root of the given commit SHA.
+        Returns None if the file is not found in the root.
+        """
+        try:
+            commit = self.repo.revparse_single(commit_sha)
+            if commit.type != pygit2.GIT_OBJECT_COMMIT:
+                return None
+
+            tree = commit.tree
+
+            for entry in tree:
+                if entry.name == ".gitsap-workflow.yaml":
+                    blob = self.repo[entry.id]
+                    return blob.data.decode("utf-8")
+
+            return None  # Not found at root
+
+        except (KeyError, ValueError, pygit2.GitError) as e:
+            print(f"Error reading .gitsap-workflow.yaml: {e}")
+            return None

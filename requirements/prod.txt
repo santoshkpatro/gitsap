@@ -12,3 +12,5 @@ python-dotenv==1.1.0
 uvicorn==0.34.2
 Markdown==3.8
 djangorestframework==3.16.0
+PyYAML==6.0.2
+docker==7.1.0

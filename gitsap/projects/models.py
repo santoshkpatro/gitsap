@@ -269,6 +269,29 @@ class Project(BaseUUIDModel):
         self.resource.name = s3_key
         self.save(update_fields=["resource"])
 
+    def get_workflow_content(self, commit_sha):
+        """
+        Returns the content of `.gitsap-workflow.yaml` from the root of the given commit SHA.
+        Returns None if the file is not found in the root.
+        """
+        repo = self.repo
+
+        try:
+            commit = repo.revparse_single(commit_sha)
+            tree = commit.tree
+
+            for entry in tree:
+                print("Tree", entry)
+                if entry.name == ".gitsap-workflow.yaml":
+                    blob = repo[entry.id]
+                    print("Blob found:", blob)
+                    return blob.data.decode("utf-8")
+
+            return None  # File not found at root
+
+        except (KeyError, ValueError, pygit2.GitError):
+            return None
+
 
 class ProjectCollaborator(BaseUUIDModel):
     class Role(models.TextChoices):

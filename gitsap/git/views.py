@@ -13,6 +13,7 @@ from django.contrib.auth import login
 
 from gitsap.accounts.models import User
 from gitsap.projects.models import Project
+from gitsap.git.tasks import dispatch_gitsap_pipeline
 
 
 class GitOpsAuthenticationMixin:
@@ -167,8 +168,31 @@ class GitReceivePackView(View):
         p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
         def stream():
+            branches = []
+
             try:
+                first_chunk = True
                 for chunk in request:
+                    if first_chunk:
+                        first_chunk = False
+
+                        # Parse only the initial pkt-lines
+                        lines = chunk.split(b"\n")
+                        for line in lines:
+                            if b"refs/heads/" in line:
+                                try:
+                                    parts = line.strip().split()
+                                    if len(parts) >= 3:
+                                        ref = parts[2]
+                                        # Handle capabilities suffix in first line
+                                        if b"\x00" in ref:
+                                            ref = ref.split(b"\x00")[0]
+                                        if ref.startswith(b"refs/heads/"):
+                                            branch = ref[len(b"refs/heads/") :].decode()
+                                            branches.append(branch)
+                                except Exception:
+                                    continue
+
                     if chunk:
                         p.stdin.write(chunk)
                 p.stdin.close()
@@ -183,6 +207,10 @@ class GitReceivePackView(View):
 
                 try:
                     project.update_cloud_resource_artifact()
+
+                    for branch in branches:
+                        # Dispatch pipeline for each branch
+                        dispatch_gitsap_pipeline.delay(project.id, branch)
                 except Exception as e:
                     print(f"Warning: Failed to update archive after push: {e}")
 
