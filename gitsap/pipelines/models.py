@@ -30,8 +30,6 @@ class Pipeline(BaseUUIDModel):
         "accounts.User",
         on_delete=models.CASCADE,
         related_name="triggered_pipelines",
-        blank=True,
-        null=True,
     )
     status = models.CharField(
         max_length=32, choices=Status.choices, default=Status.QUEUED

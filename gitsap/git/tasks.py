@@ -6,7 +6,7 @@ from gitsap.pipelines.models import Pipeline, PipelineStep, PipelineJob
 
 
 @shared_task
-def dispatch_gitsap_pipeline(project_id, ref):
+def dispatch_gitsap_pipeline(project_id, user_id, ref):
     project = Project.objects.filter(id=project_id).first()
     if not project:
         print(f"Project with ID {project_id} not found.")
@@ -22,7 +22,7 @@ def dispatch_gitsap_pipeline(project_id, ref):
     parser = GitsapWorkflowParser(content)
     workflow_data = parser.load()
 
-    print("DEBUGGING: Parsed workflow data:", workflow_data)
+    print("Parsed workflow data:", workflow_data)
 
     try:
         with transaction.atomic():
@@ -31,6 +31,7 @@ def dispatch_gitsap_pipeline(project_id, ref):
                 name=last_commit["message"],
                 source=Pipeline.Source.PUSH,
                 commit_sha=last_commit["hash"],
+                triggered_by_id=user_id,
             )
             for index, step_name in enumerate(workflow_data.get("steps", [])):
                 pipeline_step = PipelineStep.objects.create(

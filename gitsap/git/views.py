@@ -10,6 +10,7 @@ from django.http import (
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.contrib.auth import login
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from gitsap.accounts.models import User
 from gitsap.projects.models import Project
@@ -156,13 +157,46 @@ class GitUploadPackView(View):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class GitReceivePackView(View):
+class GitReceivePackView(GitOpsAuthenticationMixin, View):
     def post(self, request, *args, **kwargs):
         project = get_object_or_404(
             Project,
             handle=kwargs["handle"],
             namespace=kwargs["namespace"],
         )
+
+        auth_header = request.META.get("HTTP_AUTHORIZATION", "")
+
+        if not auth_header.startswith("Basic "):
+            return HttpResponse(
+                "Authentication required",
+                status=401,
+                headers={"WWW-Authenticate": 'Basic realm="Git Access"'},
+            )
+
+        try:
+            auth_decoded = base64.b64decode(auth_header[6:]).decode("utf-8")
+            username, password = auth_decoded.split(":", 1)
+            auth_user = User.objects.filter(username=username).first()
+            if not auth_user:
+                return HttpResponse(
+                    "Invalid authentication credentials",
+                    status=401,
+                    headers={"WWW-Authenticate": 'Basic realm="Git Access"'},
+                )
+
+            if not auth_user.check_password(password):
+                return HttpResponse(
+                    "Invalid authentication credentials",
+                    status=401,
+                    headers={"WWW-Authenticate": 'Basic realm="Git Access"'},
+                )
+        except (ValueError, UnicodeDecodeError):
+            return HttpResponse(
+                "Invalid authentication credentials",
+                status=401,
+                headers={"WWW-Authenticate": 'Basic realm="Git Access"'},
+            )
 
         cmd = ["git-receive-pack", "--stateless-rpc", project._local_git_path]
         p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -210,7 +244,7 @@ class GitReceivePackView(View):
 
                     for branch in branches:
                         # Dispatch pipeline for each branch
-                        dispatch_gitsap_pipeline.delay(project.id, branch)
+                        dispatch_gitsap_pipeline.delay(project.id, auth_user.id, branch)
                 except Exception as e:
                     print(f"Warning: Failed to update archive after push: {e}")
 
