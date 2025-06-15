@@ -75,7 +75,7 @@
                     <i data-lucide="workflow" class="text-muted me-2 mt-1" style="width: 16px; height: 16px;"></i>
                     <div class="w-100">
                         <div class="fw-semibold">
-                            <a href="#" class="text-decoration-none text-dark hover-underline">
+                            <a href="{% url 'pipeline-detail' namespace=project.namespace handle=project.handle pipeline_id=pipeline.id %}" class="text-decoration-none text-dark hover-underline">
                                 <span class="hover-underline">{{ pipeline.name|truncatechars:62 }}</span>
                             </a>
                         </div>

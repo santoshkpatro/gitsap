@@ -1,0 +1,88 @@
+{% extends 'shared/project_base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block styles %}
+{% endblock styles %}
+
+{% block content %}
+<div class="container mt-2">
+    <!-- Pipeline Header -->
+    <div class="mb-3 d-flex justify-content-between align-items-start flex-wrap gap-2">
+        <div class="flex-grow-1">
+            <h5 class="mb-1 d-flex align-items-center gap-2">
+                {{ pipeline.name }}
+                <span class="text-muted small">
+                    <code>{{ pipeline.commit_sha|slice:":8" }}</code>
+                </span>
+            </h5>
+
+            <div class="text-muted small d-flex align-items-center gap-3">
+                <span>
+                    <i data-lucide="git-branch" class="me-1" style="width: 14px; height: 14px;"></i>
+                    <code>{{ pipeline.ref }}</code>
+                </span>
+                <span>
+                    <i data-lucide="user" class="me-1" style="width: 14px; height: 14px;"></i>
+                    Triggered by {{ pipeline.triggered_by.full_name|default:pipeline.triggered_by.username }}
+                </span>
+                <span>
+                    <i data-lucide="calendar" class="me-1" style="width: 14px; height: 14px;"></i>
+                    {{ pipeline.created_at|naturaltime }}
+                </span>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <span class="badge bg-light text-dark text-uppercase">{{ pipeline.get_source_display }}</span>
+
+            <div class="d-flex align-items-center gap-1">
+                {% if pipeline.status == "success" %}
+                <i data-lucide="check-circle" class="text-success" style="width: 18px; height: 18px;"></i>
+                {% elif pipeline.status == "failed" %}
+                <i data-lucide="x-circle" class="text-danger" style="width: 18px; height: 18px;"></i>
+                {% elif pipeline.status == "cancelled" %}
+                <i data-lucide="ban" class="text-secondary" style="width: 18px; height: 18px;"></i>
+                {% elif pipeline.status == "running" %}
+                <i data-lucide="loader" class="text-primary spinning" style="width: 18px; height: 18px;"></i>
+                {% elif pipeline.status == "queued" or pipeline.status == "pending" %}
+                <i data-lucide="clock" class="text-muted" style="width: 18px; height: 18px;"></i>
+                {% else %}
+                <i data-lucide="help-circle" class="text-muted" style="width: 18px; height: 18px;"></i>
+                {% endif %}
+                <span class="small text-capitalize">{{ pipeline.get_status_display }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pipeline Tabs -->
+    <ul class="nav nav-tabs mb-3">
+        <li class="nav-item">
+            <a class="nav-link {% if current_tab == 'workflow' or not current_tab %}active{% endif %}" href="?tab=workflow">
+                <i data-lucide="activity" class="me-1" style="width: 16px; height: 16px;"></i>
+                Workflows
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if current_tab == 'jobs' %}active{% endif %}" href="?tab=jobs">
+                <i data-lucide="git-commit" class="me-1" style="width: 16px; height: 16px;"></i>
+                Jobs
+            </a>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    {% if current_tab == 'workflow' %}
+    {% include 'pipelines/pipeline_detail/_workflow.html' %}
+    {% elif current_tab == 'jobs' %}
+    {% include 'pipelines/pipeline_detail/_workflow.html' %}
+    {% else %}
+    <div class="alert alert-warning">
+        Invalid tab selected.
+    </div>
+    {% endif %}
+</div>
+{% endblock content %}
+
+{% block scripts %}
+{% endblock scripts %}
