@@ -1,0 +1,166 @@
+{% extends 'shared/project_base.html' %}
+{% load humanize %}
+
+{% block styles %}
+<style>
+    .pipeline-step-line {
+        width: 12px;
+        height: 1px;
+        background-color: #d0d7de;
+    }
+
+    .pipeline-step-icon {
+        width: 20px;
+        height: 20px;
+        background-color: #f6f8fa;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #57606a;
+    }
+
+    .avatar-sm {
+        width: 14px;
+        height: 14px;
+        height: 14px;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+
+    .hover-underline {
+        text-decoration: none;
+    }
+
+    .hover-underline:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock styles %}
+
+{% block content %}
+<div class="container mt-2">
+
+    <!-- Page Heading -->
+    <div class="d-flex align-items-center gap-2 mb-3">
+        <i data-lucide="workflow" class="text-primary" style="width: 22px; height: 22px;"></i>
+        <h5 class="mb-0 fw-semibold">Pipelines</h5>
+        <span class="text-muted small">Track and manage automated pipeline runs</span>
+    </div>
+
+    <!-- Status Filter Tabs -->
+    <ul class="nav nav-pills align-items-center mb-2">
+        <li class="nav-item">
+            <a href="{% url 'pipeline-list' namespace=project.namespace handle=project.handle %}"
+                class="nav-link py-1 px-3 small d-flex align-items-center gap-2 {% if status == 'all' %}fw-semibold bg-light text-dark{% endif %}">
+                <i data-lucide="list" style="width:14px;height:14px;" class="text-muted"></i> All
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{% url 'pipeline-list' namespace=project.namespace handle=project.handle %}?status=finished"
+                class="nav-link py-1 px-3 small d-flex align-items-center gap-2 {% if status == 'finished' %}fw-semibold bg-light text-dark{% endif %}">
+                <i data-lucide="check-circle" style="width:14px;height:14px;" class="text-success"></i> Finished
+            </a>
+        </li>
+    </ul>
+
+    <!-- Pipeline List -->
+    <ul class="list-group list-group-flush border rounded">
+        {% for pipeline in pipelines %}
+        <li class="list-group-item">
+            <div class="row align-items-center">
+
+                <!-- Left: Name + Metadata -->
+                <div class="col-md-5 d-flex">
+                    <i data-lucide="workflow" class="text-muted me-2 mt-1" style="width: 16px; height: 16px;"></i>
+                    <div class="w-100">
+                        <div class="fw-semibold">
+                            <a href="#" class="text-decoration-none text-dark hover-underline">
+                                <span class="hover-underline">{{ pipeline.name|truncatechars:62 }}</span>
+                            </a>
+                        </div>
+                        <div class="text-muted small d-flex flex-wrap gap-3 mt-1">
+                            <span class="d-flex align-items-center gap-1">
+                                <i data-lucide="git-branch" style="width: 14px; height: 14px;"></i>
+                                {{ pipeline.ref }}
+                            </span>
+                            <span class="d-flex align-items-center gap-1">
+                                <i data-lucide="zap" style="width: 14px; height: 14px;"></i>
+                                {{ pipeline.get_source_display }}
+                            </span>
+                            <span class="d-flex align-items-center gap-1">
+                                <img src="{{ pipeline.triggered_by.avatar_url }}" class="avatar-sm" alt="Avatar">
+                                {{ pipeline.triggered_by.name }}
+                            </span>
+                            <span class="d-flex align-items-center gap-1">
+                                <i data-lucide="clock" style="width: 14px; height: 14px;"></i>
+                                {{ pipeline.created_at|naturaltime }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Middle: Status Badge -->
+                <div class="col-md-3 text-center">
+                    <span class="badge rounded-pill bg-light text-dark d-inline-flex align-items-center gap-1 px-2 py-1 small">
+                        {% if pipeline.status == "success" %}
+                        <i data-lucide="check-circle" class="text-success" style="width: 14px;"></i>
+                        {% elif pipeline.status == "failed" %}
+                        <i data-lucide="x-circle" class="text-danger" style="width: 14px;"></i>
+                        {% elif pipeline.status == "running" %}
+                        <i data-lucide="loader" class="text-primary" style="width: 14px;"></i>
+                        {% elif pipeline.status == "pending" %}
+                        <i data-lucide="clock" class="text-muted" style="width: 14px;"></i>
+                        {% elif pipeline.status == "queued" %}
+                        <i data-lucide="pause-circle" class="text-muted" style="width: 14px;"></i>
+                        {% elif pipeline.status == "cancelled" %}
+                        <i data-lucide="ban" class="text-muted" style="width: 14px;"></i>
+                        {% else %}
+                        <i data-lucide="hourglass" class="text-muted" style="width: 14px;"></i>
+                        {% endif %}
+                        {{ pipeline.get_status_display }}
+                    </span>
+                </div>
+
+                <!-- Right: Hardcoded Steps -->
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center justify-content-end gap-2">
+                        {% for step in pipeline.steps.all %}
+                        <div class="d-flex align-items-center gap-1">
+                            <div class="pipeline-step-icon">
+                                {% if step.status == "success" %}
+                                <i data-lucide="check-circle" class="text-success" style="width: 14px; height: 14px;"></i>
+                                {% elif step.status == "failed" %}
+                                <i data-lucide="x-circle" class="text-danger" style="width: 14px; height: 14px;"></i>
+                                {% elif step.status == "running" %}
+                                <i data-lucide="loader" class="text-primary" style="width: 14px; height: 14px;"></i>
+                                {% elif step.status == "pending" %}
+                                <i data-lucide="clock" class="text-muted" style="width: 14px; height: 14px;"></i>
+                                {% elif step.status == "cancelled" %}
+                                <i data-lucide="ban" class="text-muted" style="width: 14px; height: 14px;"></i>
+                                {% else %}
+                                <i data-lucide="pause-circle" class="text-muted" style="width: 14px; height: 14px;"></i>
+                                {% endif %}
+                            </div>
+                            <span class="small">{{ step.name }}</span>
+                        </div>
+
+                        {% if not forloop.last %}
+                        <div class="pipeline-step-line"></div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+
+                </div>
+
+            </div>
+        </li>
+        {% empty %}
+        <li class="list-group-item text-center text-muted py-4">
+            <i data-lucide="inbox" style="width: 24px; height: 24px;" class="mb-2"></i><br>
+            No pipelines found.
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock content %}

@@ -45,11 +45,22 @@ class Pipeline(BaseUUIDModel):
 
 
 class PipelineStep(BaseUUIDModel):
+    class Status(models.TextChoices):
+        QUEUED = ("queued", "Queued")
+        PENDING = ("pending", "Pending")
+        RUNNING = ("running", "Running")
+        SUCCESS = ("success", "Success")
+        FAILED = ("failed", "Failed")
+        CANCELLED = ("cancelled", "Cancelled")
+
     pipeline = models.ForeignKey(
         "pipelines.Pipeline", on_delete=models.CASCADE, related_name="steps"
     )
     name = models.CharField(max_length=128)
     sequence = models.PositiveIntegerField()
+    status = models.CharField(
+        max_length=32, choices=Status.choices, default=Status.QUEUED
+    )
 
     class Meta:
         db_table = "pipeline_steps"

@@ -32,6 +32,7 @@ def dispatch_gitsap_pipeline(project_id, user_id, ref):
                 source=Pipeline.Source.PUSH,
                 commit_sha=last_commit["hash"],
                 triggered_by_id=user_id,
+                ref=ref,
             )
             for index, step_name in enumerate(workflow_data.get("steps", [])):
                 pipeline_step = PipelineStep.objects.create(
