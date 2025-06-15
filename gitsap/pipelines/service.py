@@ -69,5 +69,5 @@ class GitsapWorkflowParser:
 
 
 class GitsapWorkflowRunner:
-    def __init__(self, pipeline):
-        self.pipeline = pipeline
+    def __init__(self, job_id):
+        self.job_id = job_id
