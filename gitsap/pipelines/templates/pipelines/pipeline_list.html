@@ -132,14 +132,14 @@
                                 <i data-lucide="check-circle" class="text-success" style="width: 14px; height: 14px;"></i>
                                 {% elif step.status == "failed" %}
                                 <i data-lucide="x-circle" class="text-danger" style="width: 14px; height: 14px;"></i>
-                                {% elif step.status == "running" %}
-                                <i data-lucide="loader" class="text-primary" style="width: 14px; height: 14px;"></i>
-                                {% elif step.status == "pending" %}
-                                <i data-lucide="clock" class="text-muted" style="width: 14px; height: 14px;"></i>
                                 {% elif step.status == "cancelled" %}
-                                <i data-lucide="ban" class="text-muted" style="width: 14px; height: 14px;"></i>
+                                <i data-lucide="ban" class="text-secondary" style="width: 14px; height: 14px;"></i>
+                                {% elif step.status == "in_progress" %}
+                                <i data-lucide="loader" class="text-primary" style="width: 14px; height: 14px;" data-loading-icon></i>
+                                {% elif step.status == "not_started" %}
+                                <i data-lucide="clock" class="text-muted" style="width: 14px; height: 14px;"></i>
                                 {% else %}
-                                <i data-lucide="pause-circle" class="text-muted" style="width: 14px; height: 14px;"></i>
+                                <i data-lucide="help-circle" class="text-muted" style="width: 14px; height: 14px;"></i>
                                 {% endif %}
                             </div>
                             <span class="small">{{ step.name }}</span>
@@ -150,7 +150,6 @@
                         {% endif %}
                         {% endfor %}
                     </div>
-
                 </div>
 
             </div>

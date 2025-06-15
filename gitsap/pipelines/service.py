@@ -66,3 +66,8 @@ class GitsapWorkflowParser:
             self.data["jobs"].append(job)
 
         return self.data
+
+
+class GitsapWorkflowRunner:
+    def __init__(self, pipeline):
+        self.pipeline = pipeline

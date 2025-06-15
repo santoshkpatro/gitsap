@@ -19,7 +19,12 @@ class PipelineListView(ProjectAccessMixin, View):
             .select_related("triggered_by")
             .select_related("triggered_by__avatar")
             .prefetch_related(
-                Prefetch("steps", queryset=PipelineStep.objects.order_by("sequence")),
+                Prefetch(
+                    "steps",
+                    queryset=PipelineStep.objects.order_by("sequence").prefetch_related(
+                        "jobs"
+                    ),
+                ),
             )
         )
         status = request.GET.get("status", "all")

@@ -32,7 +32,7 @@ class Pipeline(BaseUUIDModel):
         related_name="triggered_pipelines",
     )
     status = models.CharField(
-        max_length=32, choices=Status.choices, default=Status.QUEUED
+        max_length=32, choices=Status.choices, default=Status.PENDING
     )
 
     class Meta:
@@ -45,22 +45,11 @@ class Pipeline(BaseUUIDModel):
 
 
 class PipelineStep(BaseUUIDModel):
-    class Status(models.TextChoices):
-        QUEUED = ("queued", "Queued")
-        PENDING = ("pending", "Pending")
-        RUNNING = ("running", "Running")
-        SUCCESS = ("success", "Success")
-        FAILED = ("failed", "Failed")
-        CANCELLED = ("cancelled", "Cancelled")
-
     pipeline = models.ForeignKey(
         "pipelines.Pipeline", on_delete=models.CASCADE, related_name="steps"
     )
     name = models.CharField(max_length=128)
     sequence = models.PositiveIntegerField()
-    status = models.CharField(
-        max_length=32, choices=Status.choices, default=Status.QUEUED
-    )
 
     class Meta:
         db_table = "pipeline_steps"
@@ -70,8 +59,43 @@ class PipelineStep(BaseUUIDModel):
     def __str__(self):
         return f"Pipeline Step -> {self.name} ({self.sequence})"
 
+    @property
+    def status(self):
+        job_statuses = [job.status for job in self.jobs.all()]
+
+        if not job_statuses:
+            return "not_started"
+
+        if all(s == PipelineJob.Status.PENDING for s in job_statuses):
+            return "not_started"
+
+        if any(s == PipelineJob.Status.FAILED for s in job_statuses):
+            return "failed"
+
+        if any(s == PipelineJob.Status.CANCELLED for s in job_statuses):
+            return "cancelled"
+
+        if all(s == PipelineJob.Status.SUCCESS for s in job_statuses):
+            return "success"
+
+        if any(
+            s in [PipelineJob.Status.RUNNING, PipelineJob.Status.QUEUED]
+            for s in job_statuses
+        ):
+            return "in_progress"
+
+        return "in_progress"
+
 
 class PipelineJob(BaseUUIDModel):
+    class Status(models.TextChoices):
+        QUEUED = ("queued", "Queued")
+        PENDING = ("pending", "Pending")
+        RUNNING = ("running", "Running")
+        SUCCESS = ("success", "Success")
+        FAILED = ("failed", "Failed")
+        CANCELLED = ("cancelled", "Cancelled")
+
     pipeline = models.ForeignKey(
         "pipelines.Pipeline", on_delete=models.CASCADE, related_name="jobs"
     )
@@ -82,6 +106,10 @@ class PipelineJob(BaseUUIDModel):
     image = models.CharField(max_length=128, blank=True, null=True)
     commands = ArrayField(base_field=models.TextField(), default=list)
     only = ArrayField(base_field=models.CharField(max_length=128), default=list)
+    log_content = models.TextField(blank=True, null=True)
+    status = models.CharField(
+        max_length=32, choices=Status.choices, default=Status.PENDING
+    )
 
     class Meta:
         db_table = "pipeline_jobs"
