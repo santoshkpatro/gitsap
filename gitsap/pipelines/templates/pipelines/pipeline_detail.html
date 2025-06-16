@@ -5,12 +5,17 @@
 {% block styles %}
 <style>
     /* Horizontal scroll container */
-    .workflow-scroll {
-        scrollbar-width: thin;
-        scroll-behavior: smooth;
+    .workflow-wrapper {
+        scrollbar-gutter: stable;
     }
 
-    /* Hover effect for job pill */
+    .workflow-scroll {
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+    }
+
+    /* Hover effect for job pill
     .job-pill {
         background-color: #f8f9fa;
         border: 1px solid #dee2e6;
@@ -21,11 +26,18 @@
         background-color: #e9ecef;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         cursor: pointer;
+    } */
+
+    a.job-pill:hover {
+        background-color: #f1f3f5;
+        box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+        transition: background-color 0.2s ease;
     }
+
 
     /* Connecting line after card */
     .connector-line-end {
-        top: 12px;
+        top: 19px;
         right: -50px;
         height: 2px;
         width: 50px;

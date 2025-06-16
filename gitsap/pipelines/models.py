@@ -3,6 +3,28 @@ from django.contrib.postgres.fields import ArrayField
 
 from gitsap.shared.models import BaseUUIDModel
 
+STEP_STATUS_ICON_MAP = {
+    "success": ("check-circle", "text-success"),
+    "failed": ("x-circle", "text-danger"),
+    "cancelled": ("ban", "text-secondary"),
+    "in_progress": ("circle-dot-dashe", "text-primary"),
+    "running": ("circle-dot-dashed", "text-primary"),
+    "queued": ("clock", "text-muted"),
+    "pending": ("clock", "text-muted"),
+    "not_started": ("clock", "text-muted"),
+    "default": ("help-circle", "text-muted"),
+}
+
+JOB_STATUS_ICON_MAP = {
+    "queued": ("clock", "text-muted"),
+    "pending": ("clock", "text-muted"),
+    "running": ("circle-dot-dashed", "text-primary"),
+    "success": ("circle-check", "text-success"),
+    "failed": ("x-circle", "text-danger"),
+    "cancelled": ("ban", "text-secondary"),
+    "default": ("help-circle", "text-muted"),
+}
+
 
 class Pipeline(BaseUUIDModel):
     class Source(models.TextChoices):
@@ -86,6 +108,14 @@ class PipelineStep(BaseUUIDModel):
 
         return "in_progress"
 
+    @property
+    def icon_name(self):
+        return STEP_STATUS_ICON_MAP.get(self.status, STEP_STATUS_ICON_MAP["default"])[0]
+
+    @property
+    def icon_class(self):
+        return STEP_STATUS_ICON_MAP.get(self.status, STEP_STATUS_ICON_MAP["default"])[1]
+
 
 class PipelineJob(BaseUUIDModel):
     class Status(models.TextChoices):
@@ -119,3 +149,11 @@ class PipelineJob(BaseUUIDModel):
 
     def __str__(self):
         return f"Pipeline Job -> {self.id}"
+
+    @property
+    def icon_name(self):
+        return JOB_STATUS_ICON_MAP.get(self.status, JOB_STATUS_ICON_MAP["default"])[0]
+
+    @property
+    def icon_class(self):
+        return JOB_STATUS_ICON_MAP.get(self.status, JOB_STATUS_ICON_MAP["default"])[1]
