@@ -1,0 +1,54 @@
+<div class="workflow-wrapper border rounded px-3 pt-2 pb-4">
+    <div class="d-flex gap-5 overflow-auto position-relative workflow-scroll" style="padding-top: 30px;">
+        {% for step in pipeline_steps %}
+        <div class="position-relative d-flex flex-column align-items-center" style="min-width: 240px;">
+            <!-- Step Card -->
+            <div class="card w-100 shadow-sm">
+                <!-- Step Header -->
+                <div class="card-header py-2 px-3 d-flex align-items-center gap-2 small fw-semibold">
+                    {% if step.status == "success" %}
+                    <i data-lucide="check-circle" class="text-success" style="width: 16px;"></i>
+                    {% elif step.status == "failed" %}
+                    <i data-lucide="x-circle" class="text-danger" style="width: 16px;"></i>
+                    {% elif step.status == "cancelled" %}
+                    <i data-lucide="ban" class="text-secondary" style="width: 16px;"></i>
+                    {% elif step.status == "in_progress" %}
+                    <i data-lucide="loader" class="spinning text-primary" style="width: 16px;"></i>
+                    {% elif step.status == "not_started" %}
+                    <i data-lucide="clock" class="text-muted" style="width: 16px;"></i>
+                    {% else %}
+                    <i data-lucide="help-circle" class="text-muted" style="width: 16px;"></i>
+                    {% endif %}
+                    {{ step.name }}
+                </div>
+
+                <!-- Jobs List -->
+                <div class="card-body py-3 px-3 d-flex flex-column gap-2">
+                    {% for job in step.jobs.all %}
+                    <div class="job-pill d-flex align-items-center gap-2 text-start w-100 py-2 px-3 rounded-pill">
+                        {% if job.status == "success" %}
+                        <i data-lucide="check" class="text-success" style="width: 14px;"></i>
+                        {% elif job.status == "failed" %}
+                        <i data-lucide="x" class="text-danger" style="width: 14px;"></i>
+                        {% elif job.status == "cancelled" %}
+                        <i data-lucide="ban" class="text-secondary" style="width: 14px;"></i>
+                        {% elif job.status == "running" %}
+                        <i data-lucide="loader" class="spinning text-primary" style="width: 14px;"></i>
+                        {% elif job.status == "queued" or job.status == "pending" %}
+                        <i data-lucide="clock" class="text-muted" style="width: 14px;"></i>
+                        {% else %}
+                        <i data-lucide="help-circle" class="text-muted" style="width: 14px;"></i>
+                        {% endif %}
+                        <span class="small">{{ job.name }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {% if not forloop.last %}
+            <div class="position-absolute connector-line-end"></div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>

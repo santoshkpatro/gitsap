@@ -3,6 +3,42 @@
 {% load humanize %}
 
 {% block styles %}
+<style>
+    /* Horizontal scroll container */
+    .workflow-scroll {
+        scrollbar-width: thin;
+        scroll-behavior: smooth;
+    }
+
+    /* Hover effect for job pill */
+    .job-pill {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        transition: all 0.2s ease;
+    }
+
+    .job-pill:hover {
+        background-color: #e9ecef;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        cursor: pointer;
+    }
+
+    /* Connecting line after card */
+    .connector-line-end {
+        top: 12px;
+        right: -50px;
+        height: 2px;
+        width: 50px;
+        background-color: #dee2e6;
+        position: absolute;
+        z-index: 0;
+    }
+
+    /* Background for entire workflow area */
+    .workflow-wrapper {
+        background-color: #f8f9fa;
+    }
+</style>
 {% endblock styles %}
 
 {% block content %}
@@ -56,7 +92,7 @@
     </div>
 
     <!-- Pipeline Tabs -->
-    <ul class="nav nav-tabs mb-3">
+    <ul class="nav nav-underline mb-3">
         <li class="nav-item">
             <a class="nav-link {% if current_tab == 'workflow' or not current_tab %}active{% endif %}" href="?tab=workflow">
                 <i data-lucide="activity" class="me-1" style="width: 16px; height: 16px;"></i>
@@ -75,7 +111,7 @@
     {% if current_tab == 'workflow' %}
     {% include 'pipelines/pipeline_detail/_workflow.html' %}
     {% elif current_tab == 'jobs' %}
-    {% include 'pipelines/pipeline_detail/_workflow.html' %}
+    {% include 'pipelines/pipeline_detail/_jobs.html' %}
     {% else %}
     <div class="alert alert-warning">
         Invalid tab selected.
