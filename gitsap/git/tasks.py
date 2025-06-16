@@ -3,6 +3,7 @@ from django.db import transaction
 from gitsap.projects.models import Project
 from gitsap.pipelines.service import GitsapWorkflowParser
 from gitsap.pipelines.models import Pipeline, PipelineStep, PipelineJob
+from gitsap.pipelines.tasks import run_pipeline
 
 
 @shared_task
@@ -53,3 +54,6 @@ def dispatch_gitsap_pipeline(project_id, user_id, ref):
     except Exception as e:
         print(f"Error creating pipeline for project {project_id} and ref {ref}: {e}")
         return
+
+    # Trigger the pipeline execution
+    run_pipeline.delay(pipeline.id)

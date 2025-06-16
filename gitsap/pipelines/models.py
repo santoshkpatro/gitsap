@@ -110,6 +110,7 @@ class PipelineJob(BaseUUIDModel):
     status = models.CharField(
         max_length=32, choices=Status.choices, default=Status.PENDING
     )
+    ignore_failure = models.BooleanField(default=False)
 
     class Meta:
         db_table = "pipeline_jobs"

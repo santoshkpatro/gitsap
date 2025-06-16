@@ -1,4 +1,7 @@
 import yaml
+import time
+import random
+from gitsap.pipelines.models import PipelineJob
 
 
 class GitsapWorkflowParser:
@@ -70,4 +73,19 @@ class GitsapWorkflowParser:
 
 class GitsapWorkflowRunner:
     def __init__(self, job_id):
-        self.job_id = job_id
+        self._job = PipelineJob.objects.get(id=job_id)
+        self._logs = []
+
+    def execute(self):
+        try:
+            self._logs.append(f"Starting job {self._job.name} (ID: {self._job.id})")
+            for command in self._job.commands:
+                self._logs.append(f"Executing command: {command}")
+                # Simulate command execution with a random delay
+                time.sleep(random.randint(10, 22))
+                # Here you would normally execute the command, e.g., using subprocess
+            self._logs.append(f"Job {self._job.name} completed successfully.")
+            return True, "\n".join(self._logs)
+        except Exception as e:
+            self._logs.append(f"Job {self._job.name} failed with error: {str(e)}")
+            return False, "\n".join(self._logs)
