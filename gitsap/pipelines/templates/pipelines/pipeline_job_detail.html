@@ -97,4 +97,34 @@
 {% endblock content %}
 
 {% block scripts %}
+<script>
+    const jobId = "{{ pipeline_job.id }}";
+    const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+    const socketUrl = `${protocol}://127.0.0.1:5000/ws/pipelines/job/${jobId}/`;
+
+    const socket = new WebSocket(socketUrl);
+
+    socket.onopen = function () {
+        console.log("✅ WebSocket connected to relay server:", socketUrl);
+    };
+
+    socket.onmessage = function (event) {
+        const data = JSON.parse(event.data);
+        if (data.type === "log") {
+            const logBox = document.querySelector(".log-box");
+            if (logBox) {
+                logBox.textContent += `\n${data.message}`;
+                logBox.scrollTop = logBox.scrollHeight;
+            }
+        }
+    };
+
+    socket.onclose = function () {
+        console.warn("⚠️ WebSocket closed.");
+    };
+
+    socket.onerror = function (error) {
+        console.error("❌ WebSocket error:", error);
+    };
+</script>
 {% endblock scripts %}

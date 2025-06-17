@@ -2,6 +2,8 @@ import yaml
 import docker
 from gitsap.pipelines.models import PipelineJob
 from django.conf import settings
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 
 class GitsapWorkflowParser:
@@ -78,15 +80,34 @@ class GitsapWorkflowRunner:
         self._container_name = f"gitsap-job-{self._job.id.hex}"
         self._docker = docker.from_env()
 
+    def relay_log(self, message):
+        channel_layer = get_channel_layer()
+
+        async_to_sync(channel_layer.group_send)(
+            f"job-{self._job.id}",
+            {
+                "type": "job_log_event",  # Matches the method name in consumer
+                "message": message,
+            },
+        )
+
+    def emit_logs(self, message):
+        """
+        Emit logs to the job's relay channel.
+        This is a helper method to send logs directly.
+        """
+        self._logs.append(message)
+        self.relay_log(message)
+
     def execute(self):
         try:
-            self._logs.append(f"🏁 Starting job `{self._job.name}`")
+            self.emit_logs(f"Starting job `{self._job.name}`")
 
-            self._logs.append(f"📦 Pulling image: `{self._job.image}`")
+            self.emit_logs(f"Pulling image `{self._job.image}`")
             self._docker.images.pull(self._job.image)
 
             shell_command = " && ".join(self._job.commands)
-            self._logs.append(f"🧪 Running: `{shell_command}`")
+            # self._logs.append(f"🧪 Running: `{shell_command}`")
 
             # Run container without auto-remove
             container = self._docker.containers.run(
@@ -101,26 +122,29 @@ class GitsapWorkflowRunner:
 
             # Stream logs
             for line in container.logs(stream=True):
+                log = line.decode().rstrip()
                 if settings.DEBUG:
-                    print(f"[container] {line.decode().rstrip()}")
-                self._logs.append(line.decode().rstrip())
+                    print(f"[container] {log}")
+                self.emit_logs(log)
 
             # Wait for container to finish
             result = container.wait()  # Blocks until done
             exit_code = result.get("StatusCode", 1)
 
-            self._logs.append(f"🚪 Exit code: {exit_code}")
+            self.emit_logs(f"Container exited with code: {exit_code}")
 
             # Cleanup container manually
             container.remove(force=True)
 
             if exit_code == 0:
-                self._logs.append(f"✅ Job `{self._job.name}` completed successfully.")
+                self.emit_logs(f"Job `{self._job.name}` completed successfully.")
                 return True, "\n".join(self._logs)
             else:
-                self._logs.append(f"❌ Job `{self._job.name}` failed.")
+                self.emit_logs(
+                    f"Job `{self._job.name}` failed with exit code {exit_code}."
+                )
                 return False, "\n".join(self._logs)
 
         except Exception as e:
-            self._logs.append(f"🔥 Error during job: {str(e)}")
+            self.emit_logs(f"🔥 Error during job execution: {str(e)}")
             return False, "\n".join(self._logs)
