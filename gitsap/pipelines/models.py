@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
+from django.utils.timesince import timesince
 
 from gitsap.shared.models import BaseUUIDModel
 
@@ -141,6 +142,8 @@ class PipelineJob(BaseUUIDModel):
         max_length=32, choices=Status.choices, default=Status.PENDING
     )
     ignore_failure = models.BooleanField(default=False)
+    started_at = models.DateTimeField(blank=True, null=True)
+    finished_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         db_table = "pipeline_jobs"
@@ -157,3 +160,18 @@ class PipelineJob(BaseUUIDModel):
     @property
     def icon_class(self):
         return JOB_STATUS_ICON_MAP.get(self.status, JOB_STATUS_ICON_MAP["default"])[1]
+
+    @property
+    def duration(self):
+        if self.started_at and self.finished_at:
+            return (self.finished_at - self.started_at).total_seconds()
+        return None
+
+    @property
+    def duration_humanized(self):
+        if not self.started_at or not self.finished_at:
+            return None
+
+        return timesince(
+            self.started_at, self.finished_at
+        )  # e.g., "3 minutes, 25 seconds"

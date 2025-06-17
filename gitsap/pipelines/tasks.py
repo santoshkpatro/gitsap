@@ -1,6 +1,7 @@
 from celery import shared_task, group, chord
 from gitsap.pipelines.models import Pipeline, PipelineStep, PipelineJob
 from gitsap.pipelines.service import GitsapWorkflowRunner
+from django.utils import timezone
 
 
 @shared_task
@@ -10,7 +11,8 @@ def run_job(job_id):
         return False
 
     job.status = PipelineJob.Status.RUNNING
-    job.save(update_fields=["status"])
+    job.started_at = timezone.now()
+    job.save(update_fields=["status", "started_at"])
 
     runner = GitsapWorkflowRunner(job.id)
     ok, logs = runner.execute()
@@ -23,7 +25,8 @@ def run_job(job_id):
         job.status = PipelineJob.Status.FAILED
         print(f"❌ Job {job.id} failed.")
 
-    job.save(update_fields=["status", "log_content"])
+    job.finished_at = timezone.now()
+    job.save(update_fields=["status", "log_content", "finished_at"])
 
     if job.ignore_failure:
         print(f"⚠️ Job {job.id} ignored failure due to ignore_failure flag.")
