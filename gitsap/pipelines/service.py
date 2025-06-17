@@ -2,6 +2,7 @@ import yaml
 import docker
 from gitsap.pipelines.models import PipelineJob
 from django.conf import settings
+from django.utils import timezone
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
@@ -91,15 +92,20 @@ class GitsapWorkflowRunner:
             },
         )
 
-    def emit_log(self, message, message_type="info"):
+    def emit_log(self, message, source="job"):
         """
         Emit logs to the job's relay channel.
         This is a helper method to send logs directly.
         """
-        self._logs.append(f"[{message_type}] {message}")
-        self.relay_log(f"[{message_type}] {message}")
+
+        timestamp = timezone.now().strftime("%H:%M:%S")
+        formatted = f"[{timestamp}] [{source}] {message}"
+
+        self._logs.append(formatted)
+        self.relay_log(formatted)
+
         if settings.DEBUG:
-            print(f"[{message_type}] {message}")
+            print(formatted)
 
     def execute(self):
         try:
