@@ -13,7 +13,7 @@
                 <!-- Step Content -->
                 <div class="card-body py-3 px-3 d-flex flex-column gap-2">
                     {% for job in step.jobs.all %}
-                    <a href="#" class="job-pill d-flex align-items-center gap-2 py-2 px-3 rounded-pill bg-light text-decoration-none small w-100 text-dark hover-shadow">
+                    <a href="{% url 'pipeline-job-detail' namespace=project.namespace handle=project.handle pipeline_id=job.pipeline_id job_id=job.id %}" class="job-pill d-flex align-items-center gap-2 py-2 px-3 rounded-pill bg-light text-decoration-none small w-100 text-dark hover-shadow">
                         <i data-lucide="{{ job.icon_name }}" class="{{ job.icon_class }}" style="width: 14px;"></i>
                         <span>{{ job.name }}</span>
                     </a>

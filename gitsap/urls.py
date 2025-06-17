@@ -36,7 +36,11 @@ from gitsap.pull_requests.views import (
     PullRequestConflictsView,
     PullRequestCommentCreateView,
 )
-from gitsap.pipelines.views import PipelineListView, PipelineDetailView
+from gitsap.pipelines.views import (
+    PipelineListView,
+    PipelineDetailView,
+    PipelineJobDetailView,
+)
 
 # fmt: off
 project_browse_urlpatterns = [
@@ -64,6 +68,7 @@ project_urlpatterns = [
     path("pull-requests/<int:pull_request_number>/comments/", PullRequestCommentCreateView.as_view(), name="pull-request-comment-create"),
     path("pipelines/", PipelineListView.as_view(), name="pipeline-list"),
     path("pipelines/<uuid:pipeline_id>/", PipelineDetailView.as_view(), name="pipeline-detail"),
+    path("pipelines/<uuid:pipeline_id>/jobs/<uuid:job_id>/", PipelineJobDetailView.as_view(), name="pipeline-job-detail"),
 ]
 
 

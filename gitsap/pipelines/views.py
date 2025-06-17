@@ -81,3 +81,18 @@ class PipelineDetailView(ProjectAccessMixin, View):
                 raise Http404("Tab not found")
 
         return render(request, f"pipelines/pipeline_detail.html", context)
+
+
+class PipelineJobDetailView(ProjectAccessMixin, View):
+    def get(self, request, *args, **kwargs):
+        self.require_permission(request, "can_read")
+        project = request.project
+        pipeline_job = get_object_or_404(
+            PipelineJob, id=kwargs.get("job_id"), pipeline__project=project
+        )
+        context = {
+            "project": project,
+            "pipeline_job": pipeline_job,
+            "active_tab": "pipelines",
+        }
+        return render(request, "pipelines/pipeline_job_detail.html", context)

@@ -1,0 +1,100 @@
+{% extends 'shared/project_base.html' %}
+{% load static humanize %}
+
+{% block styles %}
+<style>
+    .log-box {
+        background-color: #1e1e1e;
+        color: #eaeaea;
+        font-family: monospace;
+        font-size: 13px;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        max-height: 600px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+    }
+
+    .status-pill {
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .job-meta {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+
+    .job-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .job-columns {
+        display: grid;
+        grid-template-columns: 1fr 280px;
+        gap: 2rem;
+    }
+</style>
+{% endblock styles %}
+
+{% block content %}
+<div class="container mt-3">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+        <div>
+            <h5 class="mb-1 d-flex align-items-center gap-2">
+                Job: {{ pipeline_job.name }}
+                <span class="text-muted"><code>{{ pipeline_job.id|stringformat:"s"|slice:":8" }}</code></span>
+            </h5>
+            <div class="job-meta d-flex flex-wrap gap-3">
+                <span><i data-lucide="calendar" class="me-1"></i> Started: {{ pipeline_job.started_at|naturaltime }}</span>
+                {% if pipeline_job.finished_at %}
+                <span><i data-lucide="clock" class="me-1"></i> Duration: {{ pipeline_job.duration_humanized }}</span>
+                {% endif %}
+                <span><i data-lucide="user" class="me-1"></i> Triggered by: {{ pipeline_job.pipeline.triggered_by.full_name|default:pipeline_job.pipeline.triggered_by.username }}</span>
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div class="d-flex align-items-center gap-2">
+            <i data-lucide="{{ pipeline_job.icon_name }}" class="{{ pipeline_job.icon_class }} job-icon"></i>
+            <span class="status-pill {{ pipeline_job.icon_class }}">{{ pipeline_job.get_status_display }}</span>
+        </div>
+    </div>
+
+    <!-- Body: Log Left | Commands Right -->
+    <div class="job-columns">
+        <!-- Logs -->
+        <div>
+            <h6 class="mb-2">Logs</h6>
+            <div class="log-box">
+                {% if pipeline_job.log_content %}
+                {{ pipeline_job.log_content }}
+                {% else %}
+                <div class="text-muted">No logs available.</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Commands -->
+        <div>
+            <h6 class="mb-2">Commands</h6>
+            <ul class="list-group list-group-flush small">
+                {% for command in pipeline_job.commands %}
+                <li class="list-group-item px-0 py-1">
+                    <code>{{ command }}</code>
+                </li>
+                {% empty %}
+                <li class="list-group-item px-0 py-1 text-muted">No commands defined.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+{% endblock scripts %}
