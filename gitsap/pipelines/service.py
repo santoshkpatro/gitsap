@@ -91,19 +91,21 @@ class GitsapWorkflowRunner:
             },
         )
 
-    def emit_logs(self, message):
+    def emit_log(self, message, message_type="info"):
         """
         Emit logs to the job's relay channel.
         This is a helper method to send logs directly.
         """
-        self._logs.append(message)
-        self.relay_log(message)
+        self._logs.append(f"[{message_type}] {message}")
+        self.relay_log(f"[{message_type}] {message}")
+        if settings.DEBUG:
+            print(f"[{message_type}] {message}")
 
     def execute(self):
         try:
-            self.emit_logs(f"Starting job `{self._job.name}`")
+            self.emit_log(f"Starting job `{self._job.name}`", "job")
 
-            self.emit_logs(f"Pulling image `{self._job.image}`")
+            self.emit_log(f"Pulling image `{self._job.image}`", "job")
             self._docker.images.pull(self._job.image)
 
             shell_command = " && ".join(self._job.commands)
@@ -124,27 +126,27 @@ class GitsapWorkflowRunner:
             for line in container.logs(stream=True):
                 log = line.decode().rstrip()
                 if settings.DEBUG:
-                    print(f"[container] {log}")
-                self.emit_logs(log)
+                    print(f"[container] {log}", "container")
+                self.emit_log(log)
 
             # Wait for container to finish
             result = container.wait()  # Blocks until done
             exit_code = result.get("StatusCode", 1)
 
-            self.emit_logs(f"Container exited with code: {exit_code}")
+            self.emit_log(f"Container exited with code: {exit_code}", "job")
 
             # Cleanup container manually
             container.remove(force=True)
 
             if exit_code == 0:
-                self.emit_logs(f"Job `{self._job.name}` completed successfully.")
+                self.emit_log(f"Job `{self._job.name}` completed successfully.", "job")
                 return True, "\n".join(self._logs)
             else:
-                self.emit_logs(
+                self.emit_log(
                     f"Job `{self._job.name}` failed with exit code {exit_code}."
                 )
                 return False, "\n".join(self._logs)
 
         except Exception as e:
-            self.emit_logs(f"🔥 Error during job execution: {str(e)}")
+            self.emit_log(f"🔥 Error during job execution: {str(e)}", "job")
             return False, "\n".join(self._logs)
