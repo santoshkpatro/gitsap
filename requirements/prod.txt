@@ -14,3 +14,6 @@ Markdown==3.8
 djangorestframework==3.16.0
 PyYAML==6.0.2
 docker==7.1.0
+channels==4.2.2
+channels-redis==4.2.1
+daphne==4.2.0

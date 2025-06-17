@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     # Third-party apps
     "rest_framework",
+    "channels",
     # Local apps
     "gitsap.accounts",
     "gitsap.git",
@@ -96,6 +97,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "gitsap.wsgi.application"
+ASGI_APPLICATION = "gitsap.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -217,6 +219,15 @@ EMAIL_USE_TLS = False
 EMAIL_USE_SSL = False
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "no-reply@gitsap.com")
 
+# Channels Configuration
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
 
 # LOGGING = {
 #     "version": 1,
