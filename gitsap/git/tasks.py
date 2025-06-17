@@ -1,5 +1,6 @@
 from celery import shared_task
 from django.db import transaction
+from django.conf import settings
 from gitsap.projects.models import Project
 from gitsap.pipelines.service import GitsapWorkflowParser
 from gitsap.pipelines.models import Pipeline, PipelineStep, PipelineJob
@@ -10,7 +11,6 @@ from gitsap.pipelines.tasks import run_pipeline
 def dispatch_gitsap_pipeline(project_id, user_id, ref):
     project = Project.objects.filter(id=project_id).first()
     if not project:
-        print(f"Project with ID {project_id} not found.")
         return
 
     git_service = project.git_service
@@ -23,7 +23,8 @@ def dispatch_gitsap_pipeline(project_id, user_id, ref):
     parser = GitsapWorkflowParser(content)
     workflow_data = parser.load()
 
-    print("Parsed workflow data:", workflow_data)
+    if settings.DEBUG:
+        print("[worker] Workflow Data:", workflow_data)
 
     try:
         with transaction.atomic():
@@ -34,6 +35,7 @@ def dispatch_gitsap_pipeline(project_id, user_id, ref):
                 commit_sha=last_commit["hash"],
                 triggered_by_id=user_id,
                 ref=ref,
+                default_image=workflow_data.get("image", "alpine:latest"),
             )
             for index, step_name in enumerate(workflow_data.get("steps", [])):
                 pipeline_step = PipelineStep.objects.create(
@@ -52,7 +54,9 @@ def dispatch_gitsap_pipeline(project_id, user_id, ref):
                             only=job_data.get("only", []),
                         )
     except Exception as e:
-        print(f"Error creating pipeline for project {project_id} and ref {ref}: {e}")
+        print(
+            f"[worker] Error creating pipeline for project {project_id} and ref {ref}: {e}"
+        )
         return
 
     # Trigger the pipeline execution

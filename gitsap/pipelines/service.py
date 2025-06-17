@@ -1,6 +1,7 @@
 import yaml
 import docker
 from gitsap.pipelines.models import PipelineJob
+from django.conf import settings
 
 
 class GitsapWorkflowParser:
@@ -15,30 +16,29 @@ class GitsapWorkflowParser:
         name: Build Job
         step: build
         commands:
-            - run: echo "Building the project"
-            - run: make build
+            - echo "Building the project"
+            - make build
 
     job-one-b:
         name: Another Build Job
         step: build
         commands:
-            - run: echo "Running additional build steps"
-            - run: make additional-build
+            - echo "Running additional build steps"
+            - make additional-build
 
     job-two:
         name: Test Job
         step: test
         commands:
-            - run: echo "Running tests"
-            - run: make test
+            - echo "Running tests"
+            - make test
 
     job-three:
         name: Deploy Job
         step: deploy
         commands:
-            - run: echo "Deploying the project"
-            - run: make deploy
-
+            - echo "Deploying the project"
+            - make deploy
     """
 
     def __init__(self, content):
@@ -47,13 +47,13 @@ class GitsapWorkflowParser:
 
     def load(self):
         raw = yaml.safe_load(self.content)
-
         self.data["steps"] = raw.get("steps", [])
-
         self.data["jobs"] = []
+        self.data["image"] = raw.get("image", "alpine:latest")
+
         for key, val in raw.items():
             if key == "steps":
-                continue  # skip the 'steps' key
+                continue  # skip 'steps' section
 
             # Defensive check: job must be a dict with at least 'commands'
             if not isinstance(val, dict) or "commands" not in val:
@@ -63,7 +63,8 @@ class GitsapWorkflowParser:
                 "key": key,
                 "name": val.get("name", key),
                 "step": val.get("step"),
-                "commands": [cmd["run"] for cmd in val.get("commands", [])],
+                "image": val.get("image", None),
+                "commands": val.get("commands", []),
             }
             self.data["jobs"].append(job)
 
@@ -74,7 +75,7 @@ class GitsapWorkflowRunner:
     def __init__(self, job_id):
         self._job = PipelineJob.objects.get(id=job_id)
         self._logs = []
-        self._container_name = f"gitsap-job-{self._job.id.hex[:8]}"
+        self._container_name = f"gitsap-job-{self._job.id.hex}"
         self._docker = docker.from_env()
 
     def execute(self):
@@ -100,6 +101,8 @@ class GitsapWorkflowRunner:
 
             # Stream logs
             for line in container.logs(stream=True):
+                if settings.DEBUG:
+                    print(f"[container] {line.decode().rstrip()}")
                 self._logs.append(line.decode().rstrip())
 
             # Wait for container to finish

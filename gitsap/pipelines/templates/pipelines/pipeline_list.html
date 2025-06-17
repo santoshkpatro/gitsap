@@ -76,7 +76,7 @@
                     <div class="w-100">
                         <div class="fw-semibold">
                             <a href="{% url 'pipeline-detail' namespace=project.namespace handle=project.handle pipeline_id=pipeline.id %}" class="text-decoration-none text-dark hover-underline">
-                                <span class="hover-underline">{{ pipeline.name|truncatechars:62 }}</span>
+                                <span class="hover-underline">{{ pipeline.name|truncatechars:54 }}</span>
                             </a>
                         </div>
                         <div class="text-muted small d-flex flex-wrap gap-3 mt-1">
