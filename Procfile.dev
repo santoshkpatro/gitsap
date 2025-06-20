@@ -1,0 +1,5 @@
+backend: python3 manage.py runserver
+relay: python3 manage.py relayserver
+worker: celery -A gitsap worker -l INFO
+storage: minio server ./var/minio-data --console-address ":9001"
+mail: mailhog

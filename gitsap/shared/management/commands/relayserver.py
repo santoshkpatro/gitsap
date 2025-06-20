@@ -15,8 +15,8 @@ class Command(BaseCommand):
         parser.add_argument(
             "--port",
             type=int,
-            default=8001,
-            help="Port to bind Daphne to (default: 8001)",
+            default=5000,
+            help="Port to bind Daphne to (default: 5000)",
         )
 
     def handle(self, *args, **options):

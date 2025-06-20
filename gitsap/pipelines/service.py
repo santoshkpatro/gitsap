@@ -50,26 +50,21 @@ class GitsapWorkflowParser:
 
     def load(self):
         raw = yaml.safe_load(self.content)
-        self.data["steps"] = raw.get("steps", [])
+        self.data["steps"] = raw.pop("steps", [])
         self.data["jobs"] = []
-        self.data["image"] = raw.get("image", "alpine:latest")
+        self.data["image"] = raw.pop("image", "alpine:latest")
 
         for key, val in raw.items():
-            if key == "steps":
-                continue  # skip 'steps' section
-
-            # Defensive check: job must be a dict with at least 'commands'
-            if not isinstance(val, dict) or "commands" not in val:
-                continue
-
             job = {
                 "key": key,
                 "name": val.get("name", key),
                 "step": val.get("step"),
-                "image": val.get("image", None),
+                "image": val.get("image", self.data["image"]),
                 "commands": val.get("commands", []),
             }
             self.data["jobs"].append(job)
+
+        print("[parser] Parsed workflow data:", self.data)
 
         return self.data
 

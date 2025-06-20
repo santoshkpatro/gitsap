@@ -20,11 +20,15 @@ def dispatch_gitsap_pipeline(project_id, user_id, ref):
     if not content:
         return
 
-    parser = GitsapWorkflowParser(content)
-    workflow_data = parser.load()
-
-    if settings.DEBUG:
-        print("[worker] Workflow Data:", workflow_data)
+    try:
+        parser = GitsapWorkflowParser(content)
+        workflow_data = parser.load()
+        print("[worker] Parsed workflow data:", workflow_data)
+    except Exception as e:
+        print(
+            f"[worker] Error parsing workflow for project {project_id} and ref {ref}: {e}"
+        )
+        return
 
     try:
         with transaction.atomic():
@@ -44,12 +48,13 @@ def dispatch_gitsap_pipeline(project_id, user_id, ref):
                     sequence=index + 1,
                 )
                 for job_data in workflow_data.get("jobs", []):
+                    print("[worker] Processing job data:", job_data)
                     if job_data.get("step") == step_name:
                         PipelineJob.objects.create(
                             pipeline=pipeline,
                             step=pipeline_step,
                             name=job_data.get("name", ""),
-                            image=job_data.get("image", pipeline.default_image),
+                            image=job_data.get("image"),
                             commands=job_data.get("commands", []),
                             only=job_data.get("only", []),
                         )
