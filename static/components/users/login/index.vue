@@ -1,9 +1,16 @@
 <script setup>
-const props = defineProps({
-  next_url: {
-    type: String,
-    default: "",
-  },
+const props = defineProps(["nextUrl"]);
+import { userProfileAPI } from "@/utils/api";
+import { onMounted } from "vue";
+
+const loadProfile = async () => {
+  const profile = await userProfileAPI();
+  console.log("User Profile:", profile.data);
+};
+
+onMounted(async () => {
+  loadProfile();
+  console.log("Props:", props);
 });
 </script>
 
