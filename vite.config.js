@@ -27,6 +27,9 @@ export default defineConfig({
         ])
       ),
     },
+    outDir: "static",
+    emptyOutDir: false, // We don't want to delete everything in static/
     manifest: true,
+    assetsDir: "__vite__",
   },
 });

@@ -41,3 +41,7 @@ coverage
 *.tsbuildinfo
 
 db.sqlite3
+
+# Build output
+/static/__vite__/
+/static/.vite/

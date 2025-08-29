@@ -1,5 +1,9 @@
-<script setup></script>
+<script setup>
+import UsersLayout from "@/components/layouts/users-layout.vue";
+</script>
 
 <template>
-  <div>Register Component</div>
+  <users-layout>
+    <div>Registers Page</div>
+  </users-layout>
 </template>

@@ -1,6 +1,80 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
-@import "bootstrap/scss/bootstrap";
+/* custom.scss */
 
+/* Optional: Google Font */
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
+/* 1) Functions FIRST */
+@import "bootstrap/scss/functions";
+
+/* 2) Variable overrides BEFORE Bootstrap variables */
+$font-size-base: 0.875rem; // 14px
+$primary: #6F42C1;
+
+$font-family-sans-serif: "Inter", system-ui, -apple-system, "Segoe UI", Roboto,
+  "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji",
+  "Segoe UI Symbol", "Noto Color Emoji";
+$body-font-family: $font-family-sans-serif;
+
+/* Inputs: flat look + compact */
+$input-box-shadow: none;
+$input-focus-box-shadow: none;
+$form-select-focus-box-shadow: none;
+
+$input-border-color: #ced4da;
+$input-focus-border-color: $primary;
+
+$input-padding-y: 0.45rem;
+$input-padding-x: 0.75rem;
+$input-font-size: 0.875rem;
+
+/* Buttons: smaller */
+$btn-padding-y: 0.35rem;
+$btn-padding-x: 0.75rem;
+$btn-font-size: 0.875rem;
+$btn-line-height: 1.2;
+$btn-focus-box-shadow: none;
+
+/* 3) Bootstrap variables (now pick up your overrides) */
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/variables-dark";
+
+/* 4) Map overrides (if you want to enforce theme-colors explicitly) */
+$theme-colors: map-merge(
+  $theme-colors,
+  (
+    "primary": $primary
+  )
+);
+
+/* 5) Required parts */
+@import "bootstrap/scss/maps";
+@import "bootstrap/scss/mixins";
+@import "bootstrap/scss/root";
+
+/* 6) Optional partials you need */
+@import "bootstrap/scss/utilities";
+@import "bootstrap/scss/reboot";
+@import "bootstrap/scss/type";
+@import "bootstrap/scss/images";
+@import "bootstrap/scss/containers";
+@import "bootstrap/scss/grid";
+@import "bootstrap/scss/forms";
+@import "bootstrap/scss/buttons";
+@import "bootstrap/scss/helpers";
+
+/* 7) Utilities API (generate utilities) */
+@import "bootstrap/scss/utilities/api";
+
+/* 8) Your additional custom code */
+
+/* Hover = primary border for inputs/selects/textarea (no glow) */
+.form-control:hover,
+.form-select:hover,
+textarea.form-control:hover {
+  border-color: $primary;
+}
+
+/* Ensure body uses Inter even outside Bootstrap components */
 body {
   font-family: "Inter", sans-serif;
   font-optical-sizing: auto;
