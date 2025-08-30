@@ -89,6 +89,7 @@ import LoginIcon from "@/components/icons/login-icon.vue";
 import Router from "@/components/router.vue";
 import { usersLoginAPI } from "@/utils/api.js";
 import { push } from "notivue";
+import { redirect } from "@/utils/router";
 
 const form = reactive({
   identity: "",
@@ -100,6 +101,9 @@ const handleLogin = async () => {
   const response = await usersLoginAPI({ ...form });
   if (!response.success) {
     push.warning(response.message);
+    return;
   }
+
+  redirect("/");
 };
 </script>
