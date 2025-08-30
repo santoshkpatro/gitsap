@@ -7,18 +7,18 @@
       <form @submit.prevent="handleLogin" novalidate>
         <!-- Username/Email -->
         <div class="mb-3">
-          <label for="username" class="form-label">Username or Email</label>
+          <label for="identity" class="form-label">Username or Email</label>
           <div class="input-group">
             <span class="input-group-text bg-white">
               <user-icon :size="18" />
             </span>
             <input
               type="text"
-              id="username"
-              v-model.trim="form.username"
+              id="identity"
+              v-model.trim="form.identity"
               class="form-control"
               placeholder="you@gitsap.com"
-              autocomplete="username"
+              autocomplete="identity"
               required
             />
           </div>
@@ -87,15 +87,19 @@ import UserIcon from "@/components/icons/user-icon.vue";
 import LockIcon from "@/components/icons/lock-icon.vue";
 import LoginIcon from "@/components/icons/login-icon.vue";
 import Router from "@/components/router.vue";
+import { usersLoginAPI } from "@/utils/api.js";
+import { push } from "notivue";
 
 const form = reactive({
-  username: "",
+  identity: "",
   password: "",
   remember: true,
 });
 
-const handleLogin = () => {
-  // TODO: replace with your API call
-  console.log("Login attempt:", { ...form });
+const handleLogin = async () => {
+  const response = await usersLoginAPI({ ...form });
+  if (!response.success) {
+    push.warning(response.message);
+  }
 };
 </script>

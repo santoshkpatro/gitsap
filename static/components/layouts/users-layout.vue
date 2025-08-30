@@ -1,4 +1,7 @@
 <template>
+  <Notivue v-slot="item">
+    <Notification :item="item" />
+  </Notivue>
   <div class="d-flex align-items-center justify-content-center vh-100 bg-grid">
     <div class="w-100" style="max-width: 420px">
       <!-- Brand -->
@@ -23,7 +26,7 @@
 </template>
 
 <script setup>
-// no props, fixed layout
+import { Notivue, Notification } from "notivue";
 </script>
 
 <style scoped>
