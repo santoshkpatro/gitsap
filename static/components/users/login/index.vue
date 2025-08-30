@@ -1,3 +1,50 @@
+<script setup>
+import { reactive } from "vue";
+import useVuelidate from "@vuelidate/core";
+import { required, minLength } from "@vuelidate/validators";
+
+import UsersLayout from "@/components/layouts/users-layout.vue";
+import UserIcon from "@/components/icons/user-icon.vue";
+import LockIcon from "@/components/icons/lock-icon.vue";
+import LoginIcon from "@/components/icons/login-icon.vue";
+import Router from "@/components/router.vue";
+import { usersLoginAPI } from "@/utils/api.js";
+import { push } from "notivue";
+import { redirect } from "@/utils/router";
+
+// form state
+const form = reactive({
+  identity: "",
+  password: "",
+  remember: true,
+});
+
+// validation rules
+const rules = {
+  identity: { required },
+  password: { required, minLength: minLength(6) },
+};
+
+// setup vuelidate
+const v$ = useVuelidate(rules, form);
+
+const handleLogin = async () => {
+  const valid = await v$.value.$validate();
+  if (!valid) {
+    push.warning("Please fix validation errors.");
+    return;
+  }
+
+  const response = await usersLoginAPI({ ...form });
+  if (!response.success) {
+    push.warning(response.message);
+    return;
+  }
+
+  redirect("/");
+};
+</script>
+
 <template>
   <users-layout>
     <div
@@ -5,7 +52,7 @@
       style="border-radius: 12px"
     >
       <form @submit.prevent="handleLogin" novalidate>
-        <!-- Username/Email -->
+        <!-- Identity -->
         <div class="mb-3">
           <label for="identity" class="form-label">Username or Email</label>
           <div class="input-group">
@@ -18,9 +65,13 @@
               v-model.trim="form.identity"
               class="form-control"
               placeholder="you@gitsap.com"
-              autocomplete="identity"
-              required
+              :class="{ 'is-invalid': v$.identity.$error }"
             />
+            <div v-if="v$.identity.$error" class="invalid-feedback d-block">
+              <div v-for="err in v$.identity.$errors" :key="err.$uid">
+                {{ err.$message || "Invalid input" }}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -40,13 +91,17 @@
               v-model="form.password"
               class="form-control"
               placeholder="••••••••"
-              autocomplete="current-password"
-              required
+              :class="{ 'is-invalid': v$.password.$error }"
             />
+            <div v-if="v$.password.$error" class="invalid-feedback d-block">
+              <div v-for="err in v$.password.$errors" :key="err.$uid">
+                {{ err.$message || "Invalid input" }}
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Remember me -->
+        <!-- Remember -->
         <div class="mb-3 form-check">
           <input
             type="checkbox"
@@ -66,44 +121,16 @@
         </button>
       </form>
 
-      <!-- Register link -->
+      <!-- Register -->
       <div class="text-center mt-3">
         <span class="text-muted small">Don’t have an account?</span>
         <router
           path="/users/register"
           class="small fw-semibold ms-1 text-decoration-none"
-          >Register</router
         >
+          Register
+        </router>
       </div>
     </div>
   </users-layout>
 </template>
-
-<script setup>
-import { reactive } from "vue";
-
-import UsersLayout from "@/components/layouts/users-layout.vue";
-import UserIcon from "@/components/icons/user-icon.vue";
-import LockIcon from "@/components/icons/lock-icon.vue";
-import LoginIcon from "@/components/icons/login-icon.vue";
-import Router from "@/components/router.vue";
-import { usersLoginAPI } from "@/utils/api.js";
-import { push } from "notivue";
-import { redirect } from "@/utils/router";
-
-const form = reactive({
-  identity: "",
-  password: "",
-  remember: true,
-});
-
-const handleLogin = async () => {
-  const response = await usersLoginAPI({ ...form });
-  if (!response.success) {
-    push.warning(response.message);
-    return;
-  }
-
-  redirect("/");
-};
-</script>
