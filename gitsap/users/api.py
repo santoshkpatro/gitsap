@@ -3,7 +3,7 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.decorators import action
 
 from gitsap.base.responses import success_response, error_response
-from gitsap.users.serializers import LoginSerializer
+from gitsap.users.serializers import LoginSerializer, LoggedInUserSerializer
 from gitsap.users.models import User
 
 
@@ -43,4 +43,8 @@ class UserViewSet(ViewSet):
             )
 
         user_login(request, user)
-        return success_response(data={"message": "Login successful"})
+        logged_user_serializer = LoggedInUserSerializer(user)
+        data = {
+            "logged_in_user": logged_user_serializer.data,
+        }
+        return success_response(data=data, message="Login successful")

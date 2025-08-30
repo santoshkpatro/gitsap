@@ -1,5 +1,5 @@
 <script setup>
-import { reactive } from "vue";
+import { onMounted, reactive } from "vue";
 import useVuelidate from "@vuelidate/core";
 import { required, minLength } from "@vuelidate/validators";
 
@@ -11,6 +11,13 @@ import Router from "@/components/router.vue";
 import { usersLoginAPI } from "@/utils/api.js";
 import { push } from "notivue";
 import { redirect } from "@/utils/router";
+
+const props = defineProps({
+  next: {
+    type: String,
+    default: "/",
+  },
+});
 
 // form state
 const form = reactive({
@@ -40,8 +47,11 @@ const handleLogin = async () => {
     push.warning(response.message);
     return;
   }
-
-  redirect("/");
+  window.localStorage.setItem(
+    "loggedInUser",
+    JSON.stringify(response.data.loggedInUser)
+  );
+  redirect(props.next);
 };
 </script>
 
