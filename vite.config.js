@@ -12,6 +12,19 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./static", import.meta.url)),
     },
   },
+  // Optional: Silence Sass deprecation warnings. # https://getbootstrap.com/docs/5.3/getting-started/vite/
+  css: {
+    preprocessorOptions: {
+      scss: {
+        silenceDeprecations: [
+          "import",
+          "mixed-decls",
+          "color-functions",
+          "global-builtin",
+        ],
+      },
+    },
+  },
   build: {
     rollupOptions: {
       input: Object.fromEntries(
