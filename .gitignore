@@ -192,3 +192,6 @@ vite.config.ts.timestamp-*
 # SaSS
 static/build/*.css
 static/build/*.css.map
+
+# Environment files
+.env
