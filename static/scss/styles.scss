@@ -17,13 +17,21 @@ $btn-padding-y: 0.375rem;    // tighten vertical padding
 $btn-padding-x: 0.75rem;     // tighten horizontal padding
 $btn-border-radius: 0.25rem; // match inputs
 
-// 4. Import Bootstrap
+// 5. Alerts (make sleek banners)
+$alert-padding-y: 0.25rem;   // reduce vertical padding
+$alert-padding-x: 0.5rem;    // reduce horizontal padding
+$alert-margin-bottom: 0.5rem;
+$alert-border-radius: 0.25rem;
+$alert-font-size: 0.75rem;   // smaller text
+$alert-border-width: 1px;
+
+// 6. Import Bootstrap
 @import "../../node_modules/bootstrap/scss/bootstrap";
 
 
 // NProgress customizations
 #nprogress .bar {
-  background: $primary !important; // use your bootstrap primary (#6F42C1)
+  background: $primary !important;
   height: 3px; // a bit bolder line
 }
 
@@ -32,5 +40,5 @@ $btn-border-radius: 0.25rem; // match inputs
 }
 
 #nprogress .spinner {
-  display: none !important; // hide the spinner if JS fails
+  display: none !important; // hide the spinner
 }

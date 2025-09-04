@@ -13,29 +13,39 @@
             <p class="text-muted small mb-0">Welcome back! Please log in to continue.</p>
         </div>
 
-        <form>
+        <form method="post" novalidate>
+            {% csrf_token %}
+
             <!-- Username / Email -->
             <div class="mb-3">
-                <label for="identity" class="form-label">Username or Email</label>
+                {{ form.identity.label_tag }}
                 <div class="input-group">
                     <span class="input-group-text bg-white border-end-0">
                         <i data-lucide="user" width="18" height="18" class="text-muted"></i>
                     </span>
-                    <input type="text" class="form-control border-start-0" id="identity" placeholder="username or email"
-                        required>
+                    {{ form.identity }}
                 </div>
+                {% if form.identity.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.identity.errors.0 }}
+                </div>
+                {% endif %}
             </div>
 
             <!-- Password -->
             <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
+                {{ form.password.label_tag }}
                 <div class="input-group">
                     <span class="input-group-text bg-white border-end-0">
                         <i data-lucide="lock" width="18" height="18" class="text-muted"></i>
                     </span>
-                    <input type="password" class="form-control border-start-0" id="password"
-                        placeholder="Enter password" required>
+                    {{ form.password }}
                 </div>
+                {% if form.password.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.password.errors.0 }}
+                </div>
+                {% endif %}
             </div>
 
             <!-- Submit -->
@@ -44,32 +54,8 @@
                     <i data-lucide="log-in" width="18" height="18" class="me-1"></i> Login
                 </button>
             </div>
-
-            <!-- Divider -->
-            <div class="d-flex align-items-center my-3">
-                <hr class="flex-grow-1">
-                <span class="px-2 small text-muted">or</span>
-                <hr class="flex-grow-1">
-            </div>
-
-            <!-- Google Login -->
-            <div class="d-grid mb-3">
-                <button type="button" class="btn btn-outline-secondary">
-                    <i data-lucide="globe" width="18" height="18" class="me-1"></i> Login with Google
-                </button>
-            </div>
-
-            <!-- Forgot password / signup links -->
-            <div class="text-center mt-3">
-                <a href="#" class="small text-muted me-2">
-                    <i data-lucide="help-circle" width="18" height="18" class="me-1"></i> Forgot password?
-                </a>
-                <span class="text-muted">·</span>
-                <a href="#" class="small text-muted ms-2">
-                    <i data-lucide="user-plus" width="18" height="18" class="me-1"></i> Create account
-                </a>
-            </div>
         </form>
+
     </div>
 
 </main>

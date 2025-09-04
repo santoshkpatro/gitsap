@@ -1,20 +1,25 @@
 from django.views import View
 from django.shortcuts import redirect, render
-from django.contrib.auth import logout as user_logout
+from django.contrib.auth import logout, login
+from django.contrib import messages
+
+
+from gitsap.users.forms import LoginForm
 
 
 class LoginView(View):
     def get(self, request):
-        next = request.GET.get("next", "/")
-        return render(request, "users/login.html", {"next": next})
+        form = LoginForm()
+        context = {"form": form, "next": next}
+        return render(request, "users/login.html", context)
 
+    def post(self, request):
+        form = LoginForm(request.POST)
+        context = {"form": form}
+        if not form.is_valid():
+            messages.error(request, "Invalid form submission.")
+            return render(request, "users/login.html", context)
 
-# class RegisterView(View):
-#     def get(self, request):
-#         return vite_render(request, "pages/users/register.js")
-
-
-# class LogoutView(View):
-#     def get(self, request):
-#         user_logout(request)
-#         return redirect("login")
+        # Validate
+        messages.success(request, "Login successful.")
+        return redirect("users-login")

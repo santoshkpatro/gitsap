@@ -13,7 +13,7 @@ router.register(r"users", UserViewSet, basename="user")
 # fmt: off
 urlpatterns = [
     path("api/", include(router.urls)),
-    path("users/login/", LoginView.as_view(), name="login"),
+    path("users/login/", LoginView.as_view(), name="users-login"),
     path("new/", ProjectNewView.as_view(), name="project-new"),
     path("", IndexView.as_view(), name="index"),
 ]
