@@ -58,6 +58,8 @@ kombu==5.5.4
     # via celery
 packaging==25.0
     # via kombu
+pillow==11.3.0
+    # via gitsap (pyproject.toml)
 prompt-toolkit==3.0.52
     # via click-repl
 pycparser==2.22
