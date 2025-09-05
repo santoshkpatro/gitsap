@@ -141,8 +141,6 @@ class Project(BaseModel):
         try:
             with transaction.atomic():
                 project.save()
-
-                # TODO: Create Project Collaborators / Permissions of owner
             return project, []
         except ValidationError as e:
             # Collect field / non-field errors in a readable list
