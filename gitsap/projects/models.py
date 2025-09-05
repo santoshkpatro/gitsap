@@ -1,5 +1,6 @@
 import os
 import pygit2
+from django.utils.functional import cached_property
 from django.db import models, IntegrityError, transaction
 from django.db.models import Q
 from django.core.exceptions import ValidationError
@@ -7,6 +8,7 @@ from django.utils.text import slugify
 from django.conf import settings
 
 from gitsap.base.models import BaseModel
+from gitsap.git.core import GitService
 
 
 class Project(BaseModel):
@@ -75,6 +77,11 @@ class Project(BaseModel):
     @property
     def owner_type(self):
         return "user" if self.owner_user else "organization"
+
+    @cached_property
+    def git(self):
+        """Lazily initialized GitService for this project."""
+        return GitService(self.get_repo_path())
 
     def _generate_slug(self):
         """Generate slug and ensure uniqueness for the given owner."""

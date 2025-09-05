@@ -16,7 +16,9 @@ class ProjectOverviewView(ProjectPermissionMixin, LoginRequiredMixin, View):
     allowed_roles = ["read", "write", "admin", "owner", "triage", "maintain"]
 
     def get(self, request, *args, **kwargs):
+        project = request.project
         context = {
-            "project": request.project,
+            "project": project,
+            "branches": project.git.list_branches(),
         }
         return render(request, "projects/overview.html", context)
