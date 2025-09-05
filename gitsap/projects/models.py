@@ -1,7 +1,10 @@
+import os
+import pygit2
 from django.db import models, IntegrityError, transaction
 from django.db.models import Q
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
+from django.conf import settings
 
 from gitsap.base.models import BaseModel
 
@@ -43,7 +46,6 @@ class Project(BaseModel):
     )
 
     total_issues_count = models.IntegerField(default=0)
-    repository = models.FileField(upload_to="repositories/", blank=True, null=True)
 
     collaborators = models.ManyToManyField(
         "users.User",
@@ -125,6 +127,35 @@ class Project(BaseModel):
 
         super().save(*args, **kwargs)
 
+    def get_repo_path(self):
+        """Absolute path for this project's bare repository."""
+        return os.path.join(settings.REPO_STORAGE_PATH, f"{self.namespace}.git")
+
+    def initialize_repo(self, overwrite=False):
+        """
+        Create a bare repository for this project.
+        Raises if the repo already exists or cannot be created.
+        """
+        repo_path = self.get_repo_path()
+
+        # Ensure parent directories exist
+        os.makedirs(os.path.dirname(repo_path), exist_ok=True)
+
+        if os.path.exists(repo_path):
+            if overwrite:
+                # Remove existing repo if overwrite is allowed
+                import shutil
+
+                shutil.rmtree(repo_path)
+            else:
+                raise FileExistsError(f"Repository already exists at {repo_path}")
+
+        # Create a bare git repo
+        pygit2.init_repository(repo_path, bare=True)
+
+        return repo_path
+
+    @transaction.atomic
     @classmethod
     def initialize(
         cls, *, name, owner_user=None, owner_org=None, created_by=None, **kwargs
@@ -141,6 +172,9 @@ class Project(BaseModel):
         try:
             with transaction.atomic():
                 project.save()
+
+                # Now create the repository on disk
+                project.initialize_repo()
             return project, []
         except ValidationError as e:
             # Collect field / non-field errors in a readable list

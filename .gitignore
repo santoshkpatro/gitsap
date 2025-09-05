@@ -195,3 +195,6 @@ static/build/*.css.map
 
 # Environment files
 .env
+
+# Other files to ignore
+var/
