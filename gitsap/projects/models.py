@@ -45,6 +45,12 @@ class Project(BaseModel):
     total_issues_count = models.IntegerField(default=0)
     repository = models.FileField(upload_to="repositories/", blank=True, null=True)
 
+    collaborators = models.ManyToManyField(
+        "users.User",
+        related_name="collaborations",
+        through="projects.ProjectPermission",
+    )
+
     class Meta:
         db_table = "projects"
         constraints = [
@@ -135,6 +141,8 @@ class Project(BaseModel):
         try:
             with transaction.atomic():
                 project.save()
+
+                # TODO: Create Project Collaborators / Permissions of owner
             return project, []
         except ValidationError as e:
             # Collect field / non-field errors in a readable list
@@ -154,3 +162,29 @@ class Project(BaseModel):
         except Exception as e:
             # Last safety net — avoid leaking raw stack trace
             return None, [f"Unexpected error: {str(e)}"]
+
+
+class ProjectPermission(BaseModel):
+    class Role(models.TextChoices):
+        READ = ("read", "Read")
+        TRIAGE = ("triage", "Triage")
+        WRITE = ("write", "Write")
+        MAINTAIN = ("maintain", "Maintain")
+        ADMIN = ("admin", "Admin")
+        OWNER = ("owner", "Owner")
+
+    project = models.ForeignKey(
+        "projects.Project", on_delete=models.CASCADE, related_name="permissions"
+    )
+    user = models.ForeignKey(
+        "users.User", on_delete=models.CASCADE, related_name="project_permissions"
+    )
+    role = models.CharField(max_length=12, choices=Role.choices)
+
+    class Meta:
+        db_table = "project_permissions"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["project", "user"], name="unique_project_user_permission"
+            )
+        ]
