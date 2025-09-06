@@ -1,4 +1,5 @@
 import pygit2
+import mimetypes
 from django.utils import timezone
 import datetime
 
@@ -7,6 +8,30 @@ TYPE_MAP = {
     pygit2.GIT_OBJECT_BLOB: "blob",
     pygit2.GIT_OBJECT_COMMIT: "commit",
     pygit2.GIT_OBJECT_TAG: "tag",
+}
+
+FILE_MAP = {
+    ".py": "python",
+    ".js": "javascript",
+    ".ts": "javascript",  # CodeMirror treats TS as JS w/ types
+    ".html": "htmlmixed",
+    ".htm": "htmlmixed",
+    ".css": "css",
+    ".scss": "css",
+    ".json": "javascript",
+    ".yml": "yaml",
+    ".yaml": "yaml",
+    ".md": "markdown",
+    ".txt": "null",  # plain text (no highlighting)
+    ".xml": "xml",
+    ".java": "clike",
+    ".c": "clike",
+    ".cpp": "clike",
+    ".h": "clike",
+    ".go": "go",
+    ".rs": "rust",
+    ".sh": "shell",
+    ".sql": "sql",
 }
 
 
@@ -78,6 +103,11 @@ class GitService:
         for entry, full_path in zip(entries, full_paths):
             obj = self._repo[entry.id]
             last_commit = last_commits[full_path]
+
+            # detect file extension and map to mode
+            ext = "." + entry.name.split(".")[-1] if "." in entry.name else ""
+            file_type = FILE_MAP.get(ext.lower(), "null")
+
             commit_time = timezone.localtime(
                 datetime.datetime.fromtimestamp(
                     last_commit.commit_time, tz=datetime.timezone.utc
@@ -89,6 +119,9 @@ class GitService:
                     "type": TYPE_MAP.get(entry.type, entry.type),
                     "id": str(entry.id),
                     "size": obj.size if entry.type == pygit2.GIT_OBJECT_BLOB else None,
+                    "file_type": (
+                        file_type if entry.type == pygit2.GIT_OBJECT_BLOB else None
+                    ),
                     "last_commit": {
                         "id": str(last_commit.id),
                         "message": last_commit.message.strip(),
@@ -104,3 +137,23 @@ class GitService:
         # Sort: directories first, then files; both alphabetically
         objects.sort(key=lambda o: (0 if o["type"] == "tree" else 1, o["name"].lower()))
         return objects
+
+    def get_blob_content(self, branch_name, path):
+        """
+        Return blob content at given branch/path.
+        """
+        reference = self._repo.branches[branch_name]
+        commit = reference.peel(pygit2.Commit)
+
+        tree = commit.tree
+        for part in path.strip("/").split("/"):
+            entry = tree[part]
+            if entry.type == pygit2.GIT_OBJECT_TREE:
+                tree = self._repo[entry.id]
+            elif entry.type == pygit2.GIT_OBJECT_BLOB:
+                blob = self._repo[entry.id]
+                # Return decoded text if not binary
+                if blob.is_binary:
+                    return None
+                return blob.data.decode("utf-8", errors="replace")
+        return None

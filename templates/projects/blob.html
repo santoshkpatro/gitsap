@@ -1,0 +1,83 @@
+{% extends "base/project.html" %}
+
+{% block styles %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<style>
+    /* Editor container */
+    .code-editor-wrapper {
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    /* CodeMirror fills the wrapper */
+    .CodeMirror {
+        height: 70vh;
+        font-size: 0.875rem;
+        font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+    }
+
+    /* Toolbar styling */
+    .editor-toolbar {
+        display: flex;
+        justify-content: flex-end;
+        gap: .5rem;
+        padding: .5rem .75rem;
+        background: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+</style>
+{% endblock styles %}
+
+{% block content %}
+<div class="container my-1">
+    <div class="code-editor-wrapper">
+        <!-- Toolbar -->
+        <div class="editor-toolbar d-flex align-items-center justify-content-between">
+            <!-- Left: file path -->
+            <div class="small text-muted">
+                {{ current_path }}
+            </div>
+
+            <!-- Right: actions -->
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="copy-btn">
+                    Copy
+                </button>
+                <a href="#" class="btn btn-sm btn-outline-secondary">
+                    Download
+                </a>
+            </div>
+        </div>
+
+        <!-- Editor -->
+        <textarea id="editor">{{ content|escape }}</textarea>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+
+{% if file_type != "null" %}
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/{{ file_type }}/{{ file_type }}.min.js"></script>
+{% endif %}
+
+<script>
+    // Init CodeMirror
+    const editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
+        lineNumbers: true,
+        mode: "{{ file_type }}",
+        theme: "default",
+        readOnly: true // viewer mode
+    });
+
+    // Copy to clipboard
+    document.getElementById("copy-btn").addEventListener("click", () => {
+        navigator.clipboard.writeText(editor.getValue()).then(() => {
+            alert("Copied to clipboard!");
+        });
+    });
+</script>
+{% endblock scripts %}

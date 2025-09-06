@@ -7,12 +7,15 @@
                 {% if entry.type == "tree" %}
                 <i data-lucide="folder" width="16" height="16" class="text-muted"></i>
                 <a hx-get="{% url 'project-tree' namespace=project.namespace branch=current_branch path=current_path|add:entry.name %}"
-                    hx-target="#repo-tree" hx-push-url="true" class="file-link fw-bold">
+                    hx-target="#project-view" hx-push-url="true" class="file-link fw-bold">
                     {{ entry.name }}
                 </a>
                 {% else %}
                 <i data-lucide="file-text" width="16" height="16" class="text-muted"></i>
-                {{ entry.name }}
+                <a href="{% url 'project-blob' namespace=project.namespace branch=current_branch path=current_path|add:entry.name %}"
+                    class="file-link">
+                    {{ entry.name }}
+                </a>
                 {% endif %}
             </div>
 
