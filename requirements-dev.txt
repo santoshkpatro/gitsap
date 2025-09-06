@@ -5,7 +5,9 @@ amqp==5.3.1
 anyio==4.10.0
     # via httpx
 asgiref==3.9.1
-    # via django
+    # via
+    #   django
+    #   django-htmx
 billiard==4.2.1
     # via celery
 black==25.1.0
@@ -42,7 +44,10 @@ coverage==7.10.6
 django==5.2.5
     # via
     #   gitsap (pyproject.toml)
+    #   django-htmx
     #   djangorestframework
+django-htmx==1.23.2
+    # via gitsap (pyproject.toml)
 djangorestframework==3.16.1
     # via gitsap (pyproject.toml)
 faker==37.6.0

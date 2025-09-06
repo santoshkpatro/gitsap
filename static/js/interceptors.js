@@ -1,3 +1,6 @@
+// Lucid Icons Initialization
+lucide.createIcons();
+
 // Configure NProgress
 NProgress.configure({
   showSpinner: false, // disable the loader circle
@@ -61,4 +64,26 @@ window.fetch = function (...args) {
 if (window.htmx) {
   document.body.addEventListener("htmx:beforeRequest", startProgress);
   document.body.addEventListener("htmx:afterRequest", stopProgress);
+
+  // When navigating back/forward, htmx restores from cache without XHR
+  document.body.addEventListener("htmx:historyRestore", function () {
+    // Ensure bar shows briefly then finishes
+    NProgress.start();
+    NProgress.done();
+
+    // Reset counters so fetch/XHR interceptors don’t get confused
+    activeRequests = 0;
+
+    // Re-run Lucide for restored DOM
+    if (window.lucide) {
+      lucide.createIcons();
+    }
+  });
+
+  document.body.addEventListener("htmx:afterSwap", function () {
+    // Re-run icons or other dynamic JS after content swap
+    if (window.lucide) {
+      lucide.createIcons();
+    }
+  });
 }

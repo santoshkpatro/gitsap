@@ -40,4 +40,7 @@ class ProjectTreeView(ProjectPermissionMixin, LoginRequiredMixin, View):
             "entries": project.git.list_tree(branch or project.default_branch, path),
             "current_path": "{}/".format(path),
         }
+
+        if request.htmx:
+            return render(request, "projects/_entries.html", context)
         return render(request, "projects/tree.html", context)

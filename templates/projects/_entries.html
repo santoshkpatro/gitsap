@@ -6,8 +6,8 @@
             <div class="col-3 d-flex align-items-center gap-2 text-truncate">
                 {% if entry.type == "tree" %}
                 <i data-lucide="folder" width="16" height="16" class="text-muted"></i>
-                <a href="{% url 'project-tree' namespace=project.namespace branch=current_branch path=current_path|add:entry.name %}"
-                    class="file-link fw-bold">
+                <a hx-get="{% url 'project-tree' namespace=project.namespace branch=current_branch path=current_path|add:entry.name %}"
+                    hx-target="#repo-tree" hx-push-url="true" class="file-link fw-bold">
                     {{ entry.name }}
                 </a>
                 {% else %}
