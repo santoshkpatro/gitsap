@@ -19,5 +19,6 @@ class ProjectOverviewView(ProjectPermissionMixin, LoginRequiredMixin, View):
         context = {
             "project": project,
             "branches": project.git.list_branches(),
+            "entries": project.git.list_tree(project.default_branch),
         }
         return render(request, "projects/overview.html", context)

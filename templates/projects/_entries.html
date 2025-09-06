@@ -1,0 +1,28 @@
+<ul class="list-group">
+    {% for entry in entries %}
+    <li class="list-group-item">
+        <div class="row align-items-center">
+            <!-- Left: file/folder name -->
+            <div class="col-3 d-flex align-items-center gap-2 text-truncate">
+                {% if entry.type == "tree" %}
+                <i data-lucide="folder" width="16" height="16" class="text-muted"></i>
+                <strong>{{ entry.name }}</strong>
+                {% else %}
+                <i data-lucide="file-text" width="16" height="16" class="text-muted"></i>
+                {{ entry.name }}
+                {% endif %}
+            </div>
+
+            <!-- Middle: commit message -->
+            <div class="col-7 text-truncate text-muted small">
+                {{ entry.last_commit.message }}
+            </div>
+
+            <!-- Right: commit time -->
+            <div class="col-2 text-end text-muted small">
+                {{ entry.last_commit.time|timesince }} ago
+            </div>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
