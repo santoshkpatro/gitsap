@@ -39,3 +39,15 @@
     align-items: center;
     gap: 0.35rem;
 }
+
+.file-link {
+    text-decoration: none;
+    color: inherit;
+    cursor: default;
+}
+
+.file-link:hover {
+    text-decoration: underline;
+    color: #6F42C1;
+    cursor: pointer;
+}

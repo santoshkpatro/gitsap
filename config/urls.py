@@ -9,13 +9,15 @@ from gitsap.users.views import (
     VerificationResendView,
 )
 from gitsap.home.views import IndexView
-from gitsap.projects.views import ProjectNewView, ProjectOverviewView
+from gitsap.projects.views import ProjectNewView, ProjectOverviewView, ProjectTreeView
 
+
+# fmt: off
 project_urlpattern = [
+    path("tree/<str:branch>/<path:path>/", ProjectTreeView.as_view(), name="project-tree"),
     path("", ProjectOverviewView.as_view(), name="project-overview"),
 ]
 
-# fmt: off
 urlpatterns = [
     path("users/register/", RegisterView.as_view(), name="users-register"),
     path("users/login/", LoginView.as_view(), name="users-login"),
