@@ -1,0 +1,109 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Gitsap{% endblock title %}</title>
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/nprogress/nprogress.css" />
+    <link rel="stylesheet" href="{% static 'build/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base/project.css' %}">
+</head>
+
+<body>
+    {% include 'base/_alerts.html' %}
+
+    <!-- 🔹 Global Header -->
+    <nav class="bg-light d-flex justify-content-between align-items-center px-3 pt-2">
+        <!-- Left: Logo + Brand -->
+        <a href="#" class="d-inline-flex align-items-center text-decoration-none">
+            <img src="{% static 'images/logo.png' %}" alt="Gitsap Logo" width="28" height="28" class="me-2">
+            <span class="fw-bold text-dark">GitSap</span>
+        </a>
+
+        <!-- Right: Search + Actions -->
+        <div class="d-flex align-items-center gap-2">
+            <form class="d-none d-md-block">
+                <div class="input-group input-group-sm search-ig">
+                    <span class="input-group-text">
+                        <i data-lucide="search" width="16" height="16"></i>
+                    </span>
+                    <input class="form-control form-control-sm" type="search" placeholder="Search…" aria-label="Search">
+                </div>
+            </form>
+
+            <button class="btn btn-sm btn-outline-secondary action-btn" aria-label="Notifications">
+                <i data-lucide="bell" width="16" height="16"></i>
+            </button>
+
+            <button class="btn btn-sm btn-primary action-btn">
+                <i data-lucide="plus" width="16" height="16"></i>
+                <span>New repository</span>
+            </button>
+
+            <button class="btn btn-sm btn-outline-primary action-btn">
+                <i data-lucide="building-2" width="16" height="16"></i>
+                <span>New organization</span>
+            </button>
+
+            <img src="{% static 'images/avatar.png' %}" alt="Profile" class="rounded-circle ms-1" width="28"
+                height="28">
+        </div>
+    </nav>
+
+    <!-- 🔹 Project Navigation -->
+    <header
+        class="bg-light sticky-top project-tabs d-flex justify-content-between align-items-center px-3 border-bottom">
+        <!-- Left: Tabs -->
+        <ul class="nav nav-pills">
+            <li class="nav-item">
+                <a class="nav-link active" href="{% url 'project-overview' namespace=request.project.namespace %}">
+                    <i data-lucide="book" width="16" height="16"></i>
+                    Repository
+                </a>
+            </li>
+            <li class="nav-item"><a class="nav-link" href="#"><i data-lucide="circle-dot" width="16" height="16"></i>
+                    Issues</a></li>
+            <li class="nav-item"><a class="nav-link" href="#"><i data-lucide="git-pull-request" width="16"
+                        height="16"></i> Pull Requests</a></li>
+            <li class="nav-item"><a class="nav-link" href="#"><i data-lucide="play-circle" width="16" height="16"></i>
+                    Pipelines</a></li>
+            <li class="nav-item"><a class="nav-link" href="#"><i data-lucide="layout" width="16" height="16"></i>
+                    Board</a></li>
+            <li class="nav-item"><a class="nav-link" href="#"><i data-lucide="activity" width="16" height="16"></i>
+                    Activity</a></li>
+            <li class="nav-item"><a class="nav-link" href="#"><i data-lucide="settings" width="16" height="16"></i>
+                    Settings</a></li>
+        </ul>
+
+        <!-- Right: Project Info + Actions -->
+        <div class="d-flex align-items-center gap-2 py-1">
+            <div class="text-end">
+                <h6 class="mb-0 fw-semibold">{{ request.project.namespace }}</h6>
+                <span class="badge bg-secondary-subtle text-dark border">{{ request.project.visibility }}</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- 🔹 Main Content -->
+    <main class="container-lg py-4">
+        {% block content %}
+        {% endblock content %}
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/nprogress/nprogress.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>lucide.createIcons();</script>
+    <script src="{% static 'js/interceptors.js' %}"></script>
+
+    {% block scripts %}{% endblock scripts %}
+</body>
+
+</html>

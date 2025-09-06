@@ -4,7 +4,6 @@ from django.shortcuts import render
 
 from gitsap.utils.template import vite_render
 from gitsap.projects.mixin import ProjectPermissionMixin
-from gitsap.projects.models import ProjectPermission
 
 
 class ProjectNewView(LoginRequiredMixin, View):

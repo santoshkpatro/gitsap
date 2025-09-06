@@ -1,0 +1,41 @@
+.search-ig .input-group-text {
+    background: #fff;
+    border-right: 0;
+}
+
+.search-ig .form-control {
+    border-left: 0;
+    width: 220px;
+}
+
+.project-tabs .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    font-weight: 500;
+    color: #212529;
+    font-size: 0.875rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 0.375rem;
+}
+
+.project-tabs .nav-link:hover {
+    background-color: #f1f3f5;
+    color: #000;
+}
+
+.project-tabs .nav-link.active {
+    background-color: #e9ecef;
+    color: #000;
+    font-weight: 600;
+}
+
+.project-tabs .nav {
+    gap: 0.5rem;
+}
+
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
