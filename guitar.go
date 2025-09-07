@@ -34,7 +34,7 @@ func main() {
 	e := echo.New()
 
 	// Add middleware for better debugging
-	e.Use(middleware.Logger())
+	// e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
 	// Discovery for fetch/clone
