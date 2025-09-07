@@ -13,12 +13,14 @@ from gitsap.projects.views import (
     ProjectNewView,
     ProjectOverviewView,
     ProjectTreeView,
+    ProjectRootTreeView,
     ProjectBlobView,
 )
 
 
 # fmt: off
 project_urlpattern = [
+    path("tree/<str:branch>/", ProjectRootTreeView.as_view(), name="project-root-tree"),
     path("tree/<str:branch>/<path:path>/", ProjectTreeView.as_view(), name="project-tree"),
     path("blob/<str:branch>/<path:path>/", ProjectBlobView.as_view(), name="project-blob"),
     path("", ProjectOverviewView.as_view(), name="project-overview"),

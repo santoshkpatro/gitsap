@@ -71,6 +71,10 @@ class Project(BaseModel):
         ]
 
     @property
+    def https_clone_url(self):
+        return f"{settings.GIT_SERVER_URL}/{self.namespace}.git"
+
+    @property
     def owner(self):
         return self.owner_user if self.owner_user else self.owner_org
 

@@ -155,3 +155,4 @@ CELERY_RESULT_BACKEND = os.environ.get(
 
 # Git Configuration
 REPO_STORAGE_PATH = os.environ.get("REPO_STORAGE_PATH", BASE_DIR / "var" / "repos")
+GIT_SERVER_URL = os.environ.get("GIT_SERVER_URL", "http://localhost:3000")

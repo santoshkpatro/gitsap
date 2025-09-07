@@ -2,9 +2,59 @@
 
 {% block content %}
 <div class="container my-1">
+
     <div class="row" id="project-view">
         <!-- Left: Repository tree -->
         <div class="col-md-10">
+            <!-- Toolbar -->
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <!-- Branches dropdown -->
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1"
+                        type="button" id="branchesDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i data-lucide="git-branch" class="me-1" width="16" height="16"></i>
+                        {{ current_branch|default:project.default_branch }}
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="branchesDropdown">
+                        {% for branch in branches %}
+                        <li>
+                            <a href="{% url 'project-root-tree' branch=current_branch namespace=project.namespace %}"
+                                class="dropdown-item d-flex justify-content-between align-items-center {% if branch == current_branch %}active{% endif %}"
+                                hx-get="{% url 'project-root-tree' branch=current_branch namespace=project.namespace %}"
+                                hx-target="#project-view" hx-push-url="true">
+                                {{ branch }}
+                                {% if branch == current_branch %}
+                                <i data-lucide="check" width="14" height="14"></i>
+                                {% endif %}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+
+
+                <!-- Clone dropdown -->
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1"
+                        type="button" id="cloneDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i data-lucide="copy" width="16" height="16"></i>
+                        Clone
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end p-2 small" aria-labelledby="cloneDropdown"
+                        style="min-width: 280px;">
+                        <div class="input-group input-group-sm">
+                            <input type="text" class="form-control" id="cloneUrl" value="{{ project.https_clone_url }}"
+                                readonly>
+                            <button class="btn btn-outline-secondary" type="button" id="copyCloneUrl"
+                                data-clipboard-target="#cloneUrl">
+                                <i data-lucide="clipboard" width="14" height="14"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {% include 'projects/_entries.html' %}
         </div>
 
@@ -26,3 +76,26 @@
     </div>
 </div>
 {% endblock content %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const clipboard = new ClipboardJS('#copyCloneUrl');
+
+        clipboard.on('success', function (e) {
+            const btn = e.trigger;
+            btn.innerHTML = '<i data-lucide="check" width="14" height="14"></i>';
+            lucide.createIcons();
+            setTimeout(() => {
+                btn.innerHTML = '<i data-lucide="clipboard" width="14" height="14"></i>';
+                lucide.createIcons();
+            }, 1500);
+        });
+
+        clipboard.on('error', function (e) {
+            console.error('Copy failed:', e);
+        });
+    });
+</script>
+{% endblock scripts %}
