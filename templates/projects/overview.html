@@ -28,7 +28,6 @@
     </div>
 </div>
 
-
 <!-- File list -->
 <div class="list-group">
     {% for object in objects %}
@@ -37,13 +36,13 @@
             <!-- Left: File / Folder name -->
             <div class="col-3 d-flex align-items-center gap-2 text-truncate">
                 {% if object.type == "tree" %}
-                <i class="bi bi-folder text-primary"></i>
+                <i class="ph ph-folder text-primary"></i>
                 <a href="{% url 'project-tree' namespace=request.project.namespace branch=current_branch nodepath=object.nodepath %}"
                     class="fw-semibold text-truncate file-link">
                     {{ object.name }}
                 </a>
                 {% else %}
-                <i class="bi bi-file-earmark text-secondary"></i>
+                <i class="ph ph-file text-secondary"></i>
                 <a href="{% url 'project-blob' namespace=request.project.namespace branch=current_branch nodepath=object.nodepath %}"
                     class="fw-semibold text-truncate file-link">
                     {{ object.name }}

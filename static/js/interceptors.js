@@ -1,6 +1,3 @@
-// Lucid Icons Initialization
-lucide.createIcons();
-
 // Configure NProgress
 NProgress.configure({
   showSpinner: false, // disable the loader circle
@@ -73,17 +70,5 @@ if (window.htmx) {
 
     // Reset counters so fetch/XHR interceptors don’t get confused
     activeRequests = 0;
-
-    // Re-run Lucide for restored DOM
-    if (window.lucide) {
-      lucide.createIcons();
-    }
-  });
-
-  document.body.addEventListener("htmx:afterSwap", function () {
-    // Re-run icons or other dynamic JS after content swap
-    if (window.lucide) {
-      lucide.createIcons();
-    }
   });
 }

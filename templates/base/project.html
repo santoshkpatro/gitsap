@@ -11,10 +11,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/nprogress/nprogress.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
     <link rel="stylesheet" href="{% static 'build/styles.css' %}">
     <link rel="stylesheet" href="{% static 'css/base/project.css' %}">
-
 
     {% block styles %}
     {% endblock styles %}
@@ -36,23 +35,23 @@
             <form class="d-none d-md-block">
                 <div class="input-group input-group-sm search-ig">
                     <span class="input-group-text">
-                        <i data-lucide="search" width="16" height="16"></i>
+                        <i class="ph ph-magnifying-glass"></i>
                     </span>
                     <input class="form-control form-control-sm" type="search" placeholder="Search…" aria-label="Search">
                 </div>
             </form>
 
             <button class="btn btn-sm btn-outline-secondary action-btn" aria-label="Notifications">
-                <i data-lucide="bell" width="16" height="16"></i>
+                <i class="ph ph-bell"></i>
             </button>
 
             <button class="btn btn-sm btn-primary action-btn">
-                <i data-lucide="plus" width="16" height="16"></i>
+                <i class="ph ph-plus"></i>
                 <span>New repository</span>
             </button>
 
             <button class="btn btn-sm btn-outline-primary action-btn">
-                <i data-lucide="building-2" width="16" height="16"></i>
+                <i class="ph ph-buildings"></i>
                 <span>New organization</span>
             </button>
 
@@ -68,22 +67,17 @@
         <ul class="nav nav-pills">
             <li class="nav-item">
                 <a class="nav-link active" href="{% url 'project-overview' namespace=request.project.namespace %}">
-                    <i data-lucide="book" width="16" height="16"></i>
+                    <i class="ph ph-book"></i>
                     Repository
                 </a>
             </li>
-            <li class="nav-item"><a class="nav-link" href="#"><i data-lucide="circle-dot" width="16" height="16"></i>
-                    Issues</a></li>
-            <li class="nav-item"><a class="nav-link" href="#"><i data-lucide="git-pull-request" width="16"
-                        height="16"></i> Pull Requests</a></li>
-            <li class="nav-item"><a class="nav-link" href="#"><i data-lucide="play-circle" width="16" height="16"></i>
-                    Pipelines</a></li>
-            <li class="nav-item"><a class="nav-link" href="#"><i data-lucide="layout" width="16" height="16"></i>
-                    Board</a></li>
-            <li class="nav-item"><a class="nav-link" href="#"><i data-lucide="activity" width="16" height="16"></i>
-                    Activity</a></li>
-            <li class="nav-item"><a class="nav-link" href="#"><i data-lucide="settings" width="16" height="16"></i>
-                    Settings</a></li>
+            <li class="nav-item"><a class="nav-link" href="#"><i class="ph ph-bug"></i> Issues</a></li>
+            <li class="nav-item"><a class="nav-link" href="#"><i class="ph ph-git-pull-request"></i> Pull Requests</a>
+            </li>
+            <li class="nav-item"><a class="nav-link" href="#"><i class="ph ph-play-circle"></i> Pipelines</a></li>
+            <li class="nav-item"><a class="nav-link" href="#"><i class="ph ph-kanban"></i> Board</a></li>
+            <li class="nav-item"><a class="nav-link" href="#"><i class="ph ph-activity"></i> Activity</a></li>
+            <li class="nav-item"><a class="nav-link" href="#"><i class="ph ph-gear"></i> Settings</a></li>
         </ul>
 
         <!-- Right: Project Info + Actions -->
@@ -101,10 +95,7 @@
         {% endblock content %}
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-        crossorigin="anonymous"></script>
     <script src="https://unpkg.com/nprogress/nprogress.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.6/dist/htmx.min.js"></script>
     <script src="{% static 'js/interceptors.js' %}"></script>
 

@@ -2,6 +2,7 @@ from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.http import Http404
+from django.urls import reverse
 
 from gitsap.git.core import FILE_MAP
 from gitsap.utils.template import vite_render
@@ -46,13 +47,41 @@ class ProjectTreeResolveView(ProjectPermissionMixin, View):
 
     def get(self, request, *args, **kwargs):
         project = request.project
+        branch = kwargs.get("branch")
+        nodepath = kwargs.get("nodepath", None)
+        current_nodepath = nodepath.strip("/") if nodepath else None
+        backlink_url = ""
+
+        if current_nodepath:
+            parts = [p for p in current_nodepath.split("/") if p]
+            parent = "/".join(parts[:-1])
+            if parent:
+                backlink_url = reverse(
+                    "project-tree",
+                    kwargs={
+                        "namespace": project.namespace,
+                        "branch": branch,
+                        "nodepath": parent,
+                    },
+                )
+            else:
+                # Parent is root
+                backlink_url = reverse(
+                    "project-root-tree",
+                    kwargs={
+                        "namespace": project.namespace,
+                        "branch": branch,
+                    },
+                )
+
         context = {
-            "current_nodepath": kwargs.get("nodepath", None),
+            "current_nodepath": current_nodepath,
             "branches": project.git.list_branches(),
             "objects": project.git.list_tree(
                 kwargs.get("branch"), kwargs.get("nodepath", None)
             ),
-            "current_branch": kwargs.get("branch"),
+            "current_branch": branch,
+            "backlink_url": backlink_url,
         }
         if request.htmx:
             return render(request, "projects/_tree.html", context)

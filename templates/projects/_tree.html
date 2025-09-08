@@ -24,23 +24,42 @@
     </div>
 </div>
 
-
 <!-- File list -->
 <div class="list-group">
+    {% if backlink_url %}
+    <!-- Backlink row -->
+    <div class="list-group-item list-group-item-light">
+        <div class="row align-items-center">
+            <div class="col-3 d-flex align-items-center gap-2 text-truncate">
+                <a href="{{ backlink_url }}" hx-get="{{ backlink_url }}" hx-target="#nodes" hx-push-url="true"
+                    class="fw-semibold text-truncate file-link">
+                    <i class="ph ph-arrow-left text-muted"></i>
+                </a>
+            </div>
+            <div class="col-6 text-truncate">
+                <small class="text-muted">Go up</small>
+            </div>
+            <div class="col-3 text-end text-nowrap">
+                <small class="text-muted"></small>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     {% for object in objects %}
     <div class="list-group-item">
         <div class="row align-items-center">
             <!-- Left: File / Folder name -->
             <div class="col-3 d-flex align-items-center gap-2 text-truncate">
                 {% if object.type == "tree" %}
-                <i class="bi bi-folder text-primary"></i>
+                <i class="ph ph-folder text-primary"></i>
                 <a href="{% url 'project-tree' namespace=request.project.namespace branch=current_branch nodepath=object.nodepath %}"
                     hx-get="{% url 'project-tree' namespace=request.project.namespace branch=current_branch nodepath=object.nodepath %}"
                     hx-target="#nodes" hx-push-url="true" class="fw-semibold text-truncate file-link">
                     {{ object.name }}
                 </a>
                 {% else %}
-                <i class="bi bi-file-earmark text-secondary"></i>
+                <i class="ph ph-file text-secondary"></i>
                 <a href="{% url 'project-blob' namespace=request.project.namespace branch=current_branch nodepath=object.nodepath %}"
                     class="fw-semibold text-truncate file-link">
                     {{ object.name }}
