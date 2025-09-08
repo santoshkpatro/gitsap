@@ -13,83 +13,73 @@ class ProjectNewView(LoginRequiredMixin, View):
         return vite_render(request, "pages/projects/new.js")
 
 
-class ProjectOverviewView(ProjectPermissionMixin, LoginRequiredMixin, View):
+class ProjectOverviewView(ProjectPermissionMixin, View):
     allowed_roles = ["read", "write", "admin", "owner", "triage", "maintain"]
 
     def get(self, request, *args, **kwargs):
         project = request.project
         context = {
-            "project": project,
+            "current_nodepath": None,
             "branches": project.git.list_branches(),
-            "entries": project.git.list_tree(project.default_branch),
+            "objects": project.git.list_tree(project.default_branch, None),
             "current_branch": project.default_branch,
-            "current_path": "",
         }
         return render(request, "projects/overview.html", context)
 
 
-class ProjectRootTreeView(ProjectPermissionMixin, LoginRequiredMixin, View):
+class ProjectBranchesView(ProjectPermissionMixin, LoginRequiredMixin, View):
+    allowed_roles = ["read", "write", "admin", "owner", "triage", "maintain"]
+
+    def get(self, request, *args, **kwargs):
+        current_path = kwargs.get("current_path", "/")
+        project = request.project
+        context = {
+            "project": project,
+            "branches": project.git.list_branches(),
+            "current_path": current_path,
+        }
+        return render(request, "projects/branches.html", context)
+
+
+class ProjectTreeResolveView(ProjectPermissionMixin, View):
     allowed_roles = ["read", "write", "admin", "owner", "triage", "maintain"]
 
     def get(self, request, *args, **kwargs):
         project = request.project
-        branch = kwargs.get("branch")
-
         context = {
-            "project": project,
-            "current_branch": branch or project.default_branch,
-            "entries": project.git.list_tree(branch or project.default_branch),
-            "current_path": "",
+            "current_nodepath": kwargs.get("nodepath", None),
+            "branches": project.git.list_branches(),
+            "objects": project.git.list_tree(
+                kwargs.get("branch"), kwargs.get("nodepath", None)
+            ),
+            "current_branch": kwargs.get("branch"),
         }
-
         if request.htmx:
-            return render(request, "projects/_entries.html", context)
+            return render(request, "projects/_tree.html", context)
         return render(request, "projects/tree.html", context)
 
 
-class ProjectTreeView(ProjectPermissionMixin, LoginRequiredMixin, View):
+class ProjectBlobResolveView(ProjectPermissionMixin, LoginRequiredMixin, View):
     allowed_roles = ["read", "write", "admin", "owner", "triage", "maintain"]
 
     def get(self, request, *args, **kwargs):
         project = request.project
-        branch = kwargs.get("branch")
-        path = kwargs.get("path", None)
-
-        context = {
-            "project": project,
-            "current_branch": branch or project.default_branch,
-            "entries": project.git.list_tree(branch or project.default_branch, path),
-            "current_path": "{}/".format(path),
-        }
-
-        if request.htmx:
-            return render(request, "projects/_entries.html", context)
-        return render(request, "projects/tree.html", context)
-
-
-class ProjectBlobView(ProjectPermissionMixin, LoginRequiredMixin, View):
-    allowed_roles = ["read", "write", "admin", "owner", "triage", "maintain"]
-
-    def get(self, request, *args, **kwargs):
-        project = request.project
-        branch = kwargs.get("branch")
-        path = kwargs.get("path", None)
-
         blob_content = project.git.get_blob_content(
-            branch or project.default_branch, path
+            kwargs.get("branch"), kwargs.get("nodepath")
         )
         if blob_content is None:
             raise Http404("Blob not found")
 
         # detect file type for CodeMirror
+        path = kwargs.get("nodepath")
         ext = "." + path.split(".")[-1] if "." in path else ""
         file_type = FILE_MAP.get(ext.lower(), "null")
 
         context = {
             "project": project,
-            "current_branch": branch or project.default_branch,
+            "current_branch": kwargs.get("branch"),
             "content": blob_content,
-            "current_path": path,
+            "current_nodepath": kwargs.get("nodepath"),
             "file_type": file_type,
         }
 

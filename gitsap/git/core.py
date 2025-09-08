@@ -122,6 +122,7 @@ class GitService:
                     "file_type": (
                         file_type if entry.type == pygit2.GIT_OBJECT_BLOB else None
                     ),
+                    "nodepath": full_path,
                     "last_commit": {
                         "id": str(last_commit.id),
                         "message": last_commit.message.strip(),

@@ -1,7 +1,3 @@
-{% extends 'base/project.html' %}
-
-{% block content %}
-<!-- Toolbar: Branch selector -->
 <div class="d-flex justify-content-between align-items-center mb-2">
     <div class="dropdown">
         <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="branchDropdown"
@@ -39,7 +35,8 @@
                 {% if object.type == "tree" %}
                 <i class="bi bi-folder text-primary"></i>
                 <a href="{% url 'project-tree' namespace=request.project.namespace branch=current_branch nodepath=object.nodepath %}"
-                    class="fw-semibold text-truncate file-link">
+                    hx-get="{% url 'project-tree' namespace=request.project.namespace branch=current_branch nodepath=object.nodepath %}"
+                    hx-target="#nodes" hx-push-url="true" class="fw-semibold text-truncate file-link">
                     {{ object.name }}
                 </a>
                 {% else %}
@@ -64,4 +61,3 @@
     </div>
     {% endfor %}
 </div>
-{% endblock content %}
