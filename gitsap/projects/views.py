@@ -82,6 +82,7 @@ class ProjectTreeResolveView(ProjectPermissionMixin, View):
             ),
             "current_branch": branch,
             "backlink_url": backlink_url,
+            "node_last_commit": project.git.last_commit_for_node(branch, nodepath),
         }
         if request.htmx:
             return render(request, "projects/_tree.html", context)

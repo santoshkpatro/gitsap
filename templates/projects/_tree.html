@@ -1,6 +1,28 @@
 <div class="d-flex justify-content-between align-items-center mb-2">
-    {% include 'projects/_branch_dropdown.html' %}
+    <!-- Left: Branch dropdown -->
+    <div>
+        {% include 'projects/_branch_dropdown.html' %}
+    </div>
+
+    <!-- Right: Latest commit info -->
+    {% if node_last_commit %}
+    <div class="d-flex align-items-center gap-2">
+        <div class="list-group-item py-1 px-2 d-flex align-items-center gap-2">
+            <i data-lucide="git-commit" width="14" height="14"></i>
+            <span class="text-truncate fw-semibold" style="max-width: 400px;">
+                {{ node_last_commit.id|slice:":7" }} – {{ node_last_commit.message }}
+            </span>
+            <small class="text-muted text-nowrap">
+                by {{ node_last_commit.author.name }} – {{ node_last_commit.time|timesince }} ago
+            </small>
+        </div>
+    </div>
+    {% endif %}
 </div>
+
+
+
+
 
 <!-- File list -->
 <div class="list-group">

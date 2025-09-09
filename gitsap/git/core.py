@@ -158,3 +158,31 @@ class GitService:
                     return None
                 return blob.data.decode("utf-8", errors="replace")
         return None
+
+    def last_commit_for_node(self, branch_name, nodepath=None):
+        """
+        Return the last commit for the given nodepath in the branch,
+        in the same format as list_tree's 'last_commit' key.
+        If nodepath=None, returns the last commit for the root.
+        """
+        path = nodepath.rstrip("/") + "/" if nodepath else ""  # folder style
+        commit = self._last_commits_for_paths(branch_name, [path]).get(path)
+
+        if not commit:
+            return None
+
+        commit_time = timezone.localtime(
+            datetime.datetime.fromtimestamp(
+                commit.commit_time, tz=datetime.timezone.utc
+            )
+        )
+
+        return {
+            "id": str(commit.id),
+            "message": commit.message.strip(),
+            "author": {
+                "name": commit.author.name,
+                "email": commit.author.email,
+            },
+            "time": commit_time,
+        }
