@@ -11,7 +11,7 @@
             <div class="col-3 d-flex align-items-center gap-2 text-truncate">
                 <a href="{{ backlink_url }}" hx-get="{{ backlink_url }}" hx-target="#nodes" hx-push-url="true"
                     class="fw-semibold text-truncate file-link">
-                    <i class="ph ph-arrow-left text-muted"></i>
+                    <i data-lucide="arrow-left" width="14" height="14" class="text-muted"></i>
                 </a>
             </div>
             <div class="col-6 text-truncate">
@@ -30,14 +30,14 @@
             <!-- Left: File / Folder name -->
             <div class="col-3 d-flex align-items-center gap-2 text-truncate">
                 {% if object.type == "tree" %}
-                <i class="ph ph-folder text-primary"></i>
+                <i data-lucide="folder" width="14" height="14" class="text-primary"></i>
                 <a href="{% url 'project-tree' namespace=request.project.namespace branch=current_branch nodepath=object.nodepath %}"
                     hx-get="{% url 'project-tree' namespace=request.project.namespace branch=current_branch nodepath=object.nodepath %}"
                     hx-target="#nodes" hx-push-url="true" class="fw-semibold text-truncate file-link">
                     {{ object.name }}
                 </a>
                 {% else %}
-                <i class="ph ph-file text-secondary"></i>
+                <i data-lucide="file" width="14" height="14" class="text-secondary"></i>
                 <a href="{% url 'project-blob' namespace=request.project.namespace branch=current_branch nodepath=object.nodepath %}"
                     class="fw-semibold text-truncate file-link">
                     {{ object.name }}

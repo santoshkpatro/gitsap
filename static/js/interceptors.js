@@ -71,4 +71,14 @@ if (window.htmx) {
     // Reset counters so fetch/XHR interceptors don’t get confused
     activeRequests = 0;
   });
+
+  // Run Lucide after HTMX swaps content
+  document.body.addEventListener("htmx:afterSwap", function (evt) {
+    // Only create icons inside the swapped content for efficiency
+    if (evt.detail && evt.detail.target) {
+      lucide.createIcons(evt.detail.target);
+    } else {
+      lucide.createIcons();
+    }
+  });
 }

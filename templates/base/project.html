@@ -11,7 +11,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/nprogress/nprogress.css" />
-    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+
+    <!-- Lucide Icons -->
     <link rel="stylesheet" href="{% static 'build/styles.css' %}">
     <link rel="stylesheet" href="{% static 'css/base/project.css' %}">
 
@@ -35,23 +36,23 @@
             <form class="d-none d-md-block">
                 <div class="input-group input-group-sm search-ig">
                     <span class="input-group-text">
-                        <i class="ph ph-magnifying-glass"></i>
+                        <i data-lucide="search" width="14" height="14"></i>
                     </span>
                     <input class="form-control form-control-sm" type="search" placeholder="Search…" aria-label="Search">
                 </div>
             </form>
 
             <button class="btn btn-sm btn-outline-secondary action-btn" aria-label="Notifications">
-                <i class="ph ph-bell"></i>
+                <i data-lucide="bell" width="14" height="14"></i>
             </button>
 
             <button class="btn btn-sm btn-primary action-btn">
-                <i class="ph ph-plus"></i>
+                <i data-lucide="plus" width="14" height="14"></i>
                 <span>New repository</span>
             </button>
 
             <button class="btn btn-sm btn-outline-primary action-btn">
-                <i class="ph ph-buildings"></i>
+                <i data-lucide="building-2" width="14" height="14"></i>
                 <span>New organization</span>
             </button>
 
@@ -61,33 +62,7 @@
     </nav>
 
     <!-- 🔹 Project Navigation -->
-    <header
-        class="bg-light sticky-top project-tabs d-flex justify-content-between align-items-center px-3 border-bottom">
-        <!-- Left: Tabs -->
-        <ul class="nav nav-pills">
-            <li class="nav-item">
-                <a class="nav-link active" href="{% url 'project-overview' namespace=request.project.namespace %}">
-                    <i class="ph ph-book"></i>
-                    Repository
-                </a>
-            </li>
-            <li class="nav-item"><a class="nav-link" href="#"><i class="ph ph-bug"></i> Issues</a></li>
-            <li class="nav-item"><a class="nav-link" href="#"><i class="ph ph-git-pull-request"></i> Pull Requests</a>
-            </li>
-            <li class="nav-item"><a class="nav-link" href="#"><i class="ph ph-play-circle"></i> Pipelines</a></li>
-            <li class="nav-item"><a class="nav-link" href="#"><i class="ph ph-kanban"></i> Board</a></li>
-            <li class="nav-item"><a class="nav-link" href="#"><i class="ph ph-activity"></i> Activity</a></li>
-            <li class="nav-item"><a class="nav-link" href="#"><i class="ph ph-gear"></i> Settings</a></li>
-        </ul>
-
-        <!-- Right: Project Info + Actions -->
-        <div class="d-flex align-items-center gap-2 py-1">
-            <div class="text-end">
-                <h6 class="mb-0 fw-semibold">{{ request.project.namespace }}</h6>
-                <span class="badge bg-secondary-subtle text-dark border">{{ request.project.visibility }}</span>
-            </div>
-        </div>
-    </header>
+    {% include 'base/_project_header.html' %}
 
     <!-- 🔹 Main Content -->
     <main class="container-lg py-4">
@@ -97,8 +72,12 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.6/dist/htmx.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/nprogress/nprogress.js"></script>
     <script src="{% static 'js/interceptors.js' %}"></script>
+    <script>
+        lucide.createIcons();  // Initialize all Lucide icons
+    </script>
 
     {% block scripts %}
     {% endblock scripts %}
