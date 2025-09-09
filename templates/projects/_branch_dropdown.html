@@ -1,0 +1,42 @@
+<div class="dropdown">
+    <button class="btn btn-sm btn-outline-primary dropdown-toggle px-3" type="button" id="branchDropdown"
+        data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+        <i class="ph ph-git-branch me-1"></i>
+        {{ current_branch }}
+    </button>
+
+    <div class="dropdown-menu shadow-lg border-0 rounded-3 p-0" aria-labelledby="branchDropdown"
+        style="min-width: 280px;">
+
+        <!-- Search bar -->
+        <div class="px-3 py-2 border-bottom">
+            <div class="input-group input-group-sm">
+                <span class="input-group-text bg-white">
+                    <i class="ph ph-magnifying-glass text-muted"></i>
+                </span>
+                <input type="text" class="form-control form-control-sm" placeholder="Find a branch…">
+            </div>
+        </div>
+
+        <!-- Branch list -->
+        <ul class="list-unstyled mb-0">
+            {% for branch in branches %}
+            <li>
+                {% if current_nodepath %}
+                <a class="dropdown-item d-flex align-items-center gap-2 {% if branch == current_branch %}active fw-semibold{% endif %}"
+                    href="{% url 'project-tree' namespace=request.project.namespace branch=branch nodepath=current_nodepath %}">
+                    <i class="ph ph-git-branch text-muted"></i>
+                    <span class="text-truncate">{{ branch }}</span>
+                </a>
+                {% else %}
+                <a class="dropdown-item d-flex align-items-center gap-2 {% if branch == current_branch %}active fw-semibold{% endif %}"
+                    href="{% url 'project-root-tree' namespace=request.project.namespace branch=branch %}">
+                    <i class="ph ph-git-branch text-muted"></i>
+                    <span class="text-truncate">{{ branch }}</span>
+                </a>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
