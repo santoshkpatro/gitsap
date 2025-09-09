@@ -3,10 +3,47 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.http import Http404
 from django.urls import reverse
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
+from gitsap.users.models import User
+from gitsap.projects.models import Project, ProjectPermission
 from gitsap.git.core import FILE_MAP
 from gitsap.utils.template import vite_render
 from gitsap.projects.mixin import ProjectPermissionMixin
+from gitsap.projects.serializers import ProjectVerifyAccessSerializer
+
+
+class ProjectVerifyAccessAPIView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = ProjectVerifyAccessSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = User.objects.filter(
+            username=serializer.validated_data["username"]
+        ).first()
+        if not user or not user.check_password(serializer.validated_data["password"]):
+            return Response(
+                {"allowed": False, "reason": "Invalid credentials"}, status=403
+            )
+        project = Project.objects.filter(
+            namespace=serializer.validated_data["namespace"]
+        ).first()
+        if not project:
+            return Response(
+                {"allowed": False, "reason": "Project not found"}, status=404
+            )
+
+        if project.visibility == "private":
+            # Check for permissions
+            if not ProjectPermission.objects.filter(
+                project=project, user=user
+            ).exists():
+                return Response(
+                    {"allowed": False, "reason": "Access denied"}, status=403
+                )
+
+        # TODO: Further check if service is allowed for this user/project
+        return Response({"allowed": True, "reason": "Access granted"})
 
 
 class ProjectNewView(LoginRequiredMixin, View):

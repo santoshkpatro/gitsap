@@ -15,10 +15,15 @@ from gitsap.projects.views import (
     ProjectTreeResolveView,
     ProjectBlobResolveView,
     ProjectBranchesView,
+    ProjectVerifyAccessAPIView,
 )
 
 
 # fmt: off
+api_urlpatterns = [
+    path("internal/projects/verify-access/", ProjectVerifyAccessAPIView.as_view(), name="api-project-verify-access"),
+]
+
 project_urlpattern = [
     path("tree/<str:branch>/", ProjectTreeResolveView.as_view(), name="project-root-tree"),
     path("tree/<str:branch>/<path:nodepath>/", ProjectTreeResolveView.as_view(), name="project-tree"),
@@ -28,6 +33,7 @@ project_urlpattern = [
 ]
 
 urlpatterns = [
+    path("api/", include(api_urlpatterns)),
     path("users/register/", RegisterView.as_view(), name="users-register"),
     path("users/login/", LoginView.as_view(), name="users-login"),
     path("users/logout/", LogoutView.as_view(), name="users-logout"),

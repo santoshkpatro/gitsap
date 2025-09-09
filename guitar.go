@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -13,7 +14,42 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
+type verifyResponse struct {
+	Allowed bool   `json:"allowed"`
+	Reason  string `json:"reason"`
+}
+
 var repoBasePath string
+var applicationUrl string
+
+// verifyWithAuthService calls the Django internal auth endpoint
+func verifyWithAuthService(username, password, namespace, service string) (bool, string, error) {
+	url := fmt.Sprintf("%s/api/internal/projects/verify-access/", applicationUrl)
+
+	payload := fmt.Sprintf(
+		`{"username":"%s","password":"%s","namespace":"%s","service":"%s"}`,
+		username, password, namespace, service,
+	)
+
+	req, err := http.NewRequest("POST", url, strings.NewReader(payload))
+	if err != nil {
+		return false, "request build failed", err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return false, "auth service unreachable", err
+	}
+	defer resp.Body.Close()
+
+	var result verifyResponse
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return false, "invalid auth service response", err
+	}
+
+	return result.Allowed, result.Reason, nil
+}
 
 func main() {
 	// Load .env file if present
@@ -23,6 +59,10 @@ func main() {
 	repoBasePath = os.Getenv("REPO_STORAGE_PATH")
 	if repoBasePath == "" {
 		repoBasePath = "./var/repos"
+	}
+	applicationUrl = os.Getenv("BASE_URL")
+	if applicationUrl == "" {
+		applicationUrl = "http://localhost:8000"
 	}
 
 	// Create repos directory if it doesn't exist
@@ -46,8 +86,27 @@ func main() {
 		namespace := fmt.Sprintf("%s/%s", handle, slug)
 		repoPath := filepath.Join(repoBasePath, handle, slug+".git")
 
+		// 🔒 Basic Auth check
+		username, password, ok := c.Request().BasicAuth()
+		if !ok {
+			c.Response().Header().Set("WWW-Authenticate", `Basic realm="Git Server"`)
+			return c.String(http.StatusUnauthorized, "Authentication required")
+		}
+
+		fmt.Println("Username", username)
+		fmt.Println("Password", password)
+
 		fmt.Println("🎸 Git discovery request received!")
 		fmt.Printf("➡️  Namespace: %s, Service=%s, RepoPath=%s\n", namespace, service, repoPath)
+
+		// 🔒 Verify with Django service
+		allowed, reason, err := verifyWithAuthService(username, password, namespace, service)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, reason)
+		}
+		if !allowed {
+			return c.String(http.StatusForbidden, reason)
+		}
 
 		// Check if repository exists
 		if _, err := os.Stat(repoPath); os.IsNotExist(err) {
