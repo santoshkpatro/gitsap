@@ -22,16 +22,22 @@ type verifyResponse struct {
 var repoBasePath string
 var applicationUrl string
 
-// verifyWithAuthService calls the Django internal auth endpoint
 func verifyWithAuthService(username, password, namespace, service string) (bool, string, error) {
 	url := fmt.Sprintf("%s/api/internal/projects/verify-access/", applicationUrl)
 
-	payload := fmt.Sprintf(
-		`{"username":"%s","password":"%s","namespace":"%s","service":"%s"}`,
-		username, password, namespace, service,
-	)
+	payload := map[string]string{
+		"username":  username,
+		"password":  password,
+		"namespace": namespace,
+		"service":   service,
+	}
 
-	req, err := http.NewRequest("POST", url, strings.NewReader(payload))
+	jsonPayload, err := json.Marshal(payload)
+	if err != nil {
+		return false, "internal error", err
+	}
+
+	req, err := http.NewRequest("POST", url, strings.NewReader(string(jsonPayload)))
 	if err != nil {
 		return false, "request build failed", err
 	}
@@ -52,10 +58,8 @@ func verifyWithAuthService(username, password, namespace, service string) (bool,
 }
 
 func main() {
-	// Load .env file if present
 	_ = godotenv.Load()
 
-	// Get REPO_STORAGE_PATH (default ./var/repos)
 	repoBasePath = os.Getenv("REPO_STORAGE_PATH")
 	if repoBasePath == "" {
 		repoBasePath = "./var/repos"
@@ -65,155 +69,121 @@ func main() {
 		applicationUrl = "http://localhost:8000"
 	}
 
-	// Create repos directory if it doesn't exist
-	if err := os.MkdirAll(repoBasePath, 0755); err != nil {
-		fmt.Printf("Error creating repos directory: %v\n", err)
-		os.Exit(1)
-	}
+	os.MkdirAll(repoBasePath, 0755)
 
 	e := echo.New()
-
-	// Add middleware for better debugging
-	// e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+	// e.Use(middleware.Logger())
 
-	// Discovery for fetch/clone
+	// Health check
+	e.GET("/health", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
+	})
+
+	// info/refs (discovery)
 	e.GET("/:handle/:slug/info/refs", func(c echo.Context) error {
 		service := c.QueryParam("service")
 		handle := c.Param("handle")
 		slug := strings.TrimSuffix(c.Param("slug"), ".git")
-
 		namespace := fmt.Sprintf("%s/%s", handle, slug)
 		repoPath := filepath.Join(repoBasePath, handle, slug+".git")
 
-		// 🔒 Basic Auth check
+		// Only authenticate for info/refs
 		username, password, ok := c.Request().BasicAuth()
 		if !ok {
 			c.Response().Header().Set("WWW-Authenticate", `Basic realm="Git Server"`)
 			return c.String(http.StatusUnauthorized, "Authentication required")
 		}
 
-		fmt.Println("Username", username)
-		fmt.Println("Password", password)
-
-		fmt.Println("🎸 Git discovery request received!")
-		fmt.Printf("➡️  Namespace: %s, Service=%s, RepoPath=%s\n", namespace, service, repoPath)
-
-		// 🔒 Verify with Django service
 		allowed, reason, err := verifyWithAuthService(username, password, namespace, service)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, reason)
+			return c.String(http.StatusInternalServerError, reason)
 		}
 		if !allowed {
 			return c.String(http.StatusForbidden, reason)
 		}
 
-		// Check if repository exists
 		if _, err := os.Stat(repoPath); os.IsNotExist(err) {
 			return c.String(http.StatusNotFound, "Repository not found")
 		}
 
+		var contentType string
 		var cmd *exec.Cmd
+
 		switch service {
 		case "git-upload-pack":
-			c.Response().Header().Set("Content-Type", "application/x-git-upload-pack-advertisement")
-			c.Response().Header().Set("Cache-Control", "no-cache")
+			contentType = "application/x-git-upload-pack-advertisement"
 			cmd = exec.Command("git", "upload-pack", "--stateless-rpc", "--advertise-refs", repoPath)
 		case "git-receive-pack":
-			c.Response().Header().Set("Content-Type", "application/x-git-receive-pack-advertisement")
-			c.Response().Header().Set("Cache-Control", "no-cache")
+			contentType = "application/x-git-receive-pack-advertisement"
 			cmd = exec.Command("git", "receive-pack", "--stateless-rpc", "--advertise-refs", repoPath)
 		default:
 			return c.String(http.StatusBadRequest, "unsupported service")
 		}
 
-		// Write required pkt-line header before Git's output
+		c.Response().Header().Set("Content-Type", contentType)
+		c.Response().Header().Set("Cache-Control", "no-cache")
 		c.Response().WriteHeader(http.StatusOK)
-		fmt.Fprintf(c.Response(), "001e# service=%s\n0000", service)
+
+		serviceRef := fmt.Sprintf("# service=%s\n", service)
+		pktLen := fmt.Sprintf("%04x", len(serviceRef)+4)
+		pktLine := pktLen + serviceRef + "0000"
+		c.Response().Write([]byte(pktLine))
 		c.Response().Flush()
 
-		cmd.Stdout = c.Response()
+		cmd.Stdout = c.Response().Writer
 		cmd.Stderr = os.Stderr
+		cmd.Run()
 
-		if err := cmd.Run(); err != nil {
-			fmt.Printf("Error running git command: %v\n", err)
-			return echo.NewHTTPError(http.StatusInternalServerError, "Git command failed")
-		}
 		return nil
 	})
 
-	// Upload-pack (fetch/clone)
+	// git-upload-pack (clone/fetch)
 	e.POST("/:handle/:slug/git-upload-pack", func(c echo.Context) error {
 		handle := c.Param("handle")
 		slug := strings.TrimSuffix(c.Param("slug"), ".git")
-		namespace := fmt.Sprintf("%s/%s", handle, slug)
 		repoPath := filepath.Join(repoBasePath, handle, slug+".git")
 
-		fmt.Println("📦 Git upload-pack request received!")
-		fmt.Printf("➡️  Namespace: %s, RepoPath: %s\n", namespace, repoPath)
-
-		// Check if repository exists
 		if _, err := os.Stat(repoPath); os.IsNotExist(err) {
 			return c.String(http.StatusNotFound, "Repository not found")
 		}
 
-		// Set correct content type and headers
 		c.Response().Header().Set("Content-Type", "application/x-git-upload-pack-result")
 		c.Response().Header().Set("Cache-Control", "no-cache")
+		c.Response().WriteHeader(http.StatusOK)
 
 		cmd := exec.Command("git", "upload-pack", "--stateless-rpc", repoPath)
-		cmd.Stdin = c.Request().Body // client request → git stdin
-		cmd.Stdout = c.Response()    // git stdout → client response
-		cmd.Stderr = os.Stderr       // debug
+		cmd.Stdin = c.Request().Body
+		cmd.Stdout = c.Response().Writer
+		cmd.Stderr = os.Stderr
+		cmd.Run()
 
-		if err := cmd.Run(); err != nil {
-			fmt.Printf("Error running git upload-pack: %v\n", err)
-			return echo.NewHTTPError(http.StatusInternalServerError, "Git upload-pack failed")
-		}
 		return nil
 	})
 
-	// Receive-pack (push)
+	// git-receive-pack (push)
 	e.POST("/:handle/:slug/git-receive-pack", func(c echo.Context) error {
 		handle := c.Param("handle")
 		slug := strings.TrimSuffix(c.Param("slug"), ".git")
-		namespace := fmt.Sprintf("%s/%s", handle, slug)
 		repoPath := filepath.Join(repoBasePath, handle, slug+".git")
 
-		fmt.Println("📤 Git receive-pack request received!")
-		fmt.Printf("➡️  Namespace: %s, RepoPath: %s\n", namespace, repoPath)
-
-		// Check if repository exists, create if it doesn't
 		if _, err := os.Stat(repoPath); os.IsNotExist(err) {
-			// Create the directory structure
-			if err := os.MkdirAll(filepath.Dir(repoPath), 0755); err != nil {
-				return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create repository directory")
-			}
-
-			// Initialize bare repository
-			initCmd := exec.Command("git", "init", "--bare", repoPath)
-			if err := initCmd.Run(); err != nil {
-				fmt.Printf("Error initializing bare repository: %v\n", err)
-				return echo.NewHTTPError(http.StatusInternalServerError, "Failed to initialize repository")
-			}
+			return c.String(http.StatusNotFound, "Repository not found")
 		}
 
-		// Set correct content type and headers
 		c.Response().Header().Set("Content-Type", "application/x-git-receive-pack-result")
 		c.Response().Header().Set("Cache-Control", "no-cache")
+		c.Response().WriteHeader(http.StatusOK)
 
 		cmd := exec.Command("git", "receive-pack", "--stateless-rpc", repoPath)
-		cmd.Stdin = c.Request().Body // client request → git stdin
-		cmd.Stdout = c.Response()    // git stdout → client response
-		cmd.Stderr = os.Stderr       // debug
+		cmd.Stdin = c.Request().Body
+		cmd.Stdout = c.Response().Writer
+		cmd.Stderr = os.Stderr
+		cmd.Run()
 
-		if err := cmd.Run(); err != nil {
-			fmt.Printf("Error running git receive-pack: %v\n", err)
-			return echo.NewHTTPError(http.StatusInternalServerError, "Git receive-pack failed")
-		}
 		return nil
 	})
 
-	fmt.Println("🎸 Guitar server strumming on http://localhost:3000 ...")
+	fmt.Println("🎸 Guitar server strumming on http://localhost:3000")
 	e.Logger.Fatal(e.Start(":3000"))
 }

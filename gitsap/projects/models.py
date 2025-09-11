@@ -166,7 +166,6 @@ class Project(BaseModel):
 
         return repo_path
 
-    @transaction.atomic
     @classmethod
     def initialize(
         cls, *, name, owner_user=None, owner_org=None, created_by=None, **kwargs
