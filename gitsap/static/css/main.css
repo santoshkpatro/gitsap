@@ -1,0 +1,136 @@
+:root {
+    --gs-navbar-height: 52px;
+    --gs-sidebar-width: 220px;
+
+    --color-bg: #f9f9f9;
+    --color-surface: #ffffff;
+    --color-border: #e5e7eb;
+    --color-text: #111827;
+    --color-text-muted: #6b7280;
+    --color-primary: #111827;
+    --color-primary-hover: #1f2937;
+    --color-active-bg: #f3f4f6;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+    font-size: 0.875rem;
+}
+
+/* Lucide icon sizing */
+.gs-icon {
+    width: 15px;
+    height: 15px;
+    stroke-width: 1.75;
+    flex-shrink: 0;
+}
+
+/* ── Top navbar ─────────────────────────────────────────── */
+.gs-navbar {
+    height: var(--gs-navbar-height);
+    background-color: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.gs-navbar .navbar-brand {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--color-text);
+    letter-spacing: -0.2px;
+}
+
+.gs-navbar-icon {
+    color: var(--color-text-muted);
+    padding: 0.25rem;
+    line-height: 1;
+}
+
+.gs-navbar-icon:hover {
+    color: var(--color-text);
+}
+
+.gs-navbar-username {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-text);
+}
+
+.gs-navbar-username:hover {
+    color: var(--color-text-muted);
+}
+
+/* ── Sidebar ────────────────────────────────────────────── */
+.gs-sidebar {
+    width: var(--gs-sidebar-width);
+    min-height: calc(100vh - var(--gs-navbar-height));
+    background-color: var(--color-surface);
+    border-right: 1px solid var(--color-border);
+}
+
+.gs-sidebar-project {
+    border-bottom: 1px solid var(--color-border);
+}
+
+.gs-sidebar-namespace {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-text);
+    letter-spacing: -0.1px;
+}
+
+.gs-sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    padding: 0.45rem 0.6rem;
+    border-radius: 6px;
+    transition: background-color 0.1s, color 0.1s;
+    text-decoration: none;
+}
+
+.gs-sidebar-link:hover {
+    background-color: var(--color-active-bg);
+    color: var(--color-text);
+}
+
+.gs-sidebar-link.active {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.gs-sidebar-link.active .gs-icon {
+    stroke: #ffffff;
+}
+
+/* ── Main content ───────────────────────────────────────── */
+.gs-main {
+    padding: 1.75rem 2rem;
+}
+
+/* ── Footer ─────────────────────────────────────────────── */
+.gs-footer {
+    background-color: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    padding: 0.875rem 0;
+}
+
+.gs-footer a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+}
+
+.gs-footer a:hover {
+    color: var(--color-text);
+}
