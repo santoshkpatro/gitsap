@@ -1,0 +1,65 @@
+:root {
+    --bs-body-font-family: "Inter", sans-serif;
+
+    /* single source of truth for the brand primary color */
+    --gs-primary: #123b6d;
+    --gs-primary-rgb: 18, 59, 109;
+    --gs-primary-bg-subtle: #d0d8e2;
+
+    /* Bootstrap theme vars, derived from --gs-* above. Shades below are
+       precomputed (Bootstrap's own shade/tint %s applied to --gs-primary) —
+       if --gs-primary changes, these need to be recomputed by hand too. */
+    --bs-primary: var(--gs-primary);
+    --bs-primary-rgb: var(--gs-primary-rgb);
+    --bs-primary-text-emphasis: #07182c;
+    --bs-primary-bg-subtle: var(--gs-primary-bg-subtle);
+    --bs-primary-border-subtle: #a0b1c5;
+
+    --bs-link-color: var(--gs-primary);
+    --bs-link-color-rgb: var(--gs-primary-rgb);
+    --bs-link-hover-color: #0e2f57;
+    --bs-link-hover-color-rgb: 14, 47, 87;
+}
+
+body {
+    font-family: var(--bs-body-font-family);
+}
+
+/* .btn-primary sets its own local --bs-btn-* vars with literal values, so it needs a direct override */
+.btn-primary {
+    --bs-btn-bg: var(--gs-primary);
+    --bs-btn-border-color: var(--gs-primary);
+    --bs-btn-hover-bg: #0f325d;
+    --bs-btn-hover-border-color: #0e2f57;
+    --bs-btn-active-bg: #0e2f57;
+    --bs-btn-active-border-color: #0e2c52;
+    --bs-btn-focus-shadow-rgb: 54, 88, 131;
+    --bs-btn-disabled-bg: var(--gs-primary);
+    --bs-btn-disabled-border-color: var(--gs-primary);
+    --bs-btn-focus-box-shadow: none;
+}
+
+/* also hardcoded by Bootstrap, not var-based */
+.form-check-input:checked {
+    background-color: var(--gs-primary);
+    border-color: var(--gs-primary);
+}
+
+/* .form-control:focus is also fully hardcoded (border-color + box-shadow), no vars to hook into */
+.form-control:focus {
+    border-color: var(--gs-primary);
+    /* inset shadow reads as a thicker border without changing border-width,
+       so it can't affect layout/box size — grows inward only, never outward */
+    box-shadow: inset 0 0 0 1px var(--gs-primary);
+}
+
+.alert-slim {
+    --bs-alert-padding-y: 0.4rem;
+    --bs-alert-padding-x: 0.75rem;
+    --bs-alert-margin-bottom: 0.75rem;
+    --bs-alert-border-radius: 0;
+    font-size: 0.875rem;
+    /* solid tint through 95%, fades to white only in the last 5% */
+    background: linear-gradient(to bottom, var(--bs-alert-bg) 0%, var(--bs-alert-bg) 95%, #fff 100%);
+    border: 0;
+}

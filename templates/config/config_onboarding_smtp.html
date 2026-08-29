@@ -1,0 +1,145 @@
+{% extends 'common/base_minimal.html' %}
+
+{% block extra_styles %}
+<style>
+    .gs-alert-stack {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1080;
+    }
+</style>
+{% endblock extra_styles %}
+
+{% block main %}
+
+<div class="gs-alert-stack">
+    {% include 'partials/_alerts.html' %}
+</div>
+
+<div class="min-vh-100 d-flex align-items-center justify-content-center py-5">
+    <div class="w-100" style="max-width: 480px; min-height: 480px;">
+        <div class="text-center mb-4">
+            <h1 class="h3 fw-semibold mb-2">
+                Configure email delivery
+            </h1>
+
+            <p class="text-body-secondary mb-0">
+                Connect an SMTP provider so gitsap can send email. You can skip this and set it up later.
+            </p>
+        </div>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="form-check mb-3">
+                {{ form.enabled }}
+                <label for="{{ form.enabled.id_for_label }}" class="form-check-label">
+                    {{ form.enabled.label }}
+                </label>
+
+                {% if form.enabled.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.enabled.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.host.label_tag }}
+                {{ form.host }}
+
+                {% if form.host.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.host.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.port.label_tag }}
+                {{ form.port }}
+
+                {% if form.port.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.port.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.username.label_tag }}
+                {{ form.username }}
+
+                {% if form.username.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.username.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.password.label_tag }}
+                {{ form.password }}
+
+                {% if form.password.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.password.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.encryption.label_tag }}
+                {{ form.encryption }}
+
+                {% if form.encryption.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.encryption.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-4">
+                {{ form.default_from_email.label_tag }}
+                {{ form.default_from_email }}
+
+                {% if form.default_from_email.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.default_from_email.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                {% if prev_step_name != None %}
+                <a href="{% url 'config-onboarding' step=prev_step_name %}" class="btn btn-outline-secondary">
+                    Previous
+                </a>
+                {% endif %}
+
+                <button type="submit" class="btn btn-primary">
+                    Next
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+{% endblock main %}

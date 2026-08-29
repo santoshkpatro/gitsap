@@ -1,0 +1,117 @@
+{% extends 'common/base_minimal.html' %}
+
+{% block extra_styles %}
+<style>
+    .gs-alert-stack {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1080;
+    }
+</style>
+{% endblock extra_styles %}
+
+{% block main %}
+
+<div class="gs-alert-stack">
+    {% include 'partials/_alerts.html' %}
+</div>
+
+<div class="min-vh-100 d-flex align-items-center justify-content-center py-5">
+    <div class="w-100" style="max-width: 480px; min-height: 480px;">
+        <div class="text-center mb-4">
+            <h1 class="h3 fw-semibold mb-2">
+                Create the admin account
+            </h1>
+
+            <p class="text-body-secondary mb-0">
+                This account will have full access to manage the instance.
+            </p>
+        </div>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="mb-3">
+                {{ form.username.label_tag }}
+                {{ form.username }}
+
+                {% if form.username.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.username.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.email_address.label_tag }}
+                {{ form.email_address }}
+
+                {% if form.email_address.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.email_address.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.full_name.label_tag }}
+                {{ form.full_name }}
+
+                {% if form.full_name.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.full_name.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.password.label_tag }}
+                {{ form.password }}
+
+                {% if form.password.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.password.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-4">
+                {{ form.confirm_password.label_tag }}
+                {{ form.confirm_password }}
+
+                {% if form.confirm_password.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.confirm_password.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                {% if prev_step_name != None %}
+                <a href="{% url 'config-onboarding' step=prev_step_name %}" class="btn btn-outline-secondary">
+                    Previous
+                </a>
+                {% endif %}
+
+                <button type="submit" class="btn btn-primary">
+                    Next
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+{% endblock main %}

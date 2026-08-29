@@ -1,0 +1,46 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" href="{% static 'common/images/favicon.ico' %}" type="image/x-icon">
+    
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'common/css/bootstrap.min.css' %}">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'common/css/base.css' %}">
+
+    {% block extra_styles %}
+    {% endblock extra_styles %}
+    
+    <title>GitSap</title>
+</head>
+
+<body>
+    {% block main %}
+    {% endblock main %}
+
+    <!-- Bootstrap JS -->
+    <script src="{% static 'common/js/bootstrap.bundle.min.js' %}"></script>
+
+    <!-- HTMX -->
+     <script src="{% static 'common/js/htmx.min.js' %}"></script>
+
+    <!-- Custom JS -->
+    <script src="{% static 'common/js/base.js' %}"></script>
+
+    {% block extra_scripts %}
+    {% endblock extra_scripts %}
+</body>
+
+</html>
