@@ -50,11 +50,14 @@ INSTALLED_APPS = [
     "gitsap.merge_requests",
     "gitsap.pipelines",
     "gitsap.projects",
-    "gitsap.repos",
+    "gitsap.repositories",
     "gitsap.ssh",
     "gitsap.vault",
     "gitsap.artifacts",
     "gitsap.root",
+    "gitsap.events",
+    "gitsap.insights",
+    "gitsap.wiki",
 ]
 
 MIDDLEWARE = [

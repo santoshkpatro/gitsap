@@ -21,6 +21,10 @@
 <div class="min-vh-100 d-flex align-items-center justify-content-center py-5">
     <div class="w-100" style="max-width: 480px; min-height: 480px;">
         <div class="text-center mb-4">
+            <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary mb-3" style="width: 56px; height: 56px;">
+                <i data-lucide="shield-check" style="width: 28px; height: 28px;"></i>
+            </div>
+
             <h1 class="h3 fw-semibold mb-2">
                 Create the admin account
             </h1>
@@ -100,13 +104,15 @@
 
             <div class="d-flex justify-content-end gap-2">
                 {% if prev_step_name != None %}
-                <a href="{% url 'config-onboarding' step=prev_step_name %}" class="btn btn-outline-secondary">
+                <a href="{% url 'config-onboarding' step=prev_step_name %}" class="btn btn-outline-secondary d-inline-flex align-items-center gap-1">
+                    <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i>
                     Previous
                 </a>
                 {% endif %}
 
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-1">
                     Next
+                    <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
                 </button>
             </div>
 

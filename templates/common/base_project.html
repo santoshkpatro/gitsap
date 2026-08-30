@@ -1,0 +1,276 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" href="{% static 'common/images/favicon.ico' %}" type="image/x-icon">
+
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'common/css/bootstrap.min.css' %}">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'common/css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'common/css/base_project.css' %}">
+
+    {% block extra_styles %}
+    {% endblock extra_styles %}
+
+    <title>{% block title %}GitSap{% endblock title %}</title>
+</head>
+
+<body>
+
+    <!-- Topbar -->
+    <header class="gs-topbar">
+        <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-sm btn-link text-body-secondary p-1 lh-1 d-lg-none"
+                    type="button"
+                    data-bs-toggle="offcanvas"
+                    data-bs-target="#gsSidebar"
+                    aria-controls="gsSidebar"
+                    aria-label="Toggle navigation">
+                <i data-lucide="menu" style="width: 20px; height: 20px;"></i>
+            </button>
+
+            <a href="{% url 'root-home' %}" class="gs-brand">
+                <span class="gs-brand-mark">
+                    <i data-lucide="git-branch"></i>
+                </span>
+
+                <span class="gs-brand-text">
+                    <span class="gs-brand-name">GitSap</span>
+                    <span class="gs-brand-org">
+                        <i data-lucide="building-2"></i>
+                        {{ config.organization_name }}
+                    </span>
+                </span>
+            </a>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            {% if request.user.is_authenticated %}
+
+            <div class="dropdown">
+                <button class="btn btn-sm btn-primary gs-new-btn" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false" aria-label="Create new">
+                    <i data-lucide="plus"></i>
+                    New
+                    <i data-lucide="chevron-down" class="gs-caret"></i>
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-end gs-dropdown">
+                    <li>
+                        <a class="dropdown-item" href="{% url 'project-new' %}">
+                            <i data-lucide="folder-plus"></i>
+                            New project
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <i data-lucide="folder-git-2"></i>
+                            New repository
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <i data-lucide="circle-dot"></i>
+                            New issue
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <form class="gs-search d-none d-md-flex" role="search" action="#">
+                <i data-lucide="search"></i>
+                <input type="search" name="q" class="form-control" placeholder="Search" aria-label="Search">
+            </form>
+
+            <div class="dropdown">
+                <button class="gs-avatar" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false" aria-label="Account menu">
+                    {{ request.user.full_name|first|upper }}
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-end gs-dropdown">
+                    <li class="gs-dropdown-user">
+                        <span class="gs-dropdown-name">{{ request.user.full_name }}</span>
+                        <span class="gs-dropdown-sub">{{ request.user.email_address }}</span>
+                    </li>
+
+                    <li><hr class="dropdown-divider"></li>
+
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <i data-lucide="user-round"></i>
+                            Profile
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <i data-lucide="settings"></i>
+                            Preferences
+                        </a>
+                    </li>
+
+                    <li><hr class="dropdown-divider"></li>
+
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <i data-lucide="log-out"></i>
+                            Sign out
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            {% else %}
+
+            {# TODO: point these at the real about / login routes once they exist #}
+            <a href="#" class="gs-topbar-link">About GitSap</a>
+
+            <a href="#" class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1">
+                <i data-lucide="log-in" style="width: 16px; height: 16px;"></i>
+                Login
+            </a>
+
+            {% endif %}
+        </div>
+    </header>
+
+    <div class="gs-shell">
+
+        <!-- Sidebar -->
+        <aside class="gs-sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="gsSidebar"
+               aria-labelledby="gsSidebarLabel">
+            <div class="offcanvas-header border-bottom d-lg-none">
+                <h6 class="offcanvas-title mb-0" id="gsSidebarLabel">Menu</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
+                        data-bs-target="#gsSidebar" aria-label="Close"></button>
+            </div>
+
+            <div class="offcanvas-body gs-sidebar-body">
+                <nav class="gs-nav" aria-label="Project navigation">
+                    <a href="#" class="gs-nav-link active" aria-current="page">
+                        <i data-lucide="layout-dashboard"></i>
+                        Overview
+                    </a>
+
+                    <a href="#" class="gs-nav-link">
+                        <i data-lucide="folder-git-2"></i>
+                        Repositories
+                    </a>
+
+                    <a href="#" class="gs-nav-link">
+                        <i data-lucide="circle-dot"></i>
+                        Issues
+                    </a>
+
+                    <a href="#" class="gs-nav-link">
+                        <i data-lucide="git-merge"></i>
+                        Merge Requests
+                    </a>
+
+                    <a href="#" class="gs-nav-link">
+                        <i data-lucide="workflow"></i>
+                        Pipelines
+                    </a>
+
+                    <a href="#" class="gs-nav-link">
+                        <i data-lucide="square-terminal"></i>
+                        Jobs
+                    </a>
+
+                    <a href="#" class="gs-nav-link">
+                        <i data-lucide="package"></i>
+                        Artifacts
+                    </a>
+
+                    <a href="#" class="gs-nav-link">
+                        <i data-lucide="lock-keyhole"></i>
+                        Vault
+                    </a>
+
+                    <a href="#" class="gs-nav-link">
+                        <i data-lucide="book-text"></i>
+                        Wiki
+                    </a>
+
+                    <a href="#" class="gs-nav-link">
+                        <i data-lucide="lightbulb"></i>
+                        Insights
+                    </a>
+
+                    <a href="#" class="gs-nav-link">
+                        <i data-lucide="activity"></i>
+                        Events
+                    </a>
+
+                    <a href="#" class="gs-nav-link">
+                        <i data-lucide="bell"></i>
+                        Notifications
+                    </a>
+
+                    <a href="#" class="gs-nav-link">
+                        <i data-lucide="users"></i>
+                        Members
+                    </a>
+
+                    <a href="#" class="gs-nav-link">
+                        <i data-lucide="settings"></i>
+                        Settings
+                    </a>
+                </nav>
+            </div>
+
+            <div class="gs-sidebar-footer">
+                <a class="gs-meta" href="mailto:{{ config.support_email_address }}" title="Support">
+                    <i data-lucide="life-buoy"></i>
+                    <span class="gs-meta-text">{{ config.support_email_address }}</span>
+                </a>
+
+                <div class="gs-meta" title="Application version">
+                    <i data-lucide="tag"></i>
+                    <span class="gs-meta-text">v{{ config.application_version }}</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Content -->
+        <main class="gs-content">
+            {% include 'partials/_alerts.html' %}
+
+            <div class="gs-content-inner">
+                {% block content %}
+                {% endblock content %}
+            </div>
+        </main>
+
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="{% static 'common/js/bootstrap.bundle.min.js' %}"></script>
+
+    <!-- HTMX -->
+    <script src="{% static 'common/js/htmx.min.js' %}"></script>
+
+    <!-- Lucide Icons -->
+    <script src="{% static 'common/js/lucide.min.js' %}"></script>
+
+    <!-- Custom JS -->
+    <script src="{% static 'common/js/base.js' %}"></script>
+    <script src="{% static 'common/js/base_project.js' %}"></script>
+
+    {% block extra_scripts %}
+    {% endblock extra_scripts %}
+</body>
+
+</html>

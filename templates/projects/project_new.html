@@ -1,0 +1,108 @@
+{% extends 'common/base_minimal.html' %}
+
+{% block extra_styles %}
+<style>
+    .gs-alert-stack {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1080;
+    }
+</style>
+{% endblock extra_styles %}
+
+{% block main %}
+
+<div class="gs-alert-stack">
+    {% include 'partials/_alerts.html' %}
+</div>
+
+<div class="min-vh-100 d-flex align-items-center justify-content-center py-5">
+    <div class="w-100" style="max-width: 480px;">
+        <div class="text-center mb-4">
+            <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary mb-3" style="width: 56px; height: 56px;">
+                <i data-lucide="folder-plus" style="width: 28px; height: 28px;"></i>
+            </div>
+
+            <h1 class="h3 fw-semibold mb-2">
+                Create a new project
+            </h1>
+
+            <p class="text-body-secondary mb-0">
+                Give your project some basic information to get started.
+            </p>
+        </div>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="mb-3">
+                {{ form.name.label_tag }}
+                {{ form.name }}
+
+                {% if form.name.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.name.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.description.label_tag }}
+                {{ form.description }}
+
+                {% if form.description.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.description.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-4">
+                <label for="{{ form.visibility.id_for_label }}" class="form-label d-inline-flex align-items-center gap-1">
+                    Visibility
+                    <button type="button"
+                            class="btn btn-link p-0 border-0 text-body-secondary lh-1"
+                            data-bs-toggle="popover"
+                            data-bs-trigger="focus"
+                            data-bs-placement="right"
+                            data-bs-html="true"
+                            data-bs-container="body"
+                            data-bs-title="Visibility levels"
+                            data-bs-content="<ul class='mb-0 ps-3'><li class='mb-2'><strong>Public</strong> &mdash; anyone can view, even without logging in.</li><li class='mb-2'><strong>Private</strong> &mdash; only people with membership or explicit access can view.</li><li><strong>Internal</strong> &mdash; anyone logged in can view, no membership needed, but only members can perform actions.</li></ul>"
+                            aria-label="Visibility help">
+                        <i data-lucide="circle-help" style="width: 16px; height: 16px;"></i>
+                    </button>
+                </label>
+                {{ form.visibility }}
+
+                {% if form.visibility.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.visibility.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <a href="{% url 'root-home' %}" class="btn btn-outline-secondary">
+                    Cancel
+                </a>
+
+                <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-1">
+                    <i data-lucide="folder-plus" style="width: 16px; height: 16px;"></i>
+                    Create project
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+{% endblock main %}

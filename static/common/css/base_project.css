@@ -1,0 +1,427 @@
+/* Layout shell used by templates/common/base_project.html:
+   fixed-height topbar across the top, sticky sidebar on the left,
+   scrolling content on the right. */
+
+:root {
+    --gs-topbar-height: 56px;
+    --gs-sidebar-width: 220px;
+    --gs-surface: #fff;
+    --gs-shell-bg: #f8f9fa;
+
+    /* sidebar nav tokens */
+    --gs-nav-color: #4a5462;
+    --gs-nav-hover-color: var(--bs-primary-text-emphasis);
+    --gs-nav-accent-width: 4px;
+    --gs-nav-accent-height: 72%;
+    /* holds the pill just off the sidebar's own right border */
+    --gs-nav-accent-offset: 2px;
+    /* a shade darker than --gs-primary, so the marker reads harder than the
+       text it sits beside (matches --bs-link-hover-color in base.css) */
+    --gs-nav-accent: #0e2f57;
+    /* hover is the active treatment, faded back */
+    --gs-nav-accent-hover: rgba(var(--gs-primary-rgb), 0.32);
+    --gs-nav-bg-active: rgba(var(--gs-primary-rgb), 0.075);
+    --gs-nav-bg-hover: rgba(var(--gs-primary-rgb), 0.04);
+}
+
+body {
+    background-color: var(--gs-shell-bg);
+}
+
+/* ---------------------------------------------------------------- topbar */
+
+.gs-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 1035;
+    /* above the sticky sidebar, below the offcanvas backdrop (1040) */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    height: var(--gs-topbar-height);
+    padding: 0 1.25rem;
+    background-color: var(--gs-surface);
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.gs-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: var(--bs-primary-text-emphasis);
+}
+
+.gs-brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background-color: var(--gs-primary);
+    color: #fff;
+}
+
+.gs-brand-mark svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* product name over the instance's organization: reads as a self-hosted
+   deployment rather than a hosted service */
+.gs-brand-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+
+.gs-brand-name {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+}
+
+.gs-brand-org {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--bs-secondary-color);
+    /* a long organization name truncates instead of pushing the topbar wide */
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.gs-brand-org svg {
+    width: 11px;
+    height: 11px;
+    flex-shrink: 0;
+}
+
+.gs-topbar .btn {
+    --bs-btn-font-size: 0.8125rem;
+    --bs-btn-font-weight: 500;
+}
+
+.gs-topbar-link {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--gs-nav-color);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.gs-topbar-link:hover {
+    color: var(--gs-primary);
+}
+
+/* ------------------------------------------------------- topbar search */
+
+.gs-search {
+    position: relative;
+    align-items: center;
+    width: 240px;
+}
+
+.gs-search svg {
+    position: absolute;
+    left: 0.625rem;
+    width: 15px;
+    height: 15px;
+    color: var(--bs-secondary-color);
+    pointer-events: none;
+}
+
+.gs-search .form-control {
+    height: 34px;
+    /* left padding clears the absolutely positioned icon */
+    padding: 0 0.75rem 0 2rem;
+    font-size: 0.8125rem;
+    border-radius: 8px;
+    background-color: var(--bs-tertiary-bg);
+}
+
+.gs-search .form-control:focus {
+    background-color: var(--gs-surface);
+}
+
+/* --------------------------------------------- topbar buttons + avatar */
+
+.gs-new-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    height: 34px;
+    padding: 0 0.6875rem;
+    border-radius: 8px;
+}
+
+.gs-new-btn svg {
+    width: 15px;
+    height: 15px;
+}
+
+/* two classes, so it outweighs the rule above and stays smaller than the plus */
+.gs-new-btn .gs-caret {
+    width: 13px;
+    height: 13px;
+    margin-left: -0.0625rem;
+    opacity: 0.75;
+}
+
+.gs-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background-color: var(--gs-primary);
+    color: #fff;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.gs-avatar:hover,
+.gs-avatar[aria-expanded="true"] {
+    box-shadow: 0 0 0 3px var(--gs-nav-bg-active);
+}
+
+/* ----------------------------------------------------- topbar dropdown */
+
+.gs-dropdown {
+    --bs-dropdown-min-width: 208px;
+    --bs-dropdown-font-size: 0.8125rem;
+    --bs-dropdown-padding-y: 0.375rem;
+    --bs-dropdown-item-padding-y: 0.4375rem;
+    --bs-dropdown-border-color: var(--bs-border-color);
+    --bs-dropdown-border-radius: 10px;
+    --bs-dropdown-link-hover-bg: var(--gs-nav-bg-hover);
+    --bs-dropdown-link-hover-color: var(--gs-primary);
+    --bs-dropdown-link-active-bg: var(--gs-nav-bg-active);
+    --bs-dropdown-link-active-color: var(--gs-primary);
+    box-shadow: 0 8px 24px rgba(16, 24, 40, 0.12);
+}
+
+.gs-dropdown .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.gs-dropdown .dropdown-item svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    color: var(--bs-secondary-color);
+}
+
+.gs-dropdown .dropdown-item:hover svg {
+    color: var(--gs-primary);
+}
+
+.gs-dropdown-user {
+    display: flex;
+    flex-direction: column;
+    padding: 0.25rem 1rem 0.375rem;
+    /* the email is the long line here, so the block sets the menu's width */
+    max-width: 240px;
+}
+
+.gs-dropdown-name {
+    font-weight: 600;
+    color: var(--bs-body-color);
+}
+
+.gs-dropdown-sub {
+    font-size: 0.75rem;
+    color: var(--bs-secondary-color);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* --------------------------------------------------------------- shell */
+
+.gs-shell {
+    display: flex;
+    align-items: flex-start;
+    min-height: calc(100vh - var(--gs-topbar-height));
+}
+
+.gs-content {
+    /* min-width:0 stops wide children (tables, code) from blowing out the flex row */
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.gs-content-inner {
+    padding: 0.75rem;
+}
+
+/* -------------------------------------------------------------- sidebar */
+
+.gs-sidebar {
+    display: flex;
+    flex-direction: column;
+    /* Bootstrap forces .offcanvas-lg transparent with !important at lg+,
+       where the offcanvas is otherwise inert — so this has to shout back */
+    background-color: var(--gs-surface) !important;
+}
+
+/* no horizontal padding: nav rows run edge to edge so their right-hand
+   accent lands on the sidebar's own right border.
+   Scoped under .gs-sidebar to outweigh `.offcanvas-lg .offcanvas-body`,
+   which zeroes the padding and the flex-grow at lg+. */
+.gs-sidebar .gs-sidebar-body {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    padding: 0.375rem 0 0;
+    /* the nav scrolls, the footer below it does not */
+    overflow-y: auto;
+}
+
+.gs-nav {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+/* ------------------------------------------------------- sidebar footer */
+
+/* sits outside the scrolling body, so it stays pinned to the bottom of the
+   sidebar however long the nav gets */
+.gs-sidebar-footer {
+    flex-shrink: 0;
+    padding: 0.75rem 1.25rem 1rem;
+    border-top: 1px solid var(--bs-border-color);
+}
+
+.gs-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.1875rem 0;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--bs-secondary-color);
+    text-decoration: none;
+}
+
+.gs-meta svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+    opacity: 0.85;
+}
+
+.gs-meta-text {
+    /* long org names / emails truncate rather than wrap the row */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+a.gs-meta:hover {
+    color: var(--gs-primary);
+}
+
+.gs-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.5rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--gs-nav-color);
+    text-decoration: none;
+    /* the accent lives on ::after, not on a border, so the row's box is
+       identical in every state and nothing shifts between them */
+    position: relative;
+    background-color: transparent;
+    transition: color 0.12s ease-in-out, background-color 0.12s ease-in-out;
+}
+
+/* the selection marker: a thin vertical pill pinned to the right edge of the
+   row, short of full height so it reads as a marker rather than a divider */
+.gs-nav-link::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: var(--gs-nav-accent-offset);
+    transform: translateY(-50%);
+    width: var(--gs-nav-accent-width);
+    height: var(--gs-nav-accent-height);
+    border-radius: 99px;
+    background-color: transparent;
+    transition: background-color 0.12s ease-in-out;
+}
+
+.gs-nav-link svg {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+    color: var(--bs-secondary-color);
+    transition: color 0.12s ease-in-out;
+}
+
+.gs-nav-link:hover {
+    color: var(--gs-nav-hover-color);
+    background-color: var(--gs-nav-bg-hover);
+}
+
+.gs-nav-link:hover::after {
+    background-color: var(--gs-nav-accent-hover);
+}
+
+.gs-nav-link:hover svg {
+    color: var(--gs-nav-hover-color);
+}
+
+.gs-nav-link:focus-visible {
+    outline: 2px solid var(--gs-primary);
+    outline-offset: -2px;
+}
+
+.gs-nav-link.active {
+    color: var(--gs-primary);
+    font-weight: 600;
+    background-color: var(--gs-nav-bg-active);
+}
+
+.gs-nav-link.active::after {
+    background-color: var(--gs-nav-accent);
+}
+
+.gs-nav-link.active svg {
+    color: var(--gs-primary);
+}
+
+/* ----------------------------------------------------------- responsive */
+
+/* At lg+ the offcanvas is inert, so the sidebar is a plain sticky column
+   that scrolls on its own under the topbar. */
+@media (min-width: 992px) {
+    .gs-sidebar {
+        position: sticky;
+        top: var(--gs-topbar-height);
+        flex: 0 0 var(--gs-sidebar-width);
+        width: var(--gs-sidebar-width);
+        height: calc(100vh - var(--gs-topbar-height));
+        border-right: 1px solid var(--bs-border-color);
+    }
+}
