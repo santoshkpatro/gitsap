@@ -12,14 +12,15 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 
 from pathlib import Path
 from django.contrib.messages import constants as message_constants
+from dotenv import load_dotenv
+
+# Load values from .env to environment
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-MESSAGE_TAGS = {
-    message_constants.ERROR: "danger",
-    message_constants.SUCCESS: "primary"
-}
+MESSAGE_TAGS = {message_constants.ERROR: "danger", message_constants.SUCCESS: "primary"}
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
@@ -58,7 +59,6 @@ INSTALLED_APPS = [
     "gitsap.events",
     "gitsap.insights",
     "gitsap.wiki",
-    "gitsap.notifications",
 ]
 
 MIDDLEWARE = [

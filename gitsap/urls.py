@@ -5,6 +5,7 @@ from gitsap.config.views import ConfigOnboardingView
 from gitsap.projects.views import ProjectNewView, ProjectDetailView
 from gitsap.root.views import RootHealthView, RootHomeView
 
+# fmt: off
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("config/onboarding/<str:step>/", ConfigOnboardingView.as_view(), name="config-onboarding"),

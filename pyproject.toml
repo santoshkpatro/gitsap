@@ -6,10 +6,12 @@ readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "celery>=5.6.3",
+    "dj-database-url>=3.1.2",
     "django>=6.1",
     "gunicorn>=26.1.0",
     "httpx>=0.28.1",
     "psycopg>=3.3.4",
+    "pygit2>=1.20.0",
     "python-dotenv>=1.2.3",
     "redis>=8.1.0",
     "whitenoise>=6.12.0",
@@ -18,4 +20,5 @@ dependencies = [
 [dependency-groups]
 dev = [
     "black>=26.5.1",
+    "pytest>=9.1.1",
 ]
